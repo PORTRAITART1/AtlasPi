@@ -1,0 +1,256 @@
+ROADMAP D'INTÉGRATION PiRC2 - AtlasPi
+
+═══════════════════════════════════════════════════════════════════════════════
+
+TIMELINE RECOMMANDÉE: 15-25 jours (environ 1 mois)
+
+═══════════════════════════════════════════════════════════════════════════════
+
+PHASE 0: PRÉPARATION (Jour 1-2)
+╔════════════════════════════════════════╗
+║ ✓ Obtenir PiRC2 Credentials            ║
+║   - Inscrire AtlasPi sur Pi Developer  ║
+║   - Récup: APP_ID, SDK_KEY, WEBHOOK_SK ║
+║                                        ║
+║ ✓ Setup Infrastructure HTTPS           ║
+║   - Certificat HTTPS (Let's Encrypt)   ║
+║   - Redirect URI configuration         ║
+║   - Webhook endpoint HTTPS             ║
+║                                        ║
+║ ✓ Configuration .env PiRC2             ║
+║   - PI_RC2_APP_ID                      ║
+║   - PI_RC2_SDK_KEY                     ║
+║   - PI_RC2_REDIRECT_URI                ║
+║   - PI_RC2_WEBHOOK_SECRET              ║
+║                                        ║
+║ Risque: BAS                            ║
+║ Go/No-Go Decision: Avant Phase 1       ║
+╚════════════════════════════════════════╝
+
+PHASE 1: AUTHENTIFICATION PiRC2 (Jour 3-10)
+╔════════════════════════════════════════╗
+║ ÉTAPE 1: Frontend Auth (Jour 3-5)     ║
+║ ├─ Importer Pi SDK officiel            ║
+║ ├─ Créer connectPiRC2User()            ║
+║ ├─ Implémenter PiRC2 scopes            ║
+║ ├─ Config mode switching               ║
+║ └─ Test flow complet                   ║
+║                                        ║
+║ ÉTAPE 2: Backend Token Val (Jour 6-8) ║
+║ ├─ Token signature verification        ║
+║ ├─ UID/wallet ownership check          ║
+║ ├─ Scope validation                    ║
+║ ├─ Session token generation            ║
+║ └─ Error handling                      ║
+║                                        ║
+║ ÉTAPE 3: Testing (Jour 9-10)          ║
+║ ├─ Testnet integration test            ║
+║ ├─ Token refresh flow                  ║
+║ ├─ Wallet ownership verification       ║
+║ └─ Security audit                      ║
+║                                        ║
+║ Risque: HAUT (auth critique)           ║
+║ Go/No-Go Decision: Avant Phase 2       ║
+║ Blockers: None (can rollback)          ║
+╚════════════════════════════════════════╝
+
+PHASE 2: PAIEMENTS PiRC2 (Jour 11-20)
+╔════════════════════════════════════════╗
+║ ÉTAPE 4: Payment Flow (Jour 11-14)    ║
+║ ├─ PiRC2 payment initiation            ║
+║ ├─ Server-side approval (signatures)   ║
+║ ├─ Completion with TXID validation     ║
+║ ├─ Refund support                      ║
+║ └─ Database schema update (if needed)  ║
+║                                        ║
+║ ÉTAPE 5: Webhooks (Jour 15-17)         ║
+║ ├─ Webhook endpoint implementation     ║
+║ ├─ Signature verification              ║
+║ ├─ Idempotency handling                ║
+║ ├─ Retry logic                         ║
+║ └─ Error recovery                      ║
+║                                        ║
+║ ÉTAPE 6: Testing (Jour 18-20)          ║
+║ ├─ Full payment flow test              ║
+║ ├─ Webhook delivery test               ║
+║ ├─ Refund flow test                    ║
+║ ├─ Error scenario test                 ║
+║ └─ Performance test                    ║
+║                                        ║
+║ Risque: HAUT (payments critical)       ║
+║ Go/No-Go Decision: Before Phase 3      ║
+║ Blockers: Testnet payments working     ║
+╚════════════════════════════════════════╝
+
+PHASE 3: SÉCURITÉ & CONFORMITÉ (Jour 21-25)
+╔════════════════════════════════════════╗
+║ ÉTAPE 7: Sécurité (Jour 21-22)         ║
+║ ├─ Security headers (PiRC2 spec)       ║
+║ ├─ CSRF token implementation           ║
+║ ├─ Rate limiting (PiRC2 levels)        ║
+║ ├─ Input validation audit              ║
+║ └─ Security review                     ║
+║                                        ║
+║ ÉTAPE 8: Données (Jour 23-24)          ║
+║ ├─ Consent form update (PiRC2 clause)  ║
+║ ├─ Data deletion API                   ║
+║ ├─ Data encryption (if sensitive)      ║
+║ ├─ Retention policy definition         ║
+║ └─ Audit trail setup                   ║
+║                                        ║
+║ ÉTAPE 9: Validation (Jour 25+)         ║
+║ ├─ PiRC2 checklist completion          ║
+║ ├─ Pi Core review                      ║
+║ ├─ Fix any violations                  ║
+║ ├─ Certification obtained              ║
+║ └─ Launch ready                        ║
+║                                        ║
+║ Risque: MOYEN (compliance)             ║
+║ Go/No-Go Decision: Before launch       ║
+║ Blockers: Pi Core approval             ║
+╚════════════════════════════════════════╝
+
+═══════════════════════════════════════════════════════════════════════════════
+
+ROLLBACK PLAN AT EACH PHASE
+
+Phase 0 Rollback:
+  → No code changes, just environment setup
+  → Easy rollback: Delete env vars, revert to HTTP
+
+Phase 1 Rollback:
+  → Keep demo auth code (already in place)
+  → Config AUTH_MODE="demo" to disable PiRC2
+  → Automatic fallback to old auth
+
+Phase 2 Rollback:
+  → Keep demo payment code (already in place)
+  → Config PAYMENT_MODE="demo" to disable PiRC2
+  → Automatic fallback to demo payments
+
+Phase 3 Rollback:
+  → Minor (security headers only)
+  → Easy to revert if violation found
+
+═══════════════════════════════════════════════════════════════════════════════
+
+RESOURCE ALLOCATION
+
+Recommended Team:
+  - 2 Backend Developers (Auth + Payments)
+  - 1 Frontend Developer (Auth UI + Config)
+  - 1 DevOps (HTTPS + Webhooks infrastructure)
+  - 1 Security reviewer (audits each phase)
+  - 1 Tester (integration + edge cases)
+
+Part-time OK:
+  - Requirements review (1 week, 1 person)
+  - Documentation (ongoing, 1 person)
+
+═══════════════════════════════════════════════════════════════════════════════
+
+KEY SUCCESS FACTORS
+
+1. PiRC2 Credentials First
+   → Without APP_ID/SDK_KEY, cannot proceed
+   → Contact Pi Core ASAP (1-2 weeks lead time)
+
+2. HTTPS Before Phase 1
+   → PiRC2 requires HTTPS
+   → Dev cannot proceed without it
+
+3. Testnet Available
+   → Must have access to Pi Testnet
+   → Test full flows before production
+
+4. Code Review Every Phase
+   → PiRC2 spec violations early → cheaper to fix
+
+5. Gradual Rollout
+   → Phase 1: Auth only (can work independently)
+   → Phase 2: Payments (depends on Phase 1)
+   → Phase 3: Polish (no dependencies)
+
+═══════════════════════════════════════════════════════════════════════════════
+
+DEMO MODE PRESERVATION
+
+Keep demo auth/payments working in parallel:
+
+  CONFIG_AUTH_MODE=demo      → Use demo auth (existing)
+  CONFIG_AUTH_MODE=pi-ready  → Use Pi-ready auth (in progress)
+  CONFIG_AUTH_MODE=pirc2     → Use PiRC2 auth (new)
+
+Allows:
+  - Testing new PiRC2 code without breaking existing
+  - Gradual user migration from demo → PiRC2
+  - Easy rollback if issues found
+
+═══════════════════════════════════════════════════════════════════════════════
+
+CHECKPOINTS TO PASS PHASE
+
+PHASE 0 → PHASE 1:
+  ✓ PiRC2 credentials obtained
+  ✓ HTTPS working
+  ✓ Env vars configured
+  ✓ Pi Core approved plan
+
+PHASE 1 → PHASE 2:
+  ✓ Auth flow tested on Testnet
+  ✓ Token validation working
+  ✓ Wallet ownership verified
+  ✓ Pi Core security review passed
+
+PHASE 2 → PHASE 3:
+  ✓ Full payment flow tested
+  ✓ Webhooks working reliably
+  ✓ Refunds tested
+  ✓ Performance acceptable
+
+PHASE 3 → LAUNCH:
+  ✓ All security headers in place
+  ✓ Consent form PiRC2 compliant
+  ✓ Data policy documented
+  ✓ Pi Core final approval
+  ✓ Team ready for launch
+
+═══════════════════════════════════════════════════════════════════════════════
+
+ESTIMATED COSTS
+
+Development: 15-25 days × 5 people = 75-125 person-days
+QA/Testing: 5-8 days × 2 people = 10-16 person-days
+Infrastructure: 2-3 days × 1 person = 2-3 person-days
+
+Total: ~90-145 person-days (~1 month with full team)
+
+Cost estimate: 50,000-100,000 USD (depending on rate)
+
+═══════════════════════════════════════════════════════════════════════════════
+
+BUSINESS IMPACT TIMELINE
+
+Week 1: Setup + Phase 0
+  - Credentials obtained
+  - Infrastructure ready
+  - Decision: Go/No-go Phase 1
+
+Week 2: Phase 1 (Auth)
+  - Frontend done
+  - Backend validation working
+  - Tests passing
+
+Week 3: Phase 2 (Payments)
+  - Payment flow refactored
+  - Webhooks operational
+  - Edge cases handled
+
+Week 4: Phase 3 + Launch
+  - Security complete
+  - Pi Core approval
+  - Gradual user rollout
+
+Expected Go-Live: ~4 weeks from credentials received
+
+═══════════════════════════════════════════════════════════════════════════════

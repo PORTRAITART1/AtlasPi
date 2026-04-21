@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AtlasPi - Merchant Detail</title>
+
+  <style>
+    @keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+    body {
+  font-family: Arial, sans-serif;
+  color: white;
+  margin: 0;
+  padding: 20px;
+  position: relative;
+  background: linear-gradient(135deg, #2b0a3d, #4b156d, #6d28a8);
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background:
+    linear-gradient(rgba(43, 10, 61, 0.72), rgba(31, 10, 46, 0.78)),
+    url("images/atlaspi-globelink.png") center center / cover no-repeat;
+  opacity: 0.38;
+  z-index: -1;
+  animation: atlasBgFloat 18s ease-in-out infinite;
+  transform: scale(1.05);
+}
+
+@keyframes atlasBgFloat {
+  0% {
+    transform: scale(1.05) translateY(0px);
+  }
+  50% {
+    transform: scale(1.09) translateY(-10px);
+  }
+  100% {
+    transform: scale(1.05) translateY(0px);
+  }
+}
+
+    a {
+      color: #7dd3fc;
+    }
+
+    #merchantDetailCard {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 12px;
+  padding: 16px;
+  margin-top: 16px;
+  animation: fadeInUp 0.5s ease;
+}
+
+#merchantDetailCard h2 {
+  margin-top: 18px;
+  margin-bottom: 10px;
+  color: #f4c542;
+  font-size: 18px;
+  border-bottom: 1px solid rgba(244, 197, 66, 0.35);
+  padding-bottom: 6px;
+}
+
+#merchantDetailCard h2:first-child {
+  margin-top: 0;
+}
+}
+  </style>
+</head>
+<body>
+  <p><a href="index.html#merchant-listings">⬅ Back to Merchant Listings</a></p>
+
+  <h1>Merchant Detail</h1>
+
+  <p id="detailStatus">Loading merchant detail...</p>
+
+  <div id="merchantDetailCard"></div>
+
+  <script src="merchant-detail.js"></script>
+</body>
+</html>

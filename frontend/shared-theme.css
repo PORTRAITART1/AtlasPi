@@ -1,0 +1,28 @@
+body.atlaspi-bg {
+  position: relative;
+}
+
+body.atlaspi-bg::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background:
+    linear-gradient(rgba(43, 10, 61, 0.72), rgba(31, 10, 46, 0.78)),
+    url("images/atlaspi-globelink.png") center center / cover no-repeat;
+  opacity: 0.38;
+  z-index: -1;
+  animation: atlasBgFloat 18s ease-in-out infinite;
+  transform: scale(1.05);
+}
+
+@keyframes atlasBgFloat {
+  0% {
+    transform: scale(1.05) translateY(0px);
+  }
+  50% {
+    transform: scale(1.09) translateY(-10px);
+  }
+  100% {
+    transform: scale(1.05) translateY(0px);
+  }
+}

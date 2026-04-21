@@ -1,0 +1,952 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AtlasPi — The Trusted Map of Pi Commerce</title>
+  <meta
+    name="description"
+    content="AtlasPi helps pioneers discover trusted places and services where Pi can be used simply, locally, and confidently."
+  />
+  <meta name="theme-color" content="#0a1020" />
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="shared-theme.css" />
+  <style>
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(12px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+  </style>
+</head>
+<body id="top"></body>
+  <div class="bg-grid"></div>
+  <div class="glow glow-1"></div>
+  <div class="glow glow-2"></div>
+  <div class="glow glow-3"></div>
+
+  <header class="site-header">
+    <div class="container nav">
+      <a href="#" class="brand">
+  <img src="logo-atlaspi.png" alt="AtlasPi logo" class="brand-logo" />
+  <div class="brand-text">
+    <strong>AtlasPi</strong>
+    <span>The Trusted Map of Pi Commerce</span>
+  </div>
+</a>
+
+      <button class="menu-toggle" id="menuToggle" aria-label="Open menu">
+        ☰
+      </button>
+
+      <nav class="menu" id="menu">
+        <a href="#vision">Vision</a>
+        <a href="#features">Features</a>
+        <a href="#ecosystem">Ecosystem</a>
+        <a href="#trust">Trust</a>
+        <a href="#faq">FAQ</a>
+        <a href="#merchant-form-section">Merchant Listings</a>
+        <a href="#merchant-moderation-section" style="color: #dc2626;">⚠️ Moderation</a>
+        <a href="#join" class="btn btn-nav">Join Early</a>
+      </nav>
+    </div>
+  </header>
+    <section class="section" id="app-demo">
+      <div class="container">
+        <div class="section-heading">
+          <span class="eyebrow">App Demo</span>
+          <h2>AtlasPi App Connection Preview</h2>
+          <p>
+            This section prepares the real app connection with the backend, Pi login,
+            and payment flow.
+          </p>
+        </div>
+
+        <div class="feature-grid">
+          <article class="feature-card">
+            <div class="feature-icon">🟢</div>
+            <h3>Backend Status</h3>
+            <p id="apiStatus">Checking backend connection...</p>
+          </article>
+
+          <article class="feature-card">
+            <div class="feature-icon">🔐</div>
+            <h3>Pi Login</h3>
+            <p id="piStatus">Not connected yet.</p>
+            <button type="button" class="btn btn-primary" id="piConnectBtn">
+              Connect with Pi
+            </button>
+
+            <div style="margin-top: 16px;">
+              <p><strong>Username:</strong> <span id="piUsername">-</span></p>
+              <p><strong>Wallet:</strong> <span id="piWallet">-</span></p>
+            </div>
+          </article>
+
+          <article class="feature-card">
+            <div class="feature-icon">💸</div>
+            <h3>Payment Demo</h3>
+
+            <div style="margin-bottom: 12px;">
+              <label for="payAmount"><strong>Amount</strong></label><br />
+              <input
+                type="number"
+                id="payAmount"
+                placeholder="Enter amount"
+                step="0.01"
+                style="width: 100%; padding: 10px; margin-top: 6px;"
+              />
+            </div>
+
+            <div style="margin-bottom: 12px;">
+              <label for="payMemo"><strong>Memo</strong></label><br />
+              <input
+                type="text"
+                id="payMemo"
+                placeholder="Payment note"
+                style="width: 100%; padding: 10px; margin-top: 6px;"
+              />
+            </div>
+
+            <button type="button" class="btn btn-primary" id="createPaymentBtn">
+  Create Payment Record
+</button>
+
+<div style="margin-top: 12px; display: flex; gap: 10px; flex-wrap: wrap;">
+  <button type="button" class="btn btn-secondary" id="approvePaymentBtn">
+    Approve Payment
+  </button>
+
+  <button type="button" class="btn btn-secondary" id="completePaymentBtn">
+    Complete Payment
+  </button>
+</div>
+
+<p id="paymentStatus" style="margin-top: 16px;">
+  No payment started yet.
+</p>
+<div style="margin-top: 20px;">
+  <h4 style="margin-bottom: 10px;">Saved Payments</h4>
+
+  <button type="button" class="btn btn-secondary" id="loadPaymentsBtn">
+    Load Payments List
+  </button>
+
+  <p id="paymentListStatus" style="margin-top: 12px;">
+    No payment list loaded yet.
+  </p>
+
+  <div id="paymentList" style="margin-top: 12px;"></div>
+</div>
+          </article>
+        </div>
+      </div>
+    </section>
+  <main>
+    <section class="hero">
+      <div class="container hero-grid">
+        <div class="hero-copy">
+          <span class="eyebrow">🌍 Built for the Global Pi Community</span>
+          <h1>
+            Discover where
+            <span class="gradient-text">Pi becomes real</span>
+          </h1>
+          <p class="hero-lead">
+            AtlasPi is a premium discovery platform designed to help pioneers find trusted merchants,
+            creators, services and real-world opportunities connected to Pi commerce.
+          </p>
+
+          <div class="hero-actions">
+            <a href="#join" class="btn btn-primary">Get Early Access</a>
+            <a href="#features" class="btn btn-secondary">Explore Features</a>
+          </div>
+
+          <div class="hero-metrics">
+            <div class="metric-card">
+              <strong>Global Access</strong>
+              <span>Built for pioneers across cities, regions and countries</span>
+            </div>
+            <div class="metric-card">
+              <strong>Trust-Driven</strong>
+              <span>Focused on clarity, discoverability and confidence</span>
+            </div>
+            <div class="metric-card">
+              <strong>Real Utility</strong>
+              <span>Designed around practical Pi commerce discovery</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="hero-visual">
+          <div class="dashboard-card">
+            <div class="dashboard-top">
+              <span class="mini-dot purple"></span>
+              <span class="mini-dot gold"></span>
+              <span class="mini-dot cyan"></span>
+            </div>
+
+            <div class="dashboard-body">
+              <div class="phone-shell">
+                <div class="phone-topbar"></div>
+
+                <div class="map-scene">
+                  <div class="map-line line-1"></div>
+                  <div class="map-line line-2"></div>
+                  <div class="map-line line-3"></div>
+
+                  <div class="pin pin-a">
+                    <i></i>
+                    <small>Verified Store</small>
+                  </div>
+
+                  <div class="pin pin-b">
+                    <i></i>
+                    <small>Trusted Café</small>
+                  </div>
+
+                  <div class="pin pin-c">
+                    <i></i>
+                    <small>Creative Hub</small>
+                  </div>
+
+                  <div class="floating-card card-main">
+                    <p class="small-label">AtlasPi Signal</p>
+                    <h3>Trusted places, local discovery, real Pi utility.</h3>
+                  </div>
+
+                  <div class="floating-card card-mini">
+                    <p>📍 Nearby</p>
+                    <strong>Pi-Friendly Merchants</strong>
+                  </div>
+                </div>
+              </div>
+
+              <div class="orbit orbit-1"></div>
+              <div class="orbit orbit-2"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="vision">
+      <div class="container">
+        <div class="section-heading">
+          <span class="eyebrow">The Vision</span>
+          <h2>A trusted gateway to the next phase of Pi commerce</h2>
+          <p>
+            AtlasPi is built around a simple idea: pioneers need a clear, beautiful and reliable way
+            to discover where Pi can connect with real-world value, local commerce and meaningful utility.
+          </p>
+        </div>
+
+        <div class="vision-panel">
+          <div class="vision-content">
+            <div class="vision-badge">⚡ New Economic Discovery Layer</div>
+            <h3>From community belief to practical discovery</h3>
+            <p>
+              AtlasPi aims to become a global point of entry for pioneers who want to explore
+              trustworthy local businesses, services and community-driven commerce opportunities.
+            </p>
+          </div>
+
+          <div class="vision-stats">
+            <div class="stat-box">
+              <strong>Discovery</strong>
+              <span>Find local opportunities connected to Pi</span>
+            </div>
+            <div class="stat-box">
+              <strong>Confidence</strong>
+              <span>Explore clearer merchant profiles and trust signals</span>
+            </div>
+            <div class="stat-box">
+              <strong>Momentum</strong>
+              <span>Support wider real-world visibility for Pi utility</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="features">
+      <div class="container">
+        <div class="section-heading">
+          <span class="eyebrow">Core Features</span>
+          <h2>Everything a professional Pi-commerce platform should communicate</h2>
+          <p>
+            AtlasPi is designed to feel clear, aspirational and useful for both pioneers and merchants.
+          </p>
+        </div>
+
+        <div class="feature-grid">
+          <article class="feature-card">
+            <div class="feature-icon">📍</div>
+            <h3>Location-Based Discovery</h3>
+            <p>Help pioneers discover nearby places and services connected to Pi-oriented commerce.</p>
+          </article>
+
+          <article class="feature-card">
+            <div class="feature-icon">🤝</div>
+            <h3>Trust-Centered Profiles</h3>
+            <p>Encourage confidence through structured listings, clearer details and visible credibility.</p>
+          </article>
+
+          <article class="feature-card">
+            <div class="feature-icon">🌐</div>
+            <h3>Global Community Reach</h3>
+            <p>Designed for local relevance with an international mindset across the Pi community.</p>
+          </article>
+
+          <article class="feature-card">
+            <div class="feature-icon">🪙</div>
+            <h3>Real Utility Narrative</h3>
+            <p>Position Pi around practical usage, discoverability and commerce-oriented participation.</p>
+          </article>
+
+          <article class="feature-card">
+            <div class="feature-icon">🏪</div>
+            <h3>Merchant Visibility</h3>
+            <p>Give businesses an elegant and modern way to be discovered by pioneers.</p>
+          </article>
+
+          <article class="feature-card">
+            <div class="feature-icon">✨</div>
+            <h3>Premium User Experience</h3>
+            <p>Clean design, futuristic visuals and a polished interface that inspires trust.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section dark-section" id="ecosystem">
+      <div class="container">
+        <div class="section-heading">
+          <span class="eyebrow">AtlasPi Ecosystem Value</span>
+          <h2>Built for pioneers, useful for merchants, aligned with the future of digital commerce</h2>
+        </div>
+
+        <div class="ecosystem-grid">
+          <div class="ecosystem-card">
+            <h3>For Pioneers</h3>
+            <ul>
+              <li>Discover useful places connected to Pi commerce</li>
+              <li>Navigate your local Pi environment with more confidence</li>
+              <li>Explore opportunities through a modern, clear interface</li>
+              <li>Participate in a more visible and practical economy</li>
+            </ul>
+          </div>
+
+          <div class="ecosystem-card">
+            <h3>For Merchants</h3>
+            <ul>
+              <li>Gain visibility in a global and engaged community</li>
+              <li>Show your business through a premium public profile</li>
+              <li>Attract discovery from pioneers looking for reliable places</li>
+              <li>Position yourself in a new era of community-driven commerce</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="trust">
+      <div class="container">
+        <div class="section-heading">
+          <span class="eyebrow">Trust & Clarity</span>
+          <h2>Confidence is the foundation of adoption</h2>
+          <p>
+            A discovery platform only matters if users feel safe, informed and guided.
+            AtlasPi is designed with a trust-first philosophy.
+          </p>
+        </div>
+
+        <div class="trust-grid">
+          <div class="trust-card">
+            <h3>✅ Better Discovery Experience</h3>
+            <p>Help reduce confusion with cleaner merchant visibility and structured information.</p>
+          </div>
+          <div class="trust-card">
+            <h3>🛡️ Community-Oriented Direction</h3>
+            <p>Encourage responsible discovery and a more transparent local commerce experience.</p>
+          </div>
+          <div class="trust-card">
+            <h3>📘 Clear Positioning</h3>
+            <p>AtlasPi is an independent project built to support practical Pi utility and ecosystem discovery.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section roadmap-section">
+      <div class="container">
+        <div class="section-heading">
+          <span class="eyebrow">Roadmap Direction</span>
+          <h2>From premium landing page to utility platform</h2>
+        </div>
+
+        <div class="timeline">
+          <div class="timeline-item">
+            <span>Phase 1</span>
+            <h3>Brand & Discovery Foundation</h3>
+            <p>Launch a strong global brand presence and introduce the AtlasPi mission.</p>
+          </div>
+
+          <div class="timeline-item">
+            <span>Phase 2</span>
+            <h3>Merchant Mapping</h3>
+            <p>Build local and regional discovery with structured merchant visibility.</p>
+          </div>
+
+          <div class="timeline-item">
+            <span>Phase 3</span>
+            <h3>Trust Layer Expansion</h3>
+            <p>Introduce stronger trust signals, refinement and ecosystem credibility tools.</p>
+          </div>
+
+          <div class="timeline-item">
+            <span>Phase 4</span>
+            <h3>Global Utility Momentum</h3>
+            <p>Grow AtlasPi into a recognized gateway for practical Pi commerce discovery.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="faq">
+      <div class="container">
+        <div class="section-heading">
+          <span class="eyebrow">FAQ</span>
+          <h2>Frequently Asked Questions</h2>
+        </div>
+
+        <div class="faq-list">
+          <details class="faq-item">
+            <summary>What is AtlasPi?</summary>
+            <p>
+              AtlasPi is a premium discovery platform created to help pioneers find trusted places,
+              services and merchant opportunities related to Pi-oriented commerce.
+            </p>
+          </details>
+
+          <details class="faq-item">
+            <summary>Who is AtlasPi for?</summary>
+            <p>
+              AtlasPi is designed for pioneers, merchants, creators, community leaders and anyone
+              interested in real-world Pi discovery.
+            </p>
+          </details>
+
+          <details class="faq-item">
+            <summary>Is AtlasPi an official Pi Core Team product?</summary>
+            <p>
+              No. AtlasPi is an independent community-focused project built to support visibility,
+              trust and discovery around Pi commerce.
+            </p>
+          </details>
+
+          <details class="faq-item">
+            <summary>Why is AtlasPi important?</summary>
+            <p>
+              Because discoverability and trust are key to helping pioneers explore practical utility in a clearer way.
+            </p>
+          </details>
+        </div>
+      </div>
+    </section>
+
+    <section class="section cta-section" id="join">
+      <div class="container">
+        <div class="cta-card">
+          <span class="eyebrow">Join the Early Wave</span>
+          <h2>Be among the first to follow AtlasPi</h2>
+          <p>
+            AtlasPi is being shaped as a premium gateway for pioneers who believe the future of Pi utility
+            should be visible, trusted and globally accessible.
+          </p>
+
+          <form class="waitlist-form" id="waitlistForm">
+            <input type="email" id="emailInput" placeholder="Enter your email address" />
+            <button type="submit" class="btn btn-primary">Join the Waitlist</button>
+          </form>
+
+          <p class="form-note" id="formNote">
+            We only use this for updates and early-access interest.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="merchant-form-section">
+      <div class="container">
+        <div class="section-heading">
+          <span class="eyebrow">Merchant Listing Demo</span>
+          <h2>Add a Merchant Listing</h2>
+          <p>
+            This demo form allows a merchant, business or provider to submit a listing
+            to AtlasPi for review.
+          </p>
+        </div>
+
+        <div class="cta-card">
+          <form id="merchantListingForm">
+            <div style="margin-bottom: 14px;">
+              <label for="merchantOwnerUserId"><strong>Owner User ID</strong></label><br />
+              <input
+                type="text"
+                id="merchantOwnerUserId"
+                value="test-user-001"
+                style="width: 100%; padding: 10px; margin-top: 6px;"
+              />
+            </div>
+
+            <div style="margin-bottom: 14px;">
+              <label for="merchantListingPublicName"><strong>Public Listing Name</strong></label><br />
+              <input
+                type="text"
+                id="merchantListingPublicName"
+                placeholder="Example: Cafe Atlas"
+                style="width: 100%; padding: 10px; margin-top: 6px;"
+              />
+            </div>
+
+            <div style="margin-bottom: 14px;">
+              <label for="merchantProfileType"><strong>Profile Type</strong></label><br />
+              <select
+                id="merchantProfileType"
+                style="width: 100%; padding: 10px; margin-top: 6px;"
+              >
+                <option value="merchant">Merchant</option>
+                <option value="business">Business</option>
+                <option value="provider">Provider</option>
+                <option value="artisan">Artisan</option>
+                <option value="creator">Creator</option>
+                <option value="service">Service</option>
+              </select>
+            </div>
+
+            <div style="margin-bottom: 14px;">
+              <label for="merchantBusinessName"><strong>Business Name</strong></label><br />
+              <input
+                type="text"
+                id="merchantBusinessName"
+                placeholder="Example: Cafe Atlas SARL"
+                style="width: 100%; padding: 10px; margin-top: 6px;"
+              />
+            </div>
+
+            <div style="margin-bottom: 14px;">
+              <label for="merchantDescription"><strong>Short Public Description</strong></label><br />
+              <textarea
+                id="merchantDescription"
+                placeholder="Short description of the business"
+                style="width: 100%; padding: 10px; margin-top: 6px; min-height: 90px;"
+              ></textarea>
+            </div>
+
+            <div style="margin-bottom: 14px;">
+              <label for="merchantDomain"><strong>Domain</strong></label><br />
+              <input
+                type="text"
+                id="merchantDomain"
+                placeholder="Example: restauration"
+                style="width: 100%; padding: 10px; margin-top: 6px;"
+              />
+            </div>
+
+            <div style="margin-bottom: 14px;">
+              <label for="merchantCategory"><strong>Category</strong></label><br />
+              <input
+                type="text"
+                id="merchantCategory"
+                placeholder="Example: cafe"
+                style="width: 100%; padding: 10px; margin-top: 6px;"
+              />
+            </div>
+
+            <div style="margin-bottom: 14px;">
+              <label for="merchantProductsServices"><strong>Products / Services Summary</strong></label><br />
+              <textarea
+                id="merchantProductsServices"
+                placeholder="Example: coffee, tea, snacks"
+                style="width: 100%; padding: 10px; margin-top: 6px; min-height: 90px;"
+              ></textarea>
+            </div>
+
+            <div style="margin-bottom: 14px;">
+              <label for="merchantCountry"><strong>Country</strong></label><br />
+              <input
+                type="text"
+                id="merchantCountry"
+                placeholder="Example: MA"
+                style="width: 100%; padding: 10px; margin-top: 6px;"
+              />
+            </div>
+
+            <div style="margin-bottom: 14px;">
+              <label for="merchantCity"><strong>City</strong></label><br />
+              <input
+                type="text"
+                id="merchantCity"
+                placeholder="Example: Casablanca"
+                style="width: 100%; padding: 10px; margin-top: 6px;"
+              />
+            </div>
+
+<div style="margin-bottom: 14px;">
+  <label for="merchantPhone"><strong>Business Phone</strong></label><br />
+  <input
+    type="text"
+    id="merchantPhone"
+    placeholder="Example: +212600000000"
+    style="width: 100%; padding: 10px; margin-top: 6px;"
+  />
+</div>
+
+<div style="margin-bottom: 14px;">
+  <label for="merchantVisibilityPhone"><strong>Phone Visibility</strong></label><br />
+  <select
+    id="merchantVisibilityPhone"
+    style="width: 100%; padding: 10px; margin-top: 6px;"
+  >
+    <option value="public">Public</option>
+    <option value="members_only" selected>Members only</option>
+    <option value="private">Private</option>
+  </select>
+</div>
+
+<div style="margin-bottom: 14px;">
+  <label for="merchantWhatsApp"><strong>WhatsApp</strong></label><br />
+  <input
+    type="text"
+    id="merchantWhatsApp"
+    placeholder="Example: +212600000000"
+    style="width: 100%; padding: 10px; margin-top: 6px;"
+  />
+</div>
+
+<div style="margin-bottom: 14px;">
+  <label for="merchantVisibilityWhatsApp"><strong>WhatsApp Visibility</strong></label><br />
+  <select
+    id="merchantVisibilityWhatsApp"
+    style="width: 100%; padding: 10px; margin-top: 6px;"
+  >
+    <option value="public">Public</option>
+    <option value="members_only" selected>Members only</option>
+    <option value="private">Private</option>
+  </select>
+</div>
+
+<div style="margin-bottom: 14px;">
+  <label for="merchantEmail"><strong>Email</strong></label><br />
+  <input
+    type="text"
+    id="merchantEmail"
+    placeholder="Example: contact@example.com"
+    style="width: 100%; padding: 10px; margin-top: 6px;"
+  />
+</div>
+
+<div style="margin-bottom: 14px;">
+  <label for="merchantVisibilityEmail"><strong>Email Visibility</strong></label><br />
+  <select
+    id="merchantVisibilityEmail"
+    style="width: 100%; padding: 10px; margin-top: 6px;"
+  >
+    <option value="public">Public</option>
+    <option value="members_only" selected>Members only</option>
+    <option value="private">Private</option>
+  </select>
+</div>
+
+<div style="margin-bottom: 14px;">
+  <label for="merchantWebsite"><strong>Website</strong></label><br />
+  <input
+    type="text"
+    id="merchantWebsite"
+    placeholder="Example: https://example.com"
+    style="width: 100%; padding: 10px; margin-top: 6px;"
+  />
+</div>
+
+<div style="margin-bottom: 14px;">
+  <label for="merchantVisibilityWebsite"><strong>Website Visibility</strong></label><br />
+  <select
+    id="merchantVisibilityWebsite"
+    style="width: 100%; padding: 10px; margin-top: 6px;"
+  >
+    <option value="public" selected>Public</option>
+    <option value="members_only">Members only</option>
+    <option value="private">Private</option>
+  </select>
+</div>
+
+<div style="margin-bottom: 14px;">
+  <label for="merchantPiWallet"><strong>Merchant Pi Wallet</strong></label><br />
+  <input
+    type="text"
+    id="merchantPiWallet"
+    placeholder="Enter merchant Pi wallet"
+    style="width: 100%; padding: 10px; margin-top: 6px;"
+  />
+</div>
+
+<div style="margin-bottom: 14px;">
+  <label for="merchantVisibilityWallet"><strong>Wallet Visibility</strong></label><br />
+  <select
+    id="merchantVisibilityWallet"
+    style="width: 100%; padding: 10px; margin-top: 6px;"
+  >
+    <option value="public">Public</option>
+    <option value="members_only" selected>Members only</option>
+    <option value="private">Private</option>
+  </select>
+</div>
+
+<div style="margin-bottom: 18px;">
+  <label style="display: flex; align-items: center; gap: 8px;">
+    <input type="checkbox" id="merchantAcceptsPi" />
+    <span><strong>This merchant accepts Pi</strong></span>
+  </label>
+</div>
+
+<div style="margin-bottom: 18px;">
+  <label style="display: flex; align-items: center; gap: 8px;">
+    <input type="checkbox" id="merchantPiPaymentsEnabled" />
+    <span><strong>Enable Pi payments for this merchant</strong></span>
+  </label>
+</div>
+
+
+<div style="margin-bottom: 18px;">
+  <h4>Required Agreements</h4>
+
+  <label style="display: block; margin-top: 10px;">
+    <input type="checkbox" id="consentTerms" />
+    I confirm that I am authorized to submit this listing and I accept the
+    <a href="terms.html" target="_blank">Terms of Use</a>.
+  </label>
+
+  <label style="display: block; margin-top: 10px;">
+    <input type="checkbox" id="consentPrivacy" />
+    I have read and accept the
+    <a href="privacy.html" target="_blank">Privacy Policy</a>.
+  </label>
+
+  <label style="display: block; margin-top: 10px;">
+    <input type="checkbox" id="consentPublicDisplay" />
+    I authorize AtlasPi to display the public fields of this listing according to my selected visibility settings.
+  </label>
+</div>
+
+            <button type="submit" class="btn btn-primary">
+              Create Merchant Listing
+            </button>
+
+            <p id="merchantFormStatus" style="margin-top: 16px;">
+              No merchant listing submitted yet.
+            </p>
+            <div style="margin-top: 20px;">
+  <h4 style="margin-bottom: 10px;">Saved Merchant Listings</h4>
+
+  <div style="margin-bottom: 16px; display: grid; gap: 12px;">
+  <div>
+    <label for="merchantSearchName"><strong>Search by name</strong></label><br />
+    <input
+      type="text"
+      id="merchantSearchName"
+      placeholder="Example: Cafe Atlas"
+      style="width: 100%; padding: 10px; margin-top: 6px;"
+    />
+  </div>
+
+  <div>
+    <label for="merchantSearchDomain"><strong>Filter by domain</strong></label><br />
+    <input
+      type="text"
+      id="merchantSearchDomain"
+      placeholder="Example: restauration"
+      style="width: 100%; padding: 10px; margin-top: 6px;"
+    />
+  </div>
+
+  <div>
+    <label for="merchantSearchCategory"><strong>Filter by category</strong></label><br />
+    <input
+      type="text"
+      id="merchantSearchCategory"
+      placeholder="Example: cafe"
+      style="width: 100%; padding: 10px; margin-top: 6px;"
+    />
+  </div>
+
+  <div>
+    <label for="merchantSearchCountry"><strong>Filter by country</strong></label><br />
+    <input
+      type="text"
+      id="merchantSearchCountry"
+      placeholder="Example: MA"
+      style="width: 100%; padding: 10px; margin-top: 6px;"
+    />
+  </div>
+
+  <div>
+    <label for="merchantSearchCity"><strong>Filter by city</strong></label><br />
+    <input
+      type="text"
+      id="merchantSearchCity"
+      placeholder="Example: Casablanca"
+      style="width: 100%; padding: 10px; margin-top: 6px;"
+    />
+  </div>
+</div>
+
+  <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+  <button type="button" class="btn btn-secondary" id="loadMerchantListingsBtn">
+    Load Merchant Listings
+  </button>
+
+  <button type="button" class="btn btn-secondary" id="clearMerchantSearchBtn">
+    Clear Search
+  </button>
+</div>
+
+  <p id="merchantListStatus" style="margin-top: 12px;">
+    No merchant listings loaded yet.
+  </p>
+
+  <div id="merchantListingsList" style="margin-top: 12px;"></div>
+</div>
+          </form>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="merchant-moderation-section" style="background: linear-gradient(135deg, rgba(220,38,38,0.08) 0%, rgba(59,130,246,0.08) 100%); border-top: 2px solid rgba(220,38,38,0.3);">
+      <div class="container">
+        <div class="section-heading">
+          <span class="eyebrow">🔐 Admin Panel</span>
+          <h2>Moderate Merchant Listings</h2>
+          <p>
+            Review and moderate merchant listing statuses. Access requires valid admin secret.
+          </p>
+        </div>
+
+        <div id="adminCountersContainer" style="margin-bottom: 24px; padding: 0;"></div>
+
+        <div class="cta-card" style="border-left: 4px solid #dc2626;">
+          <h3 style="margin-bottom: 20px;">⚙️ Moderation Tools</h3>
+
+          <div style="margin-bottom: 16px;">
+            <label for="adminSecret"><strong>Admin Secret Key</strong></label><br />
+            <input
+              type="password"
+              id="adminSecret"
+              placeholder="Enter admin secret (required for moderation)"
+              style="width: 100%; padding: 10px; margin-top: 6px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.1);"
+            />
+            <p style="margin-top: 6px; font-size: 12px; opacity: 0.7;">Your secret is never sent outside this action.</p>
+          </div>
+
+          <div style="margin-bottom: 20px; padding: 12px; background: rgba(59,130,246,0.1); border-radius: 6px; border-left: 3px solid #3b82f6;">
+            <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; margin-bottom: 0;">
+              <input type="checkbox" id="togglePendingListings" />
+              <span><strong>Show Pending Listings for Review</strong></span>
+            </label>
+            <p style="margin-top: 8px; margin-bottom: 0; font-size: 13px; opacity: 0.8; margin-left: 26px;">Check to view all pending_review listings (hidden from public).</p>
+          </div>
+
+          <button type="button" class="btn btn-primary" id="loadPendingListingsBtn" style="margin-bottom: 20px;">
+            Load Pending Listings
+          </button>
+
+          <div id="moderationStatus" style="margin-top: 12px; padding: 12px; background: rgba(255,255,255,0.03); border-radius: 6px; border-left: 3px solid #7c3aed;">
+            <p style="margin: 0;">No moderation actions yet. Load pending listings to begin.</p>
+          </div>
+
+          <div id="pendingListingsList" style="margin-top: 20px;"></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-grid">
+      <div>
+        <h3>AtlasPi</h3>
+        <p>
+          The trusted map of Pi commerce — built to help pioneers discover local utility with confidence.
+        </p>
+      </div>
+
+      <div>
+        <h4>Navigation</h4>
+        <ul>
+          <li><a href="#vision">Vision</a></li>
+          <li><a href="#features">Features</a></li>
+          <li><a href="#ecosystem">Ecosystem</a></li>
+          <li><a href="#trust">Trust</a></li>
+        </ul>
+      </div>
+
+      <div>
+        <h4>Legal</h4>
+        <ul>
+          <li><a href="privacy.html">Privacy Policy</a></li>
+          <li><a href="terms.html">Terms of Service</a></li>
+        </ul>
+      </div>
+
+      <div>
+        <h4>Important Note</h4>
+        <p>
+          AtlasPi is an independent project for the Pi community and should not be considered an official Pi Core Team platform unless explicitly stated.
+        </p>
+      </div>
+    </div>
+
+    <div class="container footer-bottom">
+      <p>© <span id="year"></span> AtlasPi. All rights reserved.</p>
+    </div>
+  </footer>
+
+    <a
+    href="#top"
+    id="backToTopBtn"
+    title="Back to top"
+    style="
+      position: fixed;
+      top: 50%;
+      right: 20px;
+      transform: translateY(-50%);
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      background: #7c3aed;
+      color: white;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      font-weight: bold;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.35);
+      z-index: 9999;
+    "
+  >
+    ↑
+  </a>
+
+  <script src="config.js"></script>
+  <script src="pi-integration.js"></script>
+  <script src="auth-handler.js"></script>
+  <script src="auth-config.js"></script>
+  <script src="script.js"></script>
+  <script src="pi-integration-patch.js"></script>
+  <script src="toggle-admin.js"></script>
+</body>
+</html>
