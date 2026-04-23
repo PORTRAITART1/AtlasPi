@@ -33,21 +33,21 @@ if (frontendAppUrl) {
   corsOrigins.push(frontendAppUrl);
 }
 
+const allowedOrigins = [
+  process.env.FRONTEND_URL,
+  process.env.FRONTEND_APP_URL,
+  "https://atlaspi-frontend.onrender.com"
+].filter(Boolean);
+
 app.use(cors({
   origin: function (origin, callback) {
-    if (!origin || corsOrigins.includes(origin)) {
+    if (!origin || allowedOrigins.includes(origin)) {
       return callback(null, true);
     }
     return callback(new Error("Not allowed by CORS"));
   },
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-  allowedHeaders: [
-    "Content-Type",
-    "Authorization",
-    "x-admin-secret",
-    "x-demo-user-id",
-    "x-demo-access-token"
-  ],
+  allowedHeaders: ["Content-Type", "Authorization", "x-admin-secret", "x-demo-user-id", "x-demo-access-token"],
   credentials: false
 }));
 
