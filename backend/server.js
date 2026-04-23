@@ -34,9 +34,20 @@ if (frontendAppUrl) {
 }
 
 app.use(cors({
-  origin: corsOrigins,
-  methods: ["GET", "POST", "PUT", "DELETE"],
-  allowedHeaders: ["Content-Type", "Authorization"],
+  origin: function (origin, callback) {
+    if (!origin || corsOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+    return callback(new Error("Not allowed by CORS"));
+  },
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: [
+    "Content-Type",
+    "Authorization",
+    "x-admin-secret",
+    "x-demo-user-id",
+    "x-demo-access-token"
+  ],
   credentials: false
 }));
 
