@@ -13,6 +13,7 @@ import envManager from "./config/envManager.js";
 
 const app = express();
 const PORT = envManager.get('port', 3000);
+const PI_API_KEY = process.env.PI_API_KEY;7a54rpa8aelvqsoiu9m23ddingkbbqlcsctkp7afzoymylxtw6ob9vhkwppov0is
 
 // Log startup info
 logger.info(`\n${'='.repeat(60)}`);
