@@ -584,7 +584,39 @@ document.addEventListener("DOMContentLoaded", () => {
       moderationStatus.innerHTML = '<p style="margin: 0; color: #dc2626;">❌ Failed to load pending listings.</p>';
     }
   }
+  
+  function clearMerchantSearch() {
+    if (merchantSearchName) {
+      merchantSearchName.value = "";
+    }
 
+    if (merchantSearchDomain) {
+      merchantSearchDomain.value = "";
+    }
+
+    if (merchantSearchCategory) {
+      merchantSearchCategory.value = "";
+    }
+
+    if (merchantSearchCountry) {
+      merchantSearchCountry.value = "";
+    }
+
+    if (merchantSearchCity) {
+      merchantSearchCity.value = "";
+    }
+
+    if (merchantListStatus) {
+      merchantListStatus.textContent = "🔄 Search fields cleared.";
+    }
+
+    if (merchantListingsList) {
+      merchantListingsList.innerHTML = "";
+    }
+
+    loadMerchantListings();
+  }
+  
   function loadPendingListings() {
     if (!adminSecret || !adminSecret.value) {
       moderationStatus.innerHTML = '<p style="margin: 0; color: #dc2626;">❌ Please enter your admin secret first.</p>';
