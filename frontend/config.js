@@ -35,6 +35,11 @@ const determineApiBaseUrl = () => {
       return `${protocol}//localhost:3000`;
     }
 
+    // Render production setup for AtlasPi
+    if (hostname === 'atlaspi-frontend.onrender.com') {
+      return 'https://atlaspi-backend.onrender.com';
+    }
+
     // In production, assume backend is on /api relative path
     if (window.location.port === '8080' || window.location.port === '80' || window.location.port === '443') {
       return `${protocol}//${hostname}:3000`;
