@@ -827,6 +827,173 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
+  async function createMerchantListing(event) {
+    event.preventDefault();
+
+    if (!merchantFormStatus) return;
+
+    const owner_user_id = merchantOwnerUserId ? merchantOwnerUserId.value.trim() : currentUser.uid;
+    const listing_public_name = merchantListingPublicName ? merchantListingPublicName.value.trim() : "";
+    const profile_type = merchantProfileType ? merchantProfileType.value : "";
+    const business_name = merchantBusinessName ? merchantBusinessName.value.trim() : "";
+    const public_description_short = merchantDescription ? merchantDescription.value.trim() : "";
+    const domain = merchantDomain ? merchantDomain.value.trim() : "";
+    const category = merchantCategory ? merchantCategory.value.trim() : "";
+    const products_services_summary = merchantProductsServices ? merchantProductsServices.value.trim() : "";
+    const country = merchantCountry ? merchantCountry.value.trim() : "";
+    const city = merchantCity ? merchantCity.value.trim() : "";
+    const district = merchantDistrict ? merchantDistrict.value.trim() : "";
+    const address_line_1 = merchantAddress ? merchantAddress.value.trim() : "";
+    const location_link = merchantLocationLink ? merchantLocationLink.value.trim() : "";
+    const owner_display_name = merchantOwnerName ? merchantOwnerName.value.trim() : "";
+
+    const phone_business = merchantPhone ? merchantPhone.value.trim() : "";
+    const whatsapp_business = merchantWhatsApp ? merchantWhatsApp.value.trim() : "";
+    const email_business = merchantEmail ? merchantEmail.value.trim() : "";
+    const website_url = merchantWebsite ? merchantWebsite.value.trim() : "";
+
+    const merchant_pi_wallet = merchantPiWallet ? merchantPiWallet.value.trim() : "";
+    const merchant_pi_payments_enabled = merchantPiPaymentsEnabled ? merchantPiPaymentsEnabled.checked : false;
+    const accepts_pi = merchantAcceptsPi ? merchantAcceptsPi.checked : false;
+
+    const visibility_phone = merchantVisibilityPhone ? merchantVisibilityPhone.value : "members_only";
+    const visibility_whatsapp = merchantVisibilityWhatsApp ? merchantVisibilityWhatsApp.value : "members_only";
+    const visibility_email = merchantVisibilityEmail ? merchantVisibilityEmail.value : "members_only";
+    const visibility_website = merchantVisibilityWebsite ? merchantVisibilityWebsite.value : "public";
+    const visibility_wallet = merchantVisibilityWallet ? merchantVisibilityWallet.value : "members_only";
+
+    const visibility_district = merchantVisibilityDistrict ? merchantVisibilityDistrict.value : "members_only";
+    const visibility_address = merchantVisibilityAddress ? merchantVisibilityAddress.value : "private";
+    const visibility_location_link = merchantVisibilityLocationLink ? merchantVisibilityLocationLink.value : "members_only";
+    const visibility_owner_name = merchantVisibilityOwnerName ? merchantVisibilityOwnerName.value : "private";
+
+    if (
+      !owner_user_id ||
+      !listing_public_name ||
+      !profile_type ||
+      !business_name ||
+      !public_description_short ||
+      !domain ||
+      !category ||
+      !products_services_summary ||
+      !country ||
+      !city ||
+      !phone_business
+    ) {
+      merchantFormStatus.textContent = "❌ Please fill in all required merchant fields.";
+      return;
+    }
+
+    if (!editingMerchantId) {
+      if (!consentTerms.checked || !consentPrivacy.checked || !consentPublicDisplay.checked) {
+        merchantFormStatus.textContent = "❌ You must accept the required agreements.";
+        return;
+      }
+    }
+
+    merchantFormStatus.textContent = editingMerchantId
+      ? "⏳ Updating merchant listing..."
+      : "⏳ Creating merchant listing...";
+
+    const payload = {
+      owner_user_id,
+      listing_public_name,
+      profile_type,
+      business_name,
+      public_description_short,
+      domain,
+      category,
+      products_services_summary,
+      country,
+      city,
+      district,
+      address_line_1,
+      location_link,
+      owner_display_name,
+      phone_business,
+      whatsapp_business,
+      email_business,
+      website_url,
+      merchant_pi_wallet,
+      merchant_pi_payments_enabled,
+      accepts_pi,
+      visibility_phone,
+      visibility_whatsapp,
+      visibility_email,
+      visibility_website,
+      visibility_wallet,
+      visibility_district,
+      visibility_address,
+      visibility_location_link,
+      visibility_owner_name,
+      consent_terms: true,
+      consent_privacy: true,
+      consent_public_display: true,
+      terms_version_accepted: "v1",
+      privacy_version_accepted: "v1",
+      listing_policy_version_accepted: "v1"
+    };
+
+    try {
+      let response;
+
+      if (editingMerchantId) {
+        response = await fetch(`${API_BASE_URL}/api/merchant-listings/update/${editingMerchantId}`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            "x-demo-user-id": currentUser.uid,
+            "x-demo-access-token": currentUser.accessToken
+          },
+          body: JSON.stringify(payload)
+        });
+      } else {
+        response = await fetch(`${API_BASE_URL}/api/merchant-listings/create`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify(payload)
+        });
+      }
+
+      const data = await response.json();
+
+      if (!data.ok) {
+        merchantFormStatus.textContent = `❌ Error: ${data.error || "Unknown error"}`;
+        return;
+      }
+
+      merchantFormStatus.textContent = editingMerchantId
+        ? "✅ Merchant listing updated successfully."
+        : `✅ Merchant listing created. UUID: ${data.listing?.listing_uuid || "-"}`;
+
+      if (merchantListingForm) {
+        merchantListingForm.reset();
+      }
+
+      if (merchantOwnerUserId) {
+        merchantOwnerUserId.value = currentUser.uid || "test-user-001";
+      }
+
+      editingMerchantId = null;
+
+      const submitBtn = merchantListingForm
+        ? merchantListingForm.querySelector('button[type="submit"]')
+        : null;
+
+      if (submitBtn) {
+        submitBtn.textContent = "Create Merchant Listing";
+      }
+
+      loadMerchantListings();
+    } catch (error) {
+      merchantFormStatus.textContent = editingMerchantId
+        ? "❌ Failed to update merchant listing."
+        : "❌ Failed to contact backend for merchant listing creation.";
+    }
+  }
+  
   if (piConnectBtn) {
     piConnectBtn.addEventListener("click", connectDemoPiUser);
   }
