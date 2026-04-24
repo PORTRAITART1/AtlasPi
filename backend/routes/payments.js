@@ -91,7 +91,7 @@ router.post("/approve", (req, res) => {
           });
         }
 
-        logger.info(`Payment approved by ${req.user.username}: local=${localPaymentId}, pi=${paymentId}`);
+        logger.info(`Payment approved: local=${localPaymentId}, pi=${paymentId}`);
 
         return res.json({
           ok: true,
@@ -138,7 +138,7 @@ router.post("/complete", (req, res) => {
           });
         }
 
-        logger.info(`Payment completed by ${req.user.username}: local=${localPaymentId}, txid=${txid}`);
+        logger.info(`Payment completed: local=${localPaymentId}, txid=${txid}`);
 
         return res.json({
           ok: true,
