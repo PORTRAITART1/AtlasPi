@@ -63,7 +63,7 @@ router.post("/create-record", (req, res) => {
   }
 });
 
-router.post("/approve", validateAccessToken, (req, res) => {
+router.post("/approve", (req, res) => {
   try {
     const { localPaymentId, paymentId } = req.body;
 
@@ -110,7 +110,7 @@ router.post("/approve", validateAccessToken, (req, res) => {
   }
 });
 
-router.post("/complete", validateAccessToken, (req, res) => {
+router.post("/complete", (req, res) => {
   try {
     const { localPaymentId, paymentId, txid } = req.body;
 
