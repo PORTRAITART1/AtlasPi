@@ -11,34 +11,28 @@ services:
     env_file:
       - ./backend/.env
     environment:
-      # APP_MODE can also be overridden at runtime
-      # - APP_MODE=demo
-      # - APP_MODE=pirc2-sandbox
-      # - APP_MODE=pirc2-production
+      APP_MODE: "pirc2-sandbox"
     volumes:
       - ./backend:/app
       - /app/node_modules
       - ./backend/data:/app/data
       - ./backend/logs:/app/logs
-    # Use custom healthcheck that respects environment configuration
-    # Healthcheck will report backend readiness along with configuration info
     networks:
       - atlaspi-network
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3000/api/health", "||" , "exit", "1"]
+      test: ["CMD", "curl", "-f", "http://localhost:3000/api/health"]
       interval: 30s
       timeout: 5s
       retries: 3
-      start_period: 10s
+      start_period: 15s
 
   frontend:
     image: node:18-alpine
     container_name: atlaspi-frontend
     working_dir: /app
-    # Start http-server with dynamic config injection
     command: >
       sh -c "
-      echo 'window.ATLASPI_CONFIG = { API_BASE_URL: \"http://localhost:3000\" };' > config-runtime.js
+      echo 'window.ATLASPI_CONFIG = { API_BASE_URL: \"http://localhost:3000\" };' > config-runtime.js &&
       npx http-server -p 8080 -c-1
       "
     ports:

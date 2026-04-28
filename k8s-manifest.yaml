@@ -1,0 +1,590 @@
+# Kubernetes Deployment Manifest for AtlasPi
+# Complete production setup with 3 services
+
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: atlaspi
+  labels:
+    name: atlaspi
+    environment: production
+
+---
+# ConfigMap for Prometheus Configuration
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: prometheus-config
+  namespace: atlaspi
+data:
+  prometheus.yml: |
+    global:
+      scrape_interval: 30s
+      evaluation_interval: 15s
+      external_labels:
+        monitor: 'aiar-prod'
+        environment: 'production'
+
+    scrape_configs:
+      - job_name: 'backend'
+        static_configs:
+          - targets: ['backend:3000']
+            labels:
+              service: 'atlaspi-backend'
+        scrape_interval: 30s
+        metrics_path: '/metrics'
+
+      - job_name: 'aiar-controller'
+        static_configs:
+          - targets: ['aiar-controller:9000']
+            labels:
+              instance: 'aiar-prod-001'
+        scrape_interval: 30s
+        metrics_path: '/metrics'
+
+      - job_name: 'prometheus'
+        static_configs:
+          - targets: ['localhost:9090']
+
+---
+# ConfigMap for Application Configuration
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: atlaspi-config
+  namespace: atlaspi
+data:
+  APP_MODE: "production"
+  NODE_ENV: "production"
+  LOG_LEVEL: "info"
+  LOG_FORMAT: "json"
+  AGENT_ID: "aiar-prod-001"
+  AGENT_TYPE: "ABA|AMB|ADAV|ASI"
+  AGENT_MODE: "autonomous"
+  AUTONOMY_LEVEL: "80"
+  BACKEND_URL: "http://backend:3000"
+  PROMETHEUS_URL: "http://prometheus:9090"
+  BUILD_TIMEOUT_SECONDS: "300"
+  DEPLOY_TIMEOUT_SECONDS: "600"
+
+---
+# Secret for sensitive data
+apiVersion: v1
+kind: Secret
+metadata:
+  name: atlaspi-secrets
+  namespace: atlaspi
+type: Opaque
+stringData:
+  DOCKER_BUILD_CLOUD_TOKEN: "changeme-token-here"
+  DOCKER_BUILD_CLOUD_ORG: "changeme-org-here"
+  DATABASE_PASSWORD: "changeme-password-here"
+  API_KEY: "changeme-api-key-here"
+
+---
+# Service for Backend
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend
+  namespace: atlaspi
+  labels:
+    app: backend
+spec:
+  selector:
+    app: backend
+  type: ClusterIP
+  ports:
+    - port: 3000
+      targetPort: 3000
+      protocol: TCP
+      name: http
+  sessionAffinity: None
+
+---
+# Service for AIAR Controller
+apiVersion: v1
+kind: Service
+metadata:
+  name: aiar-controller
+  namespace: atlaspi
+  labels:
+    app: aiar-controller
+spec:
+  selector:
+    app: aiar-controller
+  type: ClusterIP
+  ports:
+    - port: 9000
+      targetPort: 8000
+      protocol: TCP
+      name: http
+  sessionAffinity: None
+
+---
+# Service for Prometheus
+apiVersion: v1
+kind: Service
+metadata:
+  name: prometheus
+  namespace: atlaspi
+  labels:
+    app: prometheus
+spec:
+  selector:
+    app: prometheus
+  type: LoadBalancer
+  ports:
+    - port: 9090
+      targetPort: 9090
+      protocol: TCP
+      name: http
+
+---
+# Backend Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend
+  namespace: atlaspi
+  labels:
+    app: backend
+    version: "1.0.0"
+spec:
+  replicas: 3
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app: backend
+  template:
+    metadata:
+      labels:
+        app: backend
+        version: "1.0.0"
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "3000"
+        prometheus.io/path: "/metrics"
+    spec:
+      serviceAccountName: default
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1001
+        fsGroup: 1001
+      containers:
+      - name: backend
+        image: atlaspi-backend:latest
+        imagePullPolicy: Always
+        ports:
+        - name: http
+          containerPort: 3000
+          protocol: TCP
+        env:
+        - name: APP_MODE
+          valueFrom:
+            configMapKeyRef:
+              name: atlaspi-config
+              key: APP_MODE
+        - name: NODE_ENV
+          valueFrom:
+            configMapKeyRef:
+              name: atlaspi-config
+              key: NODE_ENV
+        - name: LOG_LEVEL
+          valueFrom:
+            configMapKeyRef:
+              name: atlaspi-config
+              key: LOG_LEVEL
+        - name: DOCKER_BUILD_CLOUD_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: atlaspi-secrets
+              key: DOCKER_BUILD_CLOUD_TOKEN
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+        livenessProbe:
+          httpGet:
+            path: /api/health
+            port: 3000
+          initialDelaySeconds: 10
+          periodSeconds: 30
+          timeoutSeconds: 5
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /api/health
+            port: 3000
+          initialDelaySeconds: 5
+          periodSeconds: 10
+          timeoutSeconds: 3
+          failureThreshold: 3
+        volumeMounts:
+        - name: logs
+          mountPath: /app/logs
+      volumes:
+      - name: logs
+        emptyDir: {}
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: app
+                  operator: In
+                  values:
+                  - backend
+              topologyKey: kubernetes.io/hostname
+
+---
+# AIAR Controller Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: aiar-controller
+  namespace: atlaspi
+  labels:
+    app: aiar-controller
+    version: "1.0.0"
+spec:
+  replicas: 2
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app: aiar-controller
+  template:
+    metadata:
+      labels:
+        app: aiar-controller
+        version: "1.0.0"
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "9000"
+        prometheus.io/path: "/metrics"
+    spec:
+      serviceAccountName: default
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        fsGroup: 1000
+      containers:
+      - name: aiar
+        image: atlaspi-aiar:latest
+        imagePullPolicy: Always
+        ports:
+        - name: http
+          containerPort: 8000
+          protocol: TCP
+        env:
+        - name: AGENT_ID
+          valueFrom:
+            configMapKeyRef:
+              name: atlaspi-config
+              key: AGENT_ID
+        - name: AUTONOMY_LEVEL
+          valueFrom:
+            configMapKeyRef:
+              name: atlaspi-config
+              key: AUTONOMY_LEVEL
+        - name: BACKEND_URL
+          valueFrom:
+            configMapKeyRef:
+              name: atlaspi-config
+              key: BACKEND_URL
+        - name: PROMETHEUS_URL
+          valueFrom:
+            configMapKeyRef:
+              name: atlaspi-config
+              key: PROMETHEUS_URL
+        - name: DOCKER_BUILD_CLOUD_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: atlaspi-secrets
+              key: DOCKER_BUILD_CLOUD_TOKEN
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "250m"
+          limits:
+            memory: "1Gi"
+            cpu: "500m"
+        livenessProbe:
+          exec:
+            command:
+            - python
+            - -c
+            - "import sys; sys.exit(0)"
+          initialDelaySeconds: 15
+          periodSeconds: 30
+          timeoutSeconds: 5
+          failureThreshold: 3
+        readinessProbe:
+          exec:
+            command:
+            - python
+            - -c
+            - "import sys; sys.exit(0)"
+          initialDelaySeconds: 10
+          periodSeconds: 15
+          timeoutSeconds: 3
+          failureThreshold: 2
+        volumeMounts:
+        - name: logs
+          mountPath: /var/log/aiar
+        - name: decisions
+          mountPath: /var/lib/aiar/decisions
+      volumes:
+      - name: logs
+        emptyDir: {}
+      - name: decisions
+        emptyDir: {}
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: app
+                  operator: In
+                  values:
+                  - aiar-controller
+              topologyKey: kubernetes.io/hostname
+
+---
+# Prometheus Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: prometheus
+  namespace: atlaspi
+  labels:
+    app: prometheus
+    version: "latest"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: prometheus
+  template:
+    metadata:
+      labels:
+        app: prometheus
+    spec:
+      serviceAccountName: default
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65534
+        fsGroup: 65534
+      containers:
+      - name: prometheus
+        image: prom/prometheus:latest
+        imagePullPolicy: Always
+        args:
+          - '--config.file=/etc/prometheus/prometheus.yml'
+          - '--storage.tsdb.path=/prometheus'
+          - '--storage.tsdb.retention.time=7d'
+        ports:
+        - name: http
+          containerPort: 9090
+          protocol: TCP
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "250m"
+          limits:
+            memory: "1Gi"
+            cpu: "500m"
+        livenessProbe:
+          httpGet:
+            path: /-/healthy
+            port: 9090
+          initialDelaySeconds: 10
+          periodSeconds: 30
+          timeoutSeconds: 5
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /-/ready
+            port: 9090
+          initialDelaySeconds: 5
+          periodSeconds: 10
+          timeoutSeconds: 3
+          failureThreshold: 2
+        volumeMounts:
+        - name: config
+          mountPath: /etc/prometheus
+        - name: storage
+          mountPath: /prometheus
+      volumes:
+      - name: config
+        configMap:
+          name: prometheus-config
+      - name: storage
+        emptyDir: {}
+
+---
+# Horizontal Pod Autoscaler for Backend
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: backend-hpa
+  namespace: atlaspi
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: backend
+  minReplicas: 3
+  maxReplicas: 10
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: 80
+  behavior:
+    scaleDown:
+      stabilizationWindowSeconds: 300
+      policies:
+      - type: Percent
+        value: 50
+        periodSeconds: 60
+    scaleUp:
+      stabilizationWindowSeconds: 0
+      policies:
+      - type: Percent
+        value: 100
+        periodSeconds: 30
+
+---
+# Horizontal Pod Autoscaler for AIAR
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: aiar-hpa
+  namespace: atlaspi
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: aiar-controller
+  minReplicas: 2
+  maxReplicas: 5
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 75
+  behavior:
+    scaleDown:
+      stabilizationWindowSeconds: 300
+    scaleUp:
+      stabilizationWindowSeconds: 0
+
+---
+# Network Policy for Backend
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: backend-netpol
+  namespace: atlaspi
+spec:
+  podSelector:
+    matchLabels:
+      app: backend
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+  - from:
+    - podSelector:
+        matchLabels:
+          app: prometheus
+    ports:
+    - protocol: TCP
+      port: 3000
+  egress:
+  - to:
+    - podSelector:
+        matchLabels:
+          app: prometheus
+    ports:
+    - protocol: TCP
+      port: 9090
+  - to:
+    - namespaceSelector: {}
+    ports:
+    - protocol: TCP
+      port: 53
+    - protocol: UDP
+      port: 53
+
+---
+# Network Policy for AIAR
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: aiar-netpol
+  namespace: atlaspi
+spec:
+  podSelector:
+    matchLabels:
+      app: aiar-controller
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+  - from:
+    - podSelector:
+        matchLabels:
+          app: prometheus
+    ports:
+    - protocol: TCP
+      port: 9000
+  egress:
+  - to:
+    - podSelector:
+        matchLabels:
+          app: backend
+    ports:
+    - protocol: TCP
+      port: 3000
+  - to:
+    - podSelector:
+        matchLabels:
+          app: prometheus
+    ports:
+    - protocol: TCP
+      port: 9090
+  - to:
+    - namespaceSelector: {}
+    ports:
+    - protocol: TCP
+      port: 53
+    - protocol: UDP
+      port: 53

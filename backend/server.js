@@ -7,6 +7,7 @@ import rateLimit from "express-rate-limit";
 import authRoutes from "./routes/auth.js";
 import paymentRoutes from "./routes/payments.js";
 import subscriptionRoutes from "./routes/subscriptions.js";
+import piPaymentRoutes from "./routes/pi-payments.js";
 import logger from "./utils/logger.js";
 import merchantListingRoutes from "./routes/merchantListings.js";
 import envManager from "./config/envManager.js";
@@ -91,6 +92,7 @@ app.get("/api/health", (req, res) => {
 
 app.use("/api/auth", authRoutes);
 app.use("/api/payments", paymentRoutes);
+app.use("/api/pi-payments", piPaymentRoutes);
 app.use("/api/subscriptions", subscriptionRoutes);
 app.use("/api/merchant-listings", merchantListingRoutes);
 

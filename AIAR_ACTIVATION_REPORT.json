@@ -1,0 +1,65 @@
+{
+  "timestamp": "2026-04-28T15:21:49.933101Z",
+  "agent_id": "aiar-prod-001",
+  "activation_time": "< 5 seconds",
+  "total_agents": 5,
+  "active_agents": 3,
+  "readiness_percent": 60.0,
+  "agents": {
+    "ABA": {
+      "status": "active",
+      "builders_available": 6,
+      "capability": "Parallel builds up to 5 concurrent",
+      "cache_strategy": "Layer-to-layer with registry backend",
+      "decision_cycle": "60s (EXECUTE phase)"
+    },
+    "AMB": {
+      "status": "active",
+      "platforms": [
+        "linux/amd64",
+        "linux/arm64",
+        "linux/arm/v7"
+      ],
+      "bake_config": "docker-bake.hcl",
+      "parallelism": "3 simultaneous",
+      "image_manifest": "Supported (single tag for all platforms)"
+    },
+    "ADAV": {
+      "status": "degraded",
+      "strategy": "Canary rollout (5% traffic, 300s validation)",
+      "healthcheck_required": true,
+      "rollback_on_anomaly": true,
+      "services_monitored": [
+        "backend",
+        "aiar-controller",
+        "prometheus"
+      ]
+    },
+    "ASI": {
+      "status": "active",
+      "monitor_interval_sec": 10,
+      "metrics_source": "Prometheus",
+      "scale_triggers": {
+        "cpu_threshold": "80% (scale up)",
+        "memory_threshold": "85% (escalate)",
+        "request_queue": "threshold-based",
+        "sustained_period": "3 minutes"
+      },
+      "min_replicas": 2,
+      "max_replicas": 20
+    },
+    "APN": {
+      "status": "disabled",
+      "node_url": "Not configured",
+      "report_frequency_min": 5,
+      "participation": "Consensus + metrics reporting + rewards",
+      "features": {
+        "metrics_reporting": "Enabled",
+        "consensus_voting": "Ready",
+        "reward_accumulation": "Enabled",
+        "dag_participation": "Ready"
+      }
+    }
+  },
+  "recommendation": "REQUIRES SETUP"
+}

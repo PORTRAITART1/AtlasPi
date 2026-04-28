@@ -1,0 +1,70 @@
+# Backend Dockerfile with DHI (Docker Hardened Images) - Maximum Security
+
+FROM docker.io/library/node:18-hardened AS dependencies
+WORKDIR /app
+
+# STABLE LAYER: dependencies (rarely change)
+COPY package*.json ./
+RUN npm install --production
+
+# ---
+
+FROM docker.io/library/node:18-hardened AS builder
+WORKDIR /app
+
+# VOLATILE LAYER: source code (frequently changes)
+COPY config ./config
+COPY routes ./routes
+COPY utils ./utils
+COPY server.js .
+COPY test-secret-rotation.js .
+
+# ---
+
+FROM docker.io/library/node:18-hardened AS runtime
+
+WORKDIR /app
+
+# Metadata for observability
+LABEL maintainer="aiar-agent"
+LABEL org.opencontainers.image.description="AtlasPi Backend - Hardened Production"
+LABEL org.opencontainers.image.source="https://github.com/your-repo"
+LABEL security.compliance="CIS Docker Benchmark Level 2"
+
+# Security: create non-root user
+RUN addgroup -g 1001 -S nodejs && \
+    adduser -S nodejs -u 1001
+
+# Copy runtime dependencies from builder
+COPY --from=dependencies --chown=nodejs:nodejs /app/node_modules ./node_modules
+
+# Copy application code from builder
+COPY --from=builder --chown=nodejs:nodejs /app .
+
+# Health check (critical for ADAV agent)
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+  CMD node -e "require('http').get('http://localhost:3000/api/health', (r) => {if (r.statusCode !== 200) throw new Error(r.statusCode)})"
+
+# Expose port (non-privileged)
+EXPOSE 3000
+
+# Drop ALL capabilities
+RUN setcap -r /usr/bin/node 2>/dev/null || true
+
+# Read-only root filesystem (optional, mount /tmp as tmpfs)
+# RUN mount -o remount,ro /
+
+# Drop root privileges
+USER nodejs
+
+# Runtime command
+CMD ["node", "server.js"]
+
+# Build arguments for traceability
+ARG BUILD_DATE
+ARG VCS_REF
+ARG VERSION=1.0.0-dhi
+
+LABEL org.label-schema.build-date=$BUILD_DATE \
+      org.label-schema.vcs-ref=$VCS_REF \
+      org.label-schema.version=$VERSION

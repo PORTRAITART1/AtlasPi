@@ -1,0 +1,83 @@
+# Git
+.git
+.gitignore
+.gitmodules
+
+# Node
+node_modules
+npm-debug.log
+yarn-error.log
+package-lock.json.backup
+
+# Python
+__pycache__
+*.pyc
+*.pyo
+*.egg-info
+.venv
+venv
+dist
+build
+*.egg
+
+# Docker
+.docker
+Dockerfile*
+docker-compose*.yml
+.dockerignore
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+.DS_Store
+
+# Documentation (except critical)
+*.md
+docs/
+
+# Testing
+*.test.js
+__tests__
+.jest
+.nyc_output
+coverage
+
+# Logs
+logs/
+*.log
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Temporary
+tmp/
+temp/
+*.tmp
+.cache
+
+# Build artifacts
+build/
+dist/
+out/
+
+# CI/CD
+.github
+.gitlab-ci.yml
+.travis.yml
+Jenkinsfile
+
+# Secrets & credentials
+.aws
+.ssh
+*.pem
+*.key
+credentials.json
+
+# Large files
+*.iso
+*.tar.gz
+*.zip

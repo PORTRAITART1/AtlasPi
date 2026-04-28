@@ -1,0 +1,266 @@
+# Docker Compose Configuration for AtlasPi with AIAR (Agent IA Autonome Responsable)
+# Includes: Backend, Frontend, Pi Network Node, Monitoring (Prometheus), Agent Controller
+# Deploy with: docker compose up --pull always
+
+services:
+  # ============================================================
+  # BACKEND: Main AtlasPi API Service
+  # ============================================================
+  backend:
+    build:
+      context: ./backend
+      dockerfile: ./Dockerfile.optimized
+      # Build args for observability
+      args:
+        BUILD_DATE: ${BUILD_DATE:-}
+        VCS_REF: ${VCS_REF:-}
+        VERSION: ${VERSION:-1.0.0}
+    image: atlaspi-backend:${VERSION:-latest}
+    container_name: atlaspi-backend
+    ports:
+      - "3000:3000"
+    environment:
+      APP_MODE: ${APP_MODE:-demo}
+      NODE_ENV: production
+      LOG_LEVEL: info
+      # Agent observability
+      AGENT_ENABLED: "true"
+      AGENT_METRICS_PORT: "9090"
+    env_file:
+      - ./backend/.env
+    volumes:
+      - ./backend/data:/app/data
+      - ./backend/logs:/app/logs
+      # For development: enable hot-reload
+      # - ./backend/src:/app/src
+      # - ./backend/routes:/app/routes
+    networks:
+      - atlaspi-network
+      - agent-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    restart: unless-stopped
+
+  # ============================================================
+  # FRONTEND: Web UI Service
+  # ============================================================
+  frontend:
+    image: node:18-alpine
+    container_name: atlaspi-frontend
+    working_dir: /app
+    command: >
+      sh -c "
+      echo 'window.ATLASPI_CONFIG = { API_BASE_URL: \"http://localhost:3000\" };' > config-runtime.js &&
+      npx http-server -p 8080 -c-1
+      "
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./frontend:/app
+    networks:
+      - atlaspi-network
+    depends_on:
+      backend:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "-", "http://localhost:8080/"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    restart: unless-stopped
+
+  # ============================================================
+  # PI NETWORK NODE: Autonomous participation in Pi ecosystem
+  # ============================================================
+  pi-node:
+    image: pi-network/pi-node:latest
+    container_name: atlaspi-pi-node
+    environment:
+      PI_NODE_ROLE: "autonomous_builder"
+      PI_NETWORK: "mainnet"
+      AGENT_ENABLED: "true"
+      AGENT_CONFIG_PATH: /etc/pi-agent/config.yaml
+      # Node identity
+      NODE_ID: ${PI_NODE_ID:-}
+      NODE_API_KEY: ${PI_NODE_API_KEY:-}
+    volumes:
+      - ./pi-node/config.yaml:/etc/pi-agent/config.yaml
+      - pi-node-data:/var/lib/pi-node
+      - pi-node-ledger:/var/lib/pi-ledger
+    ports:
+      - "31400:31400"  # Pi Node consensus port
+      - "31401:31401"  # Agent metrics export
+    networks:
+      - pi-mainnet
+      - agent-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:31401/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+    restart: unless-stopped
+
+  # ============================================================
+  # PROMETHEUS: Metrics collection for AIAR observability
+  # ============================================================
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: atlaspi-prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--storage.tsdb.retention.time=7d'
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus-data:/prometheus
+    networks:
+      - agent-network
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:9090/-/healthy"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    restart: unless-stopped
+
+  # ============================================================
+  # AIAR CONTROLLER: Agent IA Autonome Responsable (orchestrator)
+  # ============================================================
+  aiar-controller:
+    build:
+      context: ./aiar
+      dockerfile: ./Dockerfile
+    image: atlaspi-aiar:latest
+    container_name: atlaspi-aiar-controller
+    environment:
+      # Agent identity
+      AGENT_ID: "aiar-prod-001"
+      AGENT_TYPE: "ABA|AMB|ADAV|ASI|APN"  # Multi-agent system
+      AGENT_MODE: "autonomous"
+      
+      # Governance
+      APPROVAL_THRESHOLD_RISK_LEVEL: "MEDIUM"
+      APPROVAL_SLACK_WEBHOOK: ${APPROVAL_SLACK_WEBHOOK:-}
+      APPROVAL_EMAIL: ${APPROVAL_EMAIL:-}
+      
+      # Docker Build Cloud
+      DOCKER_BUILD_CLOUD_ENABLED: "true"
+      DOCKER_BUILD_CLOUD_TOKEN: ${DOCKER_BUILD_CLOUD_TOKEN:-}
+      DOCKER_BUILD_CLOUD_ORG: ${DOCKER_BUILD_CLOUD_ORG:-}
+      
+      # Registry credentials
+      DOCKER_REGISTRY: ${DOCKER_REGISTRY:-docker.io}
+      DOCKER_USERNAME: ${DOCKER_USERNAME:-}
+      DOCKER_PASSWORD: ${DOCKER_PASSWORD:-}
+      
+      # Monitoring endpoints
+      PROMETHEUS_URL: "http://prometheus:9090"
+      
+      # Pi Network
+      PI_NODE_URL: "http://pi-node:31401"
+      PI_NODE_API_KEY: ${PI_NODE_API_KEY:-}
+      
+      # Vault for secrets management
+      VAULT_ADDR: ${VAULT_ADDR:-http://vault:8200}
+      VAULT_TOKEN: ${VAULT_TOKEN:-}
+      
+      # Logging
+      LOG_LEVEL: info
+      LOG_FORMAT: json
+      AUDIT_LOG_PATH: /var/log/aiar/audit.log
+      
+      # Timeouts
+      BUILD_TIMEOUT_SECONDS: 300
+      DEPLOY_TIMEOUT_SECONDS: 600
+      
+    volumes:
+      # Docker socket for container management
+      - /var/run/docker.sock:/var/run/docker.sock
+      # Agent configuration
+      - ./aiar/config.yaml:/etc/aiar/config.yaml:ro
+      # Audit logs
+      - ./aiar/logs:/var/log/aiar
+      # Decision history
+      - ./aiar/decisions:/var/lib/aiar/decisions
+    networks:
+      - atlaspi-network
+      - agent-network
+      - pi-mainnet
+    depends_on:
+      backend:
+        condition: service_healthy
+      prometheus:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    restart: unless-stopped
+
+  # ============================================================
+  # OPTIONAL: ELK Stack for Centralized Logging
+  # (Uncomment to enable)
+  # ============================================================
+  # elasticsearch:
+  #   image: docker.elastic.co/elasticsearch/elasticsearch:8.0.0
+  #   environment:
+  #     discovery.type: single-node
+  #   ports:
+  #     - "9200:9200"
+  #   volumes:
+  #     - elasticsearch-data:/usr/share/elasticsearch/data
+  #   networks:
+  #     - agent-network
+
+  # kibana:
+  #   image: docker.elastic.co/kibana/kibana:8.0.0
+  #   ports:
+  #     - "5601:5601"
+  #   environment:
+  #     ELASTICSEARCH_HOSTS: http://elasticsearch:9200
+  #   depends_on:
+  #     - elasticsearch
+  #   networks:
+  #     - agent-network
+
+# ============================================================
+# NETWORKS
+# ============================================================
+networks:
+  atlaspi-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
+
+  agent-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.21.0.0/16
+    # Agent components communicate here (isolated from frontend)
+
+  pi-mainnet:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.22.0.0/16
+    # Pi Network consensus traffic (can be encrypted with WireGuard)
+
+# ============================================================
+# VOLUMES
+# ============================================================
+volumes:
+  prometheus-data:
+  pi-node-data:
+  pi-node-ledger:
+  # elasticsearch-data:  (uncomment for ELK)
+

@@ -1,0 +1,155 @@
+# Pi Network Node Configuration for Docker
+# Integrates with AIAR (Agent IA Autonome Responsable)
+
+node:
+  # Node identity
+  id: ${PI_NODE_ID}
+  role: "autonomous_builder"
+  api_key: ${PI_NODE_API_KEY}
+  
+  # Network
+  network: "mainnet"
+  consensus_port: 31400
+  api_port: 31401
+  
+  # Autonomous builder settings
+  autonomous_builder:
+    enabled: true
+    agent_enabled: true
+    agent_config: /etc/pi-agent/config.yaml
+    
+    # Report metrics to Pi Network
+    metrics_reporting:
+      enabled: true
+      interval_minutes: 5
+      metrics:
+        - builds_completed_per_hour
+        - build_time_average_seconds
+        - layer_cache_hit_rate
+        - build_success_rate
+        - deployments_per_day
+        - resource_utilization_percent
+    
+    # Earn rewards for participation
+    rewards:
+      enabled: true
+      wallet_address: ${PI_WALLET_ADDRESS}
+      claim_frequency_hours: 24
+      
+      # Reward rates (Pi per action)
+      reward_rates:
+        build_completion: 0.1
+        cache_optimization: 0.05
+        successful_deploy: 0.2
+        consensus_participation: 0.01
+  
+  # Consensus parameters
+  consensus:
+    timeout_seconds: 30
+    min_validators: 3
+    # Fallback to local queue if network unreachable
+    fallback_local_queue: true
+    local_queue_max_entries: 1000
+  
+  # Ledger (distributed ledger for build history)
+  ledger:
+    data_path: /var/lib/pi-ledger
+    # Immutable audit trail
+    audit_enabled: true
+    audit_path: /var/log/pi-ledger/audit.log
+  
+  # Storage
+  storage:
+    data_path: /var/lib/pi-node
+    cache_size_mb: 512
+    
+# ========== Integration with AIAR ==========
+aiar_integration:
+  enabled: true
+  
+  # AIAR reports build metrics to this node
+  metrics_endpoint: "http://aiar-controller:8000/api/pi-metrics"
+  
+  # This node reports back to AIAR
+  feedback_endpoint: "http://pi-node:31401/api/feedback"
+  
+  # Consensus-based decisions
+  distributed_decisions:
+    enabled: true
+    # Major decisions require Pi Network consensus
+    require_consensus_for:
+      - breaking_changes
+      - security_patches
+      - deployment_to_prod
+    
+    # Voting parameters
+    voting:
+      min_validators_required: 3
+      consensus_threshold_percent: 66
+      voting_timeout_seconds: 60
+
+# ========== Security ==========
+security:
+  # TLS for node-to-node communication
+  tls:
+    enabled: true
+    ca_cert: /etc/pi-certs/ca.crt
+    node_cert: /etc/pi-certs/node.crt
+    node_key: /etc/pi-certs/node.key
+  
+  # Authentication
+  auth:
+    api_key_secret: ${PI_NODE_API_KEY}
+    mTLS_required: true
+
+# ========== Monitoring & Health ==========
+monitoring:
+  health_check_interval_seconds: 30
+  
+  # Health check endpoints
+  healthcheck:
+    consensus_alive: true
+    ledger_in_sync: true
+    storage_available: true
+    network_connectivity: true
+  
+  # Metrics export for Prometheus
+  prometheus:
+    enabled: true
+    port: 31401
+    path: /api/metrics
+
+# ========== Humanoid & Industrial System Integration ==========
+# (Future: connect to humanoid robots, industrial IoT devices)
+humanoid_integration:
+  enabled: false
+  bridge_endpoint: "http://humanoid-api:8080"
+  
+  # Real-time data exchange
+  data_sync:
+    interval_seconds: 5
+    metrics_to_export:
+      - system_health
+      - build_queue_status
+      - resource_availability
+    commands_to_accept:
+      - trigger_build
+      - scale_services
+      - deploy_new_version
+
+# ========== Logging ==========
+logging:
+  level: info
+  format: json
+  
+  outputs:
+    - type: stdout
+    - type: file
+      path: /var/log/pi-node/pi-node.log
+      rotation: daily
+      retention_days: 30
+    - type: file
+      path: /var/log/pi-ledger/audit.log
+      rotation: daily
+      retention_days: 365  # Immutable audit log
+

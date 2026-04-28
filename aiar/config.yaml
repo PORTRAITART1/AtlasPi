@@ -1,0 +1,411 @@
+# AIAR Agent Configuration
+# Agent IA Autonome Responsable (Meta-Configuration + Governance)
+
+agent:
+  id: "aiar-prod-001"
+  name: "AtlasPi Autonomous Intelligence Agent"
+  version: "1.0.0"
+  
+  # ==================================================
+  # GOVERNANCE & SAFETY
+  # ==================================================
+  governance:
+    # Autonomy levels (0=manual, 100=fully autonomous)
+    autonomy_level: 80
+    
+    # Risk-based approval workflow
+    approval_workflow:
+      # No approval for LOW risk
+      low_risk_auto_approve: true
+      
+      # MEDIUM risk requires Slack notification + 10 min window for human override
+      medium_risk_approval:
+        required: true
+        approval_methods:
+          - slack_emoji_reaction
+          - email_approval_link
+          - api_token
+        timeout_minutes: 10
+        default_action: "proceed_if_timeout"  # auto-proceed after timeout
+      
+      # CRITICAL risk always requires explicit human approval
+      critical_risk_approval:
+        required: true
+        approval_methods:
+          - slack_approval
+          - pagerduty_acknowledge
+        timeout_minutes: 30
+        default_action: "abort_if_timeout"  # abort if no approval
+    
+    # Escalation contacts
+    escalation:
+      primary:
+        slack_channel: "#devops-alerts"
+        slack_user: "@devops-on-call"
+      secondary:
+        email: "devops-team@example.com"
+        pagerduty_service_id: "P123ABC"
+  
+  # ==================================================
+  # AUTONOMY MODULES
+  # ==================================================
+  modules:
+    
+    # ABA: Build Autonome
+    build_orchestration:
+      enabled: true
+      type: "ABA"
+      
+      # Perception loop (monitor)
+      perception:
+        interval_seconds: 10
+        checks:
+          - docker_ps
+          - docker_stats
+          - build_cloud_status
+          - git_push_events
+      
+      # Decision loop (analyze)
+      decision:
+        interval_seconds: 30
+        algorithm: "entropy_minimization"  # minimize uncertainty
+        confidence_threshold: 0.75  # only act if confidence > 75%
+      
+      # Execution loop
+      execution:
+        interval_seconds: 60
+        max_parallel_builds: 5
+        build_timeout_minutes: 5
+        cache_target_hit_rate: 0.70
+      
+      # Risk levels for different build types
+      risk_assessment:
+        breaking_change:
+          risk: "CRITICAL"
+          requires_approval: true
+        major_version_bump:
+          risk: "MEDIUM"
+          requires_approval: true
+        minor_version_bump:
+          risk: "LOW"
+          requires_approval: false
+        patch:
+          risk: "LOW"
+          requires_approval: false
+    
+    # AMB: Multi-Arch Builder
+    multi_arch_build:
+      enabled: true
+      type: "AMB"
+      platforms:
+        - arch: "amd64"
+          build_location: "local"
+          timeout_minutes: 3
+        - arch: "arm64"
+          build_location: "build_cloud"
+          timeout_minutes: 4
+        - arch: "armv7"
+          build_location: "local_emulation"
+          timeout_minutes: 6
+      parallel_builds: 3
+    
+    # AOLC: Layer Cache Optimizer
+    layer_cache_optimizer:
+      enabled: true
+      type: "AOLC"
+      
+      analysis_per_build: true
+      target_cache_hit_rate: 0.70
+      
+      # Reorder recommendations
+      auto_reorder_dockerfile: false  # suggest, don't auto-apply
+      
+      # Cache export strategy
+      cache_export:
+        type: "registry"
+        remote_cache_ref: "docker.io/atlaspi-backend:buildcache"
+    
+    # ADAV: Autonomous Deployment Validator
+    deployment_validator:
+      enabled: true
+      type: "ADAV"
+      
+      strategy:
+        type: "canary_rollout"
+        canary_percentage: 5
+        canary_duration_minutes: 5
+      
+      # Health checks before full rollout
+      pre_deploy_checks:
+        - security_scan
+        - image_size_check
+        - healthcheck_verification
+      
+      # Metrics validation post-canary
+      canary_validation:
+        metrics:
+          - p50_latency
+          - p99_latency
+          - error_rate
+          - memory_usage
+        tolerance_percent: 5
+      
+      # Rollback triggers
+      rollback:
+        auto_rollback_on_error: true
+        error_threshold: 2  # 2+ consecutive errors
+        timeout_minutes: 5
+    
+    # ASI: Intelligent Scaling
+    auto_scaling:
+      enabled: true
+      type: "ASI"
+      
+      monitoring:
+        interval_seconds: 10
+        metrics:
+          - cpu_percent
+          - memory_percent
+          - request_rate
+          - queue_depth
+      
+      # Scale-up triggers
+      scale_up:
+        cpu_threshold_percent: 80
+        memory_threshold_percent: 85
+        request_rate_increase_percent: 150
+        sustained_duration_seconds: 30
+        increment_replicas: 1
+      
+      # Scale-down triggers
+      scale_down:
+        cpu_threshold_percent: 30
+        sustained_duration_seconds: 600
+        decrement_replicas: 1
+        min_replicas: 2  # HA constraint
+      
+      # Post-scaling validation
+      validation:
+        wait_minutes: 2
+        check_metrics: true
+        rollback_if_metrics_worsen: true
+    
+    # APN: Pi Network Agent
+    pi_network_integration:
+      enabled: true
+      type: "APN"
+      
+      node_connection:
+        url: "http://pi-node:31401"
+        api_key_secret_path: "vault/pi-node-api-key"
+      
+      # Report metrics to Pi Network
+      reporting:
+        interval_minutes: 5
+        metrics:
+          - builds_completed
+          - build_time_avg_seconds
+          - cache_hit_rate
+          - success_rate
+          - deploy_count
+      
+      # Earn rewards for participation
+      rewards:
+        enabled: true
+        exchange_rate_source: "pi_official_api"
+        wallet_address: ${PI_WALLET_ADDRESS}
+      
+      # Consensus participation
+      consensus:
+        enabled: true
+        latency_threshold_seconds: 2
+        fallback_to_local_queue: true
+    
+    # AO: Observability Agent
+    observability:
+      enabled: true
+      type: "AO"
+      
+      # Structured logging (JSON)
+      logging:
+        format: "json"
+        destinations:
+          - stdout
+          - file:///var/log/aiar/audit.log
+          - elasticsearch:// (optional)
+        
+        log_types:
+          - decision_log
+          - execution_log
+          - error_log
+          - audit_log
+      
+      # Metrics export
+      metrics:
+        prometheus_port: 9090
+        scrape_interval_seconds: 30
+        metrics:
+          - agent_decisions_total
+          - agent_decision_confidence
+          - agent_execution_duration_ms
+          - agent_approval_rate_percent
+          - agent_success_rate_percent
+      
+      # Distributed tracing (optional)
+      tracing:
+        enabled: false
+        jaeger_endpoint: "http://jaeger:6831"
+  
+  # ==================================================
+  # FEEDBACK LOOPS & LEARNING
+  # ==================================================
+  feedback_loops:
+    
+    # Post-action evaluation
+    evaluation:
+      enabled: true
+      interval_minutes: 5
+      
+      # Did the action achieve its goal?
+      success_criteria:
+        scale_up:
+          cpu_reduction_target_percent: 20
+          wait_minutes: 5
+        build_parallel:
+          time_reduction_target_percent: 40
+        deploy_canary:
+          error_rate_within_tolerance: true
+      
+      # Update confidence weights
+      confidence_adjustment:
+        success: +5
+        partial_success: -2
+        failure: -10
+        persistent_failure: escalate_to_human
+    
+    # Model retraining (continuous improvement)
+    retraining:
+      enabled: true
+      frequency_days: 7
+      
+      # Analyze past decisions
+      analysis:
+        sample_size: 1000
+        look_back_days: 7
+      
+      # Update decision thresholds
+      threshold_updates:
+        enabled: true
+        method: "bayesian_optimization"
+  
+  # ==================================================
+  # SECRETS & SECURITY
+  # ==================================================
+  security:
+    # All secrets via Vault (not plaintext)
+    secrets_backend: "vault"
+    vault_config:
+      address: ${VAULT_ADDR}
+      auth_method: "kubernetes"  # or jwt, approle, etc
+      secret_path_prefix: "secret/aiar"
+    
+    # TLS for inter-service communication
+    tls:
+      enabled: true
+      ca_cert_path: "/etc/aiar/ca.crt"
+      client_cert_path: "/etc/aiar/client.crt"
+      client_key_path: "/etc/aiar/client.key"
+    
+    # RBAC (role-based access control)
+    rbac:
+      enabled: true
+      roles:
+        - name: agent_reader
+          permissions: [read_metrics, read_logs]
+        - name: agent_operator
+          permissions: [read, execute_low_risk, request_approval]
+        - name: agent_admin
+          permissions: [read, write, execute, approve]
+    
+    # Rate limiting (prevent abuse)
+    rate_limiting:
+      enabled: true
+      limits:
+        decisions_per_minute: 10
+        builds_per_hour: 50
+        deploys_per_hour: 10
+  
+  # ==================================================
+  # ALERTING & NOTIFICATIONS
+  # ==================================================
+  alerting:
+    enabled: true
+    
+    channels:
+      slack:
+        enabled: true
+        webhook_url: ${APPROVAL_SLACK_WEBHOOK}
+        mention_on_critical: true
+      
+      email:
+        enabled: true
+        smtp_server: "smtp.example.com"
+        from: "aiar-agent@example.com"
+        recipients: ["devops@example.com"]
+      
+      pagerduty:
+        enabled: true
+        integration_key: ${PAGERDUTY_INTEGRATION_KEY}
+    
+    # Alert rules (when to notify)
+    rules:
+      - condition: "approval_required"
+        severity: "high"
+        channels: [slack]
+      
+      - condition: "critical_failure"
+        severity: "critical"
+        channels: [slack, email, pagerduty]
+      
+      - condition: "confidence_degradation"
+        severity: "medium"
+        channels: [email]
+
+# ==================================================
+# METRICS & MONITORING TARGETS
+# ==================================================
+monitoring:
+  prometheus_scrape_config: |
+    global:
+      scrape_interval: 30s
+    scrape_configs:
+      - job_name: 'aiar-agent'
+        static_configs:
+          - targets: ['localhost:9090']
+      - job_name: 'docker'
+        static_configs:
+          - targets: ['localhost:2375']
+      - job_name: 'pi-node'
+        static_configs:
+          - targets: ['pi-node:31401']
+
+# ==================================================
+# AUDIT & COMPLIANCE
+# ==================================================
+audit:
+  enabled: true
+  immutable_log_path: "/var/log/aiar/audit.log"
+  
+  # What to audit
+  audit_events:
+    - decision_made
+    - action_executed
+    - approval_granted
+    - approval_denied
+    - rollback_triggered
+    - secret_accessed
+  
+  # Retention
+  retention_days: 365
+  backup_destination: "s3://backup-bucket/aiar-audit/"
+
