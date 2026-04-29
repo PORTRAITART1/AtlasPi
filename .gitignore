@@ -49,3 +49,4 @@ out/
 *.swo
 *~
 .vscode/settings.json
+.aider*
