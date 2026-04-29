@@ -13,7 +13,7 @@ document.addEventListener('DOMContentLoaded', function() {
   console.log('[Pi Payment Init] Initializing payment system...');
 
   // Initialize Pi Payments
-  const payments = new window.PiBrowserPayments();
+  const payments = window.piBrowserPayments;
   
   // Set API base URL
   if (window.API_BASE) {
