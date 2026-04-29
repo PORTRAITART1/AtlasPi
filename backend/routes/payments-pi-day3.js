@@ -23,19 +23,20 @@ function isRealCredential(value) {
 /**
  * POST /api/payments/create-record-day3
  * Create a payment record. Handles different modes.
+ * This is the initial step, often called by the frontend before interacting with Pi SDK.
  */
 router.post("/create-record-day3", (req, res) => {
   const { uid, username, amount, memo, metadata } = req.body;
   const appMode = envManager.get('mode');
 
   if (!uid || !username || !amount) {
-    return res.status(400).json({ ok: false, error: 'Missing required fields' });
+    return res.status(400).json({ ok: false, error: 'Missing required fields (uid, username, amount)' });
   }
   if (Number(amount) <= 0) {
     return res.status(400).json({ ok: false, error: 'Amount must be greater than 0' });
   }
 
-  logger.info(`[Payment] create-record mode=${appMode} user=${username} amount=${amount}`);
+  logger.info(`[Payment] create-record-day3 mode=${appMode} user=${username} amount=${amount}`);
 
   const localPaymentId = `payment-${uuidv4()}`;
   const createdAt = new Date().toISOString();
@@ -64,7 +65,7 @@ router.post("/create-record-day3", (req, res) => {
     [localPaymentId, username, amount, memo || '', status, createdAt, JSON.stringify(metadata || {})],
     function (err) {
       if (err) {
-        logger.error(`[Payment] DB error on create: ${err.message}`);
+        logger.error(`[Payment] DB error on create-record-day3: ${err.message}`);
         return res.status(500).json({ ok: false, error: 'Database error' });
       }
 

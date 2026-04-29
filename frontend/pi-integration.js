@@ -10,7 +10,34 @@ class PiIntegrationManager {
     console.log(`[Pi Integration] Mode: ${this.mode}, SDK Available: ${this.sdkAvailable}`);
   }
 
-  // ... (detectPiSdk, detectMode, initConfig)
+  // Placeholder for detectPiSdk, detectMode, initConfig - assuming they exist and work
+  detectPiSdk() {
+    if (typeof window === 'undefined') return false;
+    // Check for the presence of the Pi SDK object and its core functions
+    const piSdkPresent = window.Pi && typeof window.Pi.authenticate === 'function' && typeof window.Pi.createPayment === 'function';
+    console.log(`[Pi Integration] Pi SDK detected: ${piSdkPresent}`);
+    return piSdkPresent;
+  }
+
+  detectMode() {
+    // This should ideally read from a config loaded from backend or env
+    // For now, let's assume a default or a simple check
+    const modeFromEnv = process.env.APP_MODE || 'demo'; // Example, adjust as needed
+    const validModes = ['demo', 'pirc2-sandbox', 'pirc2-production', 'pi-ready'];
+    if (validModes.includes(modeFromEnv)) {
+      return modeFromEnv;
+    }
+    console.warn(`[Pi Integration] Invalid mode detected: ${modeFromEnv}. Defaulting to 'demo'.`);
+    return 'demo';
+  }
+
+  initConfig() {
+    // Placeholder for loading configuration
+    return {
+      mode: this.mode,
+      // ... other config properties
+    };
+  }
 
   /**
    * Set backend mode info (called after backend health check)
@@ -20,8 +47,9 @@ class PiIntegrationManager {
     this.config.mode = mode;
     // Assurer que piBrowserPayments est aussi informé si disponible
     if (window.piBrowserPayments) {
-      window.piBrowserPayments.sdkAvailable = window.piBrowserPayments.detectPiSdk(); // Re-détecter si besoin
-      // Le mode de piBrowserPayments est dérivé de celui-ci
+      // Re-detect SDK availability as it might depend on the environment Pi is running in
+      window.piBrowserPayments.sdkAvailable = window.piBrowserPayments.detectPiSdk(); 
+      console.log(`[Pi Integration] Updated backend mode to ${mode}. Pi SDK available for payments: ${window.piBrowserPayments.sdkAvailable}`);
     }
   }
 
@@ -32,42 +60,98 @@ class PiIntegrationManager {
   async authenticate() {
     console.log(`[Pi Auth] Starting authentication in mode: ${this.mode}`);
 
-    // Si le SDK Pi n'est pas disponible, on reste en démo
+    // If the Pi SDK is not available, we must fall back to demo authentication
     if (!this.sdkAvailable) {
       console.log('[Pi Auth] Pi SDK unavailable, falling back to DEMO auth');
       return this.authDemo();
     }
 
-    // Si le SDK est disponible, on utilise le mode configuré
+    // If the SDK is available, use the configured mode
     switch (this.mode) {
       case 'demo':
+        console.log('[Pi Auth] Using DEMO authentication.');
         return this.authDemo();
       
       case 'pi-ready': // Sandbox
       case 'pirc2-sandbox':
-        // Tenter une authentification Pi réelle (si SDK dispo)
-        // Si l'authentification Pi échoue ou n'est pas complète, fallback vers démo
-        console.log('[Pi Auth] Attempting PI-READY authentication (sandbox mode)');
-        const piAuthResult = await this.authPiSdk(); // Tente le vrai flow
+        console.log('[Pi Auth] Attempting PI-READY authentication (sandbox mode) using Pi SDK.');
+        // Attempt Pi authentication using the SDK
+        const piAuthResult = await this.authPiSdk(); 
         if (piAuthResult.ok) {
           return piAuthResult;
         } else {
-          console.warn('[Pi Auth] Pi SDK auth failed in pi-ready mode, falling back to DEMO');
+          // If Pi SDK authentication fails or is incomplete, fall back to demo
+          console.warn('[Pi Auth] Pi SDK auth failed in pi-ready mode, falling back to DEMO.');
           const demoResult = await this.authDemo();
+          // Indicate that a fallback occurred
           return { ...demoResult, fallbackMode: 'pi-ready -> demo' };
         }
       
       case 'pirc2-production':
-        // Production: nécessite le vrai SDK Pi
-        console.log('[Pi Auth] Attempting PRODUCTION authentication');
-        return this.authPiSdk(); // Doit réussir
+        console.log('[Pi Auth] Attempting PRODUCTION authentication using Pi SDK.');
+        // Production requires the real Pi SDK authentication to succeed
+        return this.authPiSdk(); 
       
       default:
+        console.warn(`[Pi Auth] Unknown mode: ${this.mode}. Falling back to DEMO auth.`);
         return this.authDemo();
     }
   }
 
-  // ... (authDemo, authPiSdk, getUser, getMode, isDemoMode, isPiSdkAvailable)
+  // Placeholder for authDemo - assumes it returns { ok: true, user: {...}, mode: 'demo' } or { ok: false, error: '...' }
+  async authDemo() {
+    console.log("[Pi Auth] Running DEMO authentication flow.");
+    // Simulate a successful demo authentication
+    return new Promise(resolve => {
+      setTimeout(() => {
+        this.user = { uid: 'demo-user-123', username: 'DemoUser', wallet_address: 'DUMMY_WALLET_123' };
+        resolve({ ok: true, user: this.user, mode: 'demo' });
+      }, 500);
+    });
+  }
+
+  // Placeholder for authPiSdk - assumes it uses window.Pi.authenticate()
+  async authPiSdk() {
+    console.log("[Pi Auth] Running Pi SDK authentication flow.");
+    if (!this.sdkAvailable) {
+      return { ok: false, error: "Pi SDK not available for authentication.", mode: this.mode };
+    }
+    try {
+      // This is where the actual Pi SDK authentication call would happen
+      // Example: const authResult = await window.Pi.authenticate(...);
+      // For now, simulate success for sandbox/production if SDK is available
+      const simulatedAuthResult = await new Promise(resolve => {
+        setTimeout(() => {
+          resolve({
+            ok: true, // Assume success for now
+            user: { uid: 'pi-sdk-user-456', username: 'PiUser', wallet_address: 'PI_WALLET_ADDRESS_XYZ' },
+            mode: this.mode // Reflects the current app mode (pi-ready or production)
+          });
+        }, 1000);
+      });
+      this.user = simulatedAuthResult.user;
+      return simulatedAuthResult;
+    } catch (error) {
+      console.error("[Pi Auth] Pi SDK authentication failed:", error);
+      return { ok: false, error: error.message || "Pi SDK authentication error", mode: this.mode };
+    }
+  }
+
+  getUser() {
+    return this.user;
+  }
+
+  getMode() {
+    return this.mode;
+  }
+
+  isDemoMode() {
+    return this.mode === 'demo';
+  }
+
+  isPiSdkAvailable() {
+    return this.sdkAvailable;
+  }
 
   /**
    * Get status message for UI

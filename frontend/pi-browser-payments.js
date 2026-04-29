@@ -58,7 +58,14 @@ class PiBrowserPayments {
       // On retourne une promesse qui sera résolue par le gestionnaire démo
       return new Promise((resolve, reject) => {
         // On passe les infos de paiement au gestionnaire démo
-        window.triggerDemoPaymentFlow(paymentConfig, resolve, reject);
+        // Assurez-vous que window.triggerDemoPaymentFlow est défini globalement
+        if (window.triggerDemoPaymentFlow) {
+          window.triggerDemoPaymentFlow(paymentConfig, resolve, reject);
+        } else {
+          console.error("Demo payment flow handler (window.triggerDemoPaymentFlow) not found!");
+          this.paymentInProgress = false;
+          reject(new Error("Demo payment flow handler not found."));
+        }
       });
     }
   }
@@ -95,7 +102,8 @@ class PiBrowserPayments {
                 });
 
                 if (!approvalResponse.ok) {
-                  throw new Error(`Approval failed: ${approvalResponse.status}`);
+                  const errorData = await approvalResponse.json().catch(() => ({})); // Catch potential JSON parse error
+                  throw new Error(`Approval failed: ${approvalResponse.status} - ${errorData.error || errorData.message || 'Unknown error'}`);
                 }
                 const approvalData = await approvalResponse.json();
                 console.log('✅ PHASE I complete: Payment approved by server', approvalData);
@@ -124,7 +132,8 @@ class PiBrowserPayments {
                 });
 
                 if (!completionResponse.ok) {
-                  throw new Error(`Completion failed: ${completionResponse.status}`);
+                  const errorData = await completionResponse.json().catch(() => ({})); // Catch potential JSON parse error
+                  throw new Error(`Completion failed: ${completionResponse.status} - ${errorData.error || errorData.message || 'Unknown error'}`);
                 }
                 const completionData = await completionResponse.json();
                 console.log('✅ PHASE III complete: Payment completed successfully', completionData);

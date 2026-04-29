@@ -1,50 +1,130 @@
 document.addEventListener("DOMContentLoaded", () => {
-  // ... (initialisation des éléments DOM)
+  // --- DOM Element References ---
+  const piStatus = document.getElementById("piStatus");
+  const piConnectBtn = document.getElementById("piConnectBtn");
+  const piUsername = document.getElementById("piUsername");
+  const piWallet = document.getElementById("piWallet");
+  const createPaymentBtn = document.getElementById("createPaymentBtn");
+  const payAmount = document.getElementById("payAmount");
+  const payMemo = document.getElementById("payMemo");
+  const paymentStatusElement = document.getElementById("paymentStatus"); // Added for payment status display
 
-  // Initialiser Pi Integration Manager et Pi Browser Payments
-  // piIntegrationManager sera initialisé globalement dans pi-integration.js
-  // piBrowserPayments sera initialisé globalement dans pi-browser-payments.js
+  // --- Global Variables ---
+  // Assuming API_BASE_URL is globally available or loaded from config
+  const API_BASE_URL = window.ATLASPI_CONFIG?.API_BASE_URL || 'http://localhost:3000'; 
+  let currentUser = null;
+  let currentPayment = { localPaymentId: null, paymentId: null, txid: null }; // State for demo payment flow
+  let editingMerchantId = null;
+
+  // --- Initialization ---
+  // piIntegrationManager and piBrowserPayments are initialized globally in their respective files
   const piManager = window.piIntegrationManager;
-  const piPaymentHandler = window.piBrowserPayments; // Utiliser le nouveau gestionnaire
+  const piPaymentHandler = window.piBrowserPayments; // Use the new payment handler
 
-  const authHandler = new AtlasPiAuthHandler(piManager); // piManager est maintenant global
+  // Auth handler uses the global piManager
+  const authHandler = new AtlasPiAuthHandler(piManager); 
 
-  // ... (API_BASE_URL)
+  // --- Helper Functions ---
 
-  // ... (éléments DOM pour le paiement)
+  // Function to update the UI with Pi integration status
+  function updatePiStatusUI() {
+    if (!piStatus || !piConnectBtn || !piUsername || !piWallet) return;
 
-  // ... (currentUser, currentPayment, editingMerchantId)
+    const authStatus = piManager.getAuthStatus();
+    const paymentStatusMsg = piPaymentHandler.getStatusMessage(); // Message from the payment handler
 
-  // ... (fonctions helper: getStatusBadgeHTML, renderAdminCounters, etc.)
+    piStatus.textContent = authStatus.statusMessage; // General integration status
+    
+    // Display the payment status
+    if (paymentStatusElement) {
+      paymentStatusElement.textContent = paymentStatusMsg;
+      // Set color based on status (e.g., green for ready, yellow/red for warnings)
+      if (paymentStatusMsg.includes('Ready') || paymentStatusMsg.includes('DEMO')) {
+        paymentStatusElement.style.color = "#10b981"; // Green
+      } else if (paymentStatusMsg.includes('⚠️')) {
+        paymentStatusElement.style.color = "#eab308"; // Yellow
+      } else {
+        paymentStatusElement.style.color = "#dc2626"; // Red
+      }
+    }
 
-  // ... (gestion du menu, formulaire d'attente)
+    // Display user info if authenticated
+    if (authStatus.user) {
+      piUsername.textContent = authStatus.user.username;
+      piWallet.textContent = authStatus.user.wallet_address || "-";
+      piConnectBtn.style.display = 'none'; // Hide connect button if logged in
+    } else {
+      piUsername.textContent = "-";
+      piWallet.textContent = "-";
+      piConnectBtn.style.display = 'block'; // Show connect button if not logged in
+    }
 
-  async function checkBackendStatus() {
-    // ... (inchangé)
+    // Manage payment button states
+    if (createPaymentBtn) {
+      createPaymentBtn.disabled = false; // Always enabled to trigger the flow
+      // Dynamically change button text based on detected mode
+      const isPiRealMode = piPaymentHandler.getMode() === 'pi-browser-real';
+      createPaymentBtn.textContent = isPiRealMode ? "Initiate Real Pi Payment" : "Initiate Demo Payment";
+    }
   }
 
+  // Function to update the payment status message in the UI
+  function updatePaymentStatus(message, isError) {
+    if (paymentStatusElement) {
+      paymentStatusElement.textContent = message;
+      paymentStatusElement.style.color = isError ? "#dc2626" : "#10b981"; // Red for error, green for success
+    }
+  }
+
+  // --- Backend Status Check ---
+  async function checkBackendStatus() {
+    // ... (existing backend status check logic - assumed unchanged)
+    // This function should ideally call piManager.setBackendMode() after a successful check
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/health`);
+      if (response.ok) {
+        const data = await response.json();
+        console.log("Backend health check:", data);
+        // Update the Pi integration manager with the mode reported by the backend
+        if (piManager && data.mode) {
+          piManager.setBackendMode(data.mode);
+        }
+      } else {
+        console.error("Backend health check failed:", response.status);
+        // Set a default or error mode if backend is down
+        if (piManager) {
+          piManager.setBackendMode('demo'); // Fallback to demo if backend is unreachable
+        }
+      }
+    } catch (error) {
+      console.error("Error during backend health check:", error);
+      if (piManager) {
+        piManager.setBackendMode('demo'); // Fallback to demo on network error
+      }
+    }
+  }
+
+  // --- Authentication ---
   async function connectDemoPiUser() {
     if (!piStatus) return;
 
-    piStatus.textContent = "⏳ Sending demo Pi login to backend...";
+    piStatus.textContent = "⏳ Sending login request to backend...";
 
     try {
-      // Utiliser le manager global pour l'authentification
-      const authResult = await piManager.authenticate(); // Appelle authDemo si mode demo ou SDK non dispo
+      // Use the global manager for authentication
+      const authResult = await piManager.authenticate(); 
 
       if (authResult.ok) {
-        piStatus.textContent = `✅ ${authResult.mode.toUpperCase()} user connected.`;
+        // Update UI with connection status and user info
+        const statusText = authResult.fallbackMode 
+          ? `✅ Connected in DEMO (fallback from ${authResult.fallbackMode.toUpperCase()})`
+          : `✅ Authenticated in ${authResult.mode.toUpperCase()} mode.`;
+        piStatus.textContent = statusText;
         
-        // Mettre à jour l'UI avec les infos utilisateur
-        if (piUsername) {
-          piUsername.textContent = authResult.user.username;
-        }
-        if (piWallet) {
-          piWallet.textContent = authResult.user.wallet_address || "-";
-        }
+        if (piUsername) piUsername.textContent = authStatus.user.username;
+        if (piWallet) piWallet.textContent = authStatus.user.wallet_address || "-";
         
-        // Mettre à jour le statut global de l'intégration Pi
-        updatePiStatusUI();
+        updatePiStatusUI(); // Refresh UI elements
 
       } else {
         piStatus.textContent = `❌ Auth error: ${authResult.error || "Unknown error"}`;
@@ -55,52 +135,72 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // Fonction pour mettre à jour l'UI du statut Pi
-  function updatePiStatusUI() {
-    if (!piStatus || !piConnectBtn || !piUsername || !piWallet) return;
+  // --- Payment Handling ---
 
-    const authStatus = piManager.getAuthStatus();
-    const paymentStatusMsg = piPaymentHandler.getStatusMessage(); // Message du gestionnaire de paiement
+  // Encapsulates the old demo payment flow logic
+  // This function will be called by piBrowserPayments.js when in demo fallback mode
+  window.triggerDemoPaymentFlow = async (paymentConfig, resolve, reject) => {
+    console.log("[Demo Payment Flow] Initiated with config:", paymentConfig);
+    const { amount, memo } = paymentConfig;
 
-    piStatus.textContent = authStatus.statusMessage; // Message général d'intégration
-    
-    // Afficher le statut du paiement
-    const paymentStatusElement = document.getElementById("paymentStatus"); // Assurez-vous que cet ID existe
-    if (paymentStatusElement) {
-      paymentStatusElement.textContent = paymentStatusMsg;
+    try {
+      // 1. Create payment record on backend (using the renamed route)
+      const createResponse = await fetch(`${API_BASE_URL}/api/payments/create-record-day3`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          uid: piManager.getUser()?.uid || 'guest', // Use authenticated user ID or guest
+          username: piManager.getUser()?.username || 'GuestUser',
+          amount: amount,
+          memo: memo,
+          metadata: { source: 'demo-fallback' }
+        })
+      });
+
+      if (!createResponse.ok) {
+        throw new Error(`Failed to create demo payment record: ${createResponse.status}`);
+      }
+      const createData = await createResponse.json();
+      currentPayment.localPaymentId = createData.localPaymentId;
+      updatePaymentStatus(`⏳ Demo payment created (ID: ${createData.localPaymentId.substring(0,8)}...). Waiting for mock approval...`, false);
+
+      // 2. Simulate backend approval (mock)
+      // In a real app, this might involve a user action or a delay
+      await new Promise(res => setTimeout(res, 1000)); // Simulate delay
+      const mockApprovalData = { ok: true, paymentId: createData.localPaymentId, status: 'approved', message: 'Demo approval successful' };
+      console.log("Mock approval data:", mockApprovalData);
+      updatePaymentStatus(`✅ Demo payment approved. Waiting for mock completion...`, false);
+
+      // 3. Simulate completion (mock)
+      // In a real app, this would involve user confirmation and txid generation
+      await new Promise(res => setTimeout(res, 1000)); // Simulate delay
+      const mockTxid = `mock-txid-${uuidv4().substring(0, 8)}`;
+      const mockCompletionData = { ok: true, paymentId: createData.localPaymentId, txid: mockTxid, status: 'completed', message: 'Demo completion successful' };
+      console.log("Mock completion data:", mockCompletionData);
+      
+      // Resolve the promise that initiatePayment is waiting for
+      resolve({
+        success: true,
+        paymentId: createData.localPaymentId, // Use local ID for demo
+        txid: mockTxid,
+        message: 'Demo payment completed successfully.',
+        mode: 'demo-fallback'
+      });
+      updatePaymentStatus(`✅ Demo payment completed! (TXID: ${mockTxid})`, false);
+
+    } catch (error) {
+      console.error("Demo payment flow error:", error);
+      updatePaymentStatus(`❌ Demo payment failed: ${error.message}`, true);
+      reject(error); // Reject the promise
     }
+  };
 
-    // Afficher les infos utilisateur si authentifié
-    if (authStatus.user) {
-      piUsername.textContent = authStatus.user.username;
-      piWallet.textContent = authStatus.user.wallet_address || "-";
-      piConnectBtn.style.display = 'none'; // Cacher le bouton si connecté
-    } else {
-      piUsername.textContent = "-";
-      piWallet.textContent = "-";
-      piConnectBtn.style.display = 'block'; // Afficher le bouton si non connecté
-    }
-
-    // Gérer l'état des boutons de paiement
-    const isDemoMode = piManager.isDemoMode();
-    const isPiRealMode = piPaymentHandler.getMode() === 'pi-browser-real';
-
-    // Activer/désactiver les boutons de paiement en fonction du mode
-    if (createPaymentBtn) {
-      createPaymentBtn.disabled = false; // Toujours activé pour déclencher le flux
-      // Optionnel: changer le texte du bouton
-      createPaymentBtn.textContent = isPiRealMode ? "Initiate Real Pi Payment" : "Initiate Demo Payment";
-    }
-    // Les boutons approve/complete sont gérés par le flux démo interne, on les laisse comme ça pour l'instant
-    // car le vrai flow Pi gère ses propres phases.
-  }
-
-  // ... (fonctions pour les paiements : createPaymentRecord, approvePaymentRecord, completePaymentRecord)
-  // Ces fonctions sont pour le flux DÉMO interne. Elles ne seront appelées que si le vrai flow Pi n'est pas utilisé.
-
-  // Modification pour utiliser le nouveau gestionnaire de paiement
+  // Main handler for the payment button click
   async function handlePaymentCreation() {
-    if (!payAmount || !payMemo) return;
+    if (!payAmount || !payMemo) {
+      console.error("Payment input elements not found!");
+      return;
+    }
 
     const amount = payAmount.value.trim();
     const memo = payMemo.value.trim();
@@ -111,19 +211,19 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     const paymentConfig = { amount, memo };
-    const paymentStatusElement = document.getElementById("paymentStatus");
-
+    
     updatePaymentStatus("⏳ Processing payment...", false);
 
     try {
-      // Utiliser le gestionnaire piBrowserPayments
+      // Use the piBrowserPayments handler which decides between real Pi or demo flow
       const result = await piPaymentHandler.initiatePayment(paymentConfig);
 
       if (result.success) {
         updatePaymentStatus(`✅ Payment successful! ${result.message} (TXID: ${result.txid || 'N/A'})`, false);
-        // Réinitialiser l'état du paiement si nécessaire
+        // Reset payment state after success
         currentPayment = { localPaymentId: null, paymentId: null, txid: null };
       } else {
+        // Error message should be in result.message from the handler
         updatePaymentStatus(`❌ Payment failed: ${result.message}`, true);
       }
     } catch (error) {
@@ -132,27 +232,22 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // Fonction pour mettre à jour le statut du paiement (utilisée par le flux démo ET le nouveau flux)
-  function updatePaymentStatus(message, isError) {
-    const paymentStatusElement = document.getElementById("paymentStatus");
-    if (paymentStatusElement) {
-      paymentStatusElement.textContent = message;
-      paymentStatusElement.style.color = isError ? "#dc2626" : "#10b981"; // Rouge pour erreur, vert pour succès
-    }
+  // --- Event Listeners ---
+  if (piConnectBtn) {
+    piConnectBtn.addEventListener("click", connectDemoPiUser);
   }
-
-  // Remplacer l'ancien gestionnaire de paiement par le nouveau
   if (createPaymentBtn) {
     createPaymentBtn.addEventListener("click", handlePaymentCreation);
   }
 
-  // ... (loadPaymentsList, loadMerchantListings, etc.)
+  // ... (loadPaymentsList, loadMerchantListings, etc. - assumed unchanged)
 
-  // Initialisation
-  checkBackendStatus();
-  // Mettre à jour le statut Pi après la vérification du backend et l'initialisation des managers
+  // --- Initial Load ---
+  checkBackendStatus(); // Check backend status first to set the mode correctly
+  
+  // Update UI after a short delay to allow managers to initialize and backend status to be checked
   setTimeout(() => {
     updatePiStatusUI();
-    loadMerchantListings(); // Charger les listes après initialisation
-  }, 500); // Petit délai pour laisser les managers s'initialiser
+    // loadMerchantListings(); // Uncomment if this should be called on load
+  }, 500); 
 });

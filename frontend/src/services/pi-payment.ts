@@ -16,19 +16,19 @@ interface PaymentConfig {
 
 interface PaymentResult {
   success: boolean;
-  paymentId?: string; // Peut être null si le paiement échoue avant l'approbation serveur
+  paymentId?: string; // Can be null if payment fails before server approval
   txid?: string;
   message: string;
-  mode?: string; // Pour indiquer le mode utilisé (real, demo)
+  mode?: string; // To indicate the mode used (real, demo)
 }
 
 class PiPaymentService {
   private static apiClient: AxiosInstance;
-  // Utiliser la configuration globale pour l'API Base URL
+  // Use the global configuration for API Base URL
   private static apiBase = window.ATLASPI_CONFIG?.API_BASE_URL || 'http://localhost:3000'; // Fallback
 
   /**
-   * Initialise le client API avec le token d'authentification
+   * Initializes the API client with authentication token.
    */
   static initializeClient() {
     this.apiClient = axios.create({
@@ -38,11 +38,11 @@ class PiPaymentService {
       }
     });
 
-    // Ajouter le token d'accès à toutes les requêtes
+    // Add the access token to all requests
     this.apiClient.interceptors.request.use(config => {
-      // NOTE: Le token d'accès pour les paiements réels Pi pourrait être différent
-      // et géré par le Pi SDK lui-même ou via une authentification backend spécifique.
-      // Pour l'instant, on suppose qu'il pourrait être stocké localement.
+      // NOTE: The access token for real Pi payments might be handled differently,
+      // potentially by the Pi SDK itself or via specific backend authentication.
+      // For now, we assume it might be stored locally.
       const token = localStorage.getItem('pi_access_token');
       if (token) {
         config.headers.Authorization = `Bearer ${token}`;
@@ -52,21 +52,21 @@ class PiPaymentService {
   }
 
   /**
-   * Crée un paiement Pi (U2A - User to App)
+   * Creates a Pi payment (U2A - User to App).
    * 
    * Flow:
-   * 1. Frontend appelle Pi.createPayment()
-   * 2. onReadyForServerApproval → backend approuve (route dédiée)
-   * 3. User signe la transaction sur la blockchain
-   * 4. onReadyForServerCompletion → backend complète (route dédiée)
-   * 5. Le flux de paiement se ferme
+   * 1. Frontend calls Pi.createPayment()
+   * 2. onReadyForServerApproval → backend approves (dedicated route)
+   * 3. User signs the transaction on the blockchain
+   * 4. onReadyForServerCompletion → backend completes (dedicated route)
+   * 5. The payment flow closes
    */
   static async createPayment(config: PaymentConfig): Promise<PaymentResult> {
     return new Promise((resolve, reject) => {
-      // Vérifier si le SDK Pi est disponible
+      // Check if the Pi SDK is available
       if (!window.Pi || typeof window.Pi.createPayment !== 'function') {
         console.warn('[PiPaymentService] Pi SDK not available. Falling back to DEMO payment.');
-        // Appel au gestionnaire de paiement démo global
+        // Call the global demo payment handler
         if (window.triggerDemoPaymentFlow) {
           window.triggerDemoPaymentFlow(config, resolve, reject);
         } else {
@@ -75,14 +75,14 @@ class PiPaymentService {
         return;
       }
 
-      // Initialiser le client API si ce n'est pas déjà fait
+      // Initialize the API client if it hasn't been already
       if (!this.apiClient) {
         this.initializeClient();
       }
 
       console.log('Creating Pi payment via SDK:', config);
 
-      // Créer le paiement via Pi SDK
+      // Create the payment via Pi SDK
       window.Pi.createPayment(
         {
           amount: parseFloat(config.amount),
@@ -91,24 +91,25 @@ class PiPaymentService {
         },
         {
           /**
-           * PHASE I: Approbation Côté Serveur
-           * Pi SDK a obtenu le paymentId, attend que le serveur approuve
+           * PHASE I: Server Approval
+           * Pi SDK has obtained the paymentId, waiting for server approval.
            */
           onReadyForServerApproval: async (paymentId: string) => {
             try {
               console.log('💳 PHASE I: Server approval for payment:', paymentId);
 
-              // Envoyer paymentId au backend pour approbation (route dédiée pour Pi réel)
+              // Send paymentId to backend for approval (dedicated route for real Pi)
               const response = await this.apiClient.post<PaymentResult>(
-                '/api/payments/approve-pi-real', // Nouvelle route backend
+                '/api/payments/approve-pi-real', // New backend route
                 { paymentId }
               );
 
               if (response.status === 200 && response.data.success) {
                 console.log('✅ Payment approved by server:', response.data);
-                // Ne rien faire ici, le SDK Pi continue automatiquement
+                // Do nothing here, Pi SDK continues automatically
               } else {
-                throw new Error(response.data.message || 'Payment approval failed');
+                // Throw an error with details from the backend response
+                throw new Error(response.data.message || `Payment approval failed with status ${response.status}`);
               }
             } catch (error: any) {
               console.error('❌ Payment approval failed:', error.message);
@@ -117,9 +118,9 @@ class PiPaymentService {
           },
 
           /**
-           * PHASE III: Complétion Côté Serveur
-           * Transaction blockchain terminée, Pi SDK a le txid
-           * Le serveur doit compléter le paiement
+           * PHASE III: Server Completion
+           * Blockchain transaction confirmed, Pi SDK has the txid.
+           * The server must complete the payment.
            */
           onReadyForServerCompletion: async (paymentId: string, txid: string) => {
             try {
@@ -128,9 +129,9 @@ class PiPaymentService {
                 txid
               });
 
-              // Envoyer txid au backend pour complétion (route dédiée pour Pi réel)
+              // Send txid to backend for completion (dedicated route for real Pi)
               const response = await this.apiClient.post<PaymentResult>(
-                '/api/payments/complete-pi-real', // Nouvelle route backend
+                '/api/payments/complete-pi-real', // New backend route
                 { paymentId, txid }
               );
 
@@ -141,10 +142,11 @@ class PiPaymentService {
                   paymentId,
                   txid,
                   message: 'Payment completed successfully via Pi Browser SDK',
-                  mode: 'real' // Indiquer que c'était un paiement réel
+                  mode: 'real' // Indicate it was a real payment
                 });
               } else {
-                throw new Error(response.data.message || 'Payment completion failed');
+                // Throw an error with details from the backend response
+                throw new Error(response.data.message || `Payment completion failed with status ${response.status}`);
               }
             } catch (error: any) {
               console.error('❌ Payment completion failed:', error.message);
@@ -153,7 +155,7 @@ class PiPaymentService {
           },
 
           /**
-           * Gestionnaire d'erreurs
+           * Error handler
            */
           onError: (error: Error) => {
             console.error('❌ Payment error:', error);
@@ -164,14 +166,15 @@ class PiPaymentService {
     });
   }
 
-  // ... (getPaymentStatus, getUserPayments - non modifiés pour l'instant)
+  // ... (getPaymentStatus, getUserPayments - not modified for now)
 }
 
-// Exposer globalement pour être utilisé par script.js
+// Expose globally for use by script.js
 if (typeof window !== 'undefined') {
   window.PiPaymentService = PiPaymentService;
 }
 
+// Export for potential module usage
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = PiPaymentService;
 }
