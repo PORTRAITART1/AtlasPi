@@ -20,15 +20,18 @@ class PiIntegrationManager {
   }
 
   detectMode() {
-    // This should ideally read from a config loaded from backend or env
-    // For now, let's assume a default or a simple check
-    const modeFromEnv = process.env.APP_MODE || 'demo'; // Example, adjust as needed
-    const validModes = ['demo', 'pirc2-sandbox', 'pirc2-production', 'pi-ready'];
-    if (validModes.includes(modeFromEnv)) {
-      return modeFromEnv;
+    // 1. Config frontend explicite si disponible
+    if (typeof window !== "undefined" && window.ATLASPI_CONFIG && window.ATLASPI_CONFIG.APP_MODE) {
+      return window.ATLASPI_CONFIG.APP_MODE;
     }
-    console.warn(`[Pi Integration] Invalid mode detected: ${modeFromEnv}. Defaulting to 'demo'.`);
-    return 'demo';
+
+    // 2. Si Pi SDK est disponible dans le navigateur
+    if (typeof window !== "undefined" && window.Pi) {
+      return "pirc2-sandbox";
+    }
+
+    // 3. Fallback simple
+    return "demo";
   }
 
   initConfig() {
