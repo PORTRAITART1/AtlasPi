@@ -20,7 +20,7 @@ document.addEventListener('DOMContentLoaded', function() {
     payments.apiBase = window.API_BASE;
   }
 
-  console.log('[Pi Payment Init] SDK Available:', payments.isSdkAvailable());
+  console.log('[Pi Payment Init] SDK Available:', !!payments.sdkAvailable);
   console.log('[Pi Payment Init] Status Message:', payments.getStatusMessage());
 
   // Update UI to show SDK status
@@ -28,8 +28,8 @@ document.addEventListener('DOMContentLoaded', function() {
   if (paymentStatusDiv) {
     paymentStatusDiv.textContent = payments.getStatusMessage();
     paymentStatusDiv.style.padding = '12px';
-    paymentStatusDiv.style.backgroundColor = payments.isSdkAvailable() ? 'rgba(34,197,94,0.1)' : 'rgba(234,179,8,0.1)';
-    paymentStatusDiv.style.borderLeft = payments.isSdkAvailable() ? '3px solid #22c55e' : '3px solid #eab308';
+    paymentStatusDiv.style.backgroundColor = !!payments.sdkAvailable ? 'rgba(34,197,94,0.1)' : 'rgba(234,179,8,0.1)';
+    paymentStatusDiv.style.borderLeft = !!payments.sdkAvailable ? '3px solid #22c55e' : '3px solid #eab308';
     paymentStatusDiv.style.borderRadius = '4px';
   }
 
@@ -45,7 +45,7 @@ document.addEventListener('DOMContentLoaded', function() {
         return;
       }
 
-      if (!payments.isSdkAvailable()) {
+      if (!!!payments.sdkAvailable) {
         alert('Pi SDK not available. This app must run in Pi Browser to process payments.');
         return;
       }
