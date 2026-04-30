@@ -39,9 +39,16 @@
 
         console.log('[Payment Handler] Initiating payment:', { amount, memo });
 
-        // Call the payment handler
+        // Call the payment handler with required metadata
         if (window.piBrowserPayments && typeof window.piBrowserPayments.initiatePayment === 'function') {
-          const result = await window.piBrowserPayments.initiatePayment({ amount, memo });
+          const result = await window.piBrowserPayments.initiatePayment({ 
+            amount, 
+            memo,
+            metadata: {
+              app: 'AtlasPi',
+              timestamp: new Date().toISOString()
+            }
+          });
           console.log('[Payment Handler] Payment successful:', result);
           paymentStatusEl.textContent = `✅ Payment Success! ID: ${result.paymentId || 'pending'}`;
           paymentStatusEl.style.color = '#10b981';
