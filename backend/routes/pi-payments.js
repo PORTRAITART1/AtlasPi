@@ -1,6 +1,5 @@
 import express from "express";
 import axios from "axios";
-import db from "../config/db.js";
 import logger from "../utils/logger.js";
 import envManager from "../config/envManager.js";
 
@@ -12,15 +11,20 @@ const piAPIClient = axios.create({
   timeout: 20000,
 });
 
+/**
+ * REAL PI NETWORK PAYMENT ENDPOINTS
+ * These endpoints handle real Pi Network payments (production mode)
+ */
+
 // ============================================================
-// 1. APPROVE PAYMENT
+// 1. APPROVE PAYMENT (Real Pi Network)
 // ============================================================
 router.post("/approve", (req, res) => {
   try {
     const { paymentId } = req.body;
 
     if (!paymentId) {
-      logger.error("Approve payment failed: missing paymentId");
+      logger.error("[Pi Payments] Approve failed: missing paymentId");
       return res.status(400).json({
         ok: false,
         error: "paymentId is required"
@@ -30,7 +34,7 @@ router.post("/approve", (req, res) => {
     // Get Pi API Key
     const piApiKey = envManager.get('piApiKey');
     if (!piApiKey) {
-      logger.error("Pi API Key not configured");
+      logger.error("[Pi Payments] Pi API Key not configured");
       return res.status(500).json({
         ok: false,
         error: "Pi integration not configured"
@@ -42,38 +46,27 @@ router.post("/approve", (req, res) => {
       `/v2/payments/${paymentId}/approve`,
       {},
       { headers: { 'Authorization': `Bearer ${piApiKey}` } }
-    ).then(() => {
-      // Update payment in local DB
-      const now = new Date().toISOString();
-      db.run(
-        `UPDATE payments SET pi_payment_id = ?, status = ?, updated_at = ? WHERE local_payment_id = ?`,
-        [paymentId, "approved", now, paymentId],
-        function(err) {
-          if (err) {
-            logger.error("DB update error: " + err.message);
-            return res.status(500).json({
-              ok: false,
-              error: "Database error"
-            });
-          }
-          logger.info(`Payment approved: ${paymentId}`);
-          return res.json({
-            ok: true,
-            status: "approved",
-            paymentId
-          });
-        }
-      );
-    }).catch((err) => {
-      logger.error("Pi API approve error: " + err.message);
-      return res.status(500).json({
-        ok: false,
-        error: "Failed to approve payment with Pi API"
+    )
+      .then((response) => {
+        logger.info(`[Pi Payments] Payment approved: ${paymentId}`);
+        return res.json({
+          ok: true,
+          paymentId,
+          status: "approved",
+          timestamp: new Date().toISOString()
+        });
+      })
+      .catch((err) => {
+        logger.error(`[Pi Payments] Pi API approve error: ${err.message}`);
+        return res.status(500).json({
+          ok: false,
+          error: "Failed to approve payment with Pi API",
+          details: err.message
+        });
       });
-    });
 
   } catch (error) {
-    logger.error("Approve payment route error: " + error.message);
+    logger.error(`[Pi Payments] Approve route error: ${error.message}`);
     return res.status(500).json({
       ok: false,
       error: error.message
@@ -82,23 +75,31 @@ router.post("/approve", (req, res) => {
 });
 
 // ============================================================
-// 2. COMPLETE PAYMENT
+// 2. COMPLETE PAYMENT (Real Pi Network)
 // ============================================================
 router.post("/complete", (req, res) => {
   try {
     const { paymentId, txid } = req.body;
 
-    if (!paymentId || !txid) {
-      logger.error("Complete payment failed: missing fields");
+    if (!paymentId) {
+      logger.error("[Pi Payments] Complete failed: missing paymentId");
       return res.status(400).json({
         ok: false,
-        error: "paymentId and txid are required"
+        error: "paymentId is required"
+      });
+    }
+
+    if (!txid) {
+      logger.error("[Pi Payments] Complete failed: missing txid");
+      return res.status(400).json({
+        ok: false,
+        error: "txid is required"
       });
     }
 
     const piApiKey = envManager.get('piApiKey');
     if (!piApiKey) {
-      logger.error("Pi API Key not configured");
+      logger.error("[Pi Payments] Pi API Key not configured");
       return res.status(500).json({
         ok: false,
         error: "Pi integration not configured"
@@ -110,39 +111,28 @@ router.post("/complete", (req, res) => {
       `/v2/payments/${paymentId}/complete`,
       { txid },
       { headers: { 'Authorization': `Bearer ${piApiKey}` } }
-    ).then(() => {
-      // Update payment in local DB
-      const now = new Date().toISOString();
-      db.run(
-        `UPDATE payments SET pi_payment_id = ?, txid = ?, status = ?, updated_at = ? WHERE local_payment_id = ?`,
-        [paymentId, txid, "completed", now, paymentId],
-        function(err) {
-          if (err) {
-            logger.error("DB update error: " + err.message);
-            return res.status(500).json({
-              ok: false,
-              error: "Database error"
-            });
-          }
-          logger.info(`Payment completed: ${paymentId}, txid: ${txid}`);
-          return res.json({
-            ok: true,
-            status: "completed",
-            paymentId,
-            txid
-          });
-        }
-      );
-    }).catch((err) => {
-      logger.error("Pi API complete error: " + err.message);
-      return res.status(500).json({
-        ok: false,
-        error: "Failed to complete payment with Pi API"
+    )
+      .then((response) => {
+        logger.info(`[Pi Payments] Payment completed: ${paymentId}, txid: ${txid}`);
+        return res.json({
+          ok: true,
+          paymentId,
+          txid,
+          status: "completed",
+          timestamp: new Date().toISOString()
+        });
+      })
+      .catch((err) => {
+        logger.error(`[Pi Payments] Pi API complete error: ${err.message}`);
+        return res.status(500).json({
+          ok: false,
+          error: "Failed to complete payment with Pi API",
+          details: err.message
+        });
       });
-    });
 
   } catch (error) {
-    logger.error("Complete payment route error: " + error.message);
+    logger.error(`[Pi Payments] Complete route error: ${error.message}`);
     return res.status(500).json({
       ok: false,
       error: error.message
@@ -158,7 +148,7 @@ router.post("/incomplete", (req, res) => {
     const { payment } = req.body;
 
     if (!payment) {
-      logger.error("Incomplete payment failed: missing payment");
+      logger.error("[Pi Payments] Incomplete failed: missing payment");
       return res.status(400).json({
         ok: false,
         error: "payment object is required"
@@ -170,70 +160,80 @@ router.post("/incomplete", (req, res) => {
     const txURL = payment.transaction && payment.transaction._link;
 
     if (!paymentId || !txid || !txURL) {
-      logger.error("Incomplete payment failed: missing payment details");
+      logger.error("[Pi Payments] Incomplete failed: invalid payment details");
       return res.status(400).json({
         ok: false,
-        error: "Invalid payment object"
+        error: "Invalid payment object - missing identifier, txid, or transaction link"
       });
     }
 
     // Verify transaction on blockchain
-    axios.create({ timeout: 20000 }).get(txURL).then((horizonResponse) => {
-      const paymentIdOnBlock = horizonResponse.data.memo;
+    axios.create({ timeout: 20000 })
+      .get(txURL)
+      .then((horizonResponse) => {
+        const paymentIdOnBlock = horizonResponse.data.memo;
 
-      if (paymentIdOnBlock !== paymentId) {
-        logger.error("Payment ID mismatch");
-        return res.status(400).json({
-          ok: false,
-          error: "Payment ID mismatch on blockchain"
-        });
-      }
-
-      // Update payment in local DB
-      const now = new Date().toISOString();
-      db.run(
-        `UPDATE payments SET pi_payment_id = ?, txid = ?, status = ?, updated_at = ? WHERE local_payment_id = ?`,
-        [paymentId, txid, "completed", now, paymentId],
-        function(err) {
-          if (err) {
-            logger.error("DB update error: " + err.message);
-            return res.status(500).json({
-              ok: false,
-              error: "Database error"
-            });
-          }
-
-          // Notify Pi API
-          const piApiKey = envManager.get('piApiKey');
-          if (piApiKey) {
-            piAPIClient.post(
-              `/v2/payments/${paymentId}/complete`,
-              { txid },
-              { headers: { 'Authorization': `Bearer ${piApiKey}` } }
-            ).catch((err) => {
-              logger.error("Pi API notification error: " + err.message);
-            });
-          }
-
-          logger.info(`Incomplete payment handled: ${paymentId}`);
-          return res.json({
-            ok: true,
-            message: "Incomplete payment handled",
-            paymentId,
-            txid
+        if (paymentIdOnBlock !== paymentId) {
+          logger.error("[Pi Payments] Payment ID mismatch on blockchain");
+          return res.status(400).json({
+            ok: false,
+            error: "Payment ID mismatch on blockchain"
           });
         }
-      );
-    }).catch((err) => {
-      logger.error("Blockchain verification error: " + err.message);
-      return res.status(500).json({
-        ok: false,
-        error: "Failed to verify transaction on blockchain"
+
+        // Notify Pi API about completion
+        const piApiKey = envManager.get('piApiKey');
+        if (piApiKey) {
+          piAPIClient.post(
+            `/v2/payments/${paymentId}/complete`,
+            { txid },
+            { headers: { 'Authorization': `Bearer ${piApiKey}` } }
+          )
+            .then(() => {
+              logger.info(`[Pi Payments] Incomplete payment handled: ${paymentId}`);
+              return res.json({
+                ok: true,
+                paymentId,
+                txid,
+                status: "completed",
+                message: "Incomplete payment verified and completed",
+                timestamp: new Date().toISOString()
+              });
+            })
+            .catch((err) => {
+              logger.error(`[Pi Payments] Pi API notification error: ${err.message}`);
+              return res.json({
+                ok: true,
+                paymentId,
+                txid,
+                status: "verified",
+                message: "Payment verified on blockchain but Pi API notification failed",
+                timestamp: new Date().toISOString()
+              });
+            });
+        } else {
+          logger.warn("[Pi Payments] No Pi API Key configured, skipping Pi API notification");
+          return res.json({
+            ok: true,
+            paymentId,
+            txid,
+            status: "verified",
+            message: "Payment verified on blockchain (Pi API key not configured)",
+            timestamp: new Date().toISOString()
+          });
+        }
+      })
+      .catch((err) => {
+        logger.error(`[Pi Payments] Blockchain verification error: ${err.message}`);
+        return res.status(500).json({
+          ok: false,
+          error: "Failed to verify transaction on blockchain",
+          details: err.message
+        });
       });
-    });
 
   } catch (error) {
-    logger.error("Incomplete payment route error: " + error.message);
+    logger.error(`[Pi Payments] Incomplete route error: ${error.message}`);
     return res.status(500).json({
       ok: false,
       error: error.message
@@ -244,46 +244,52 @@ router.post("/incomplete", (req, res) => {
 // ============================================================
 // 4. HANDLE CANCELLED PAYMENT
 // ============================================================
-router.post("/cancelled_payment", (req, res) => {
+router.post("/cancelled", (req, res) => {
   try {
     const { paymentId } = req.body;
 
     if (!paymentId) {
-      logger.error("Cancel payment failed: missing paymentId");
+      logger.error("[Pi Payments] Cancel failed: missing paymentId");
       return res.status(400).json({
         ok: false,
         error: "paymentId is required"
       });
     }
 
-    const now = new Date().toISOString();
-    db.run(
-      `UPDATE payments SET status = ?, updated_at = ? WHERE pi_payment_id = ?`,
-      ["cancelled", now, paymentId],
-      function(err) {
-        if (err) {
-          logger.error("DB update error: " + err.message);
-          return res.status(500).json({
-            ok: false,
-            error: "Database error"
-          });
-        }
-        logger.info(`Payment cancelled: ${paymentId}`);
-        return res.json({
-          ok: true,
-          status: "cancelled",
-          paymentId
-        });
-      }
-    );
+    logger.info(`[Pi Payments] Payment cancelled: ${paymentId}`);
+    res.status(200).json({
+      ok: true,
+      paymentId,
+      status: "cancelled",
+      timestamp: new Date().toISOString()
+    });
 
   } catch (error) {
-    logger.error("Cancel payment route error: " + error.message);
+    logger.error(`[Pi Payments] Cancel route error: ${error.message}`);
     return res.status(500).json({
       ok: false,
       error: error.message
     });
   }
+});
+
+// ============================================================
+// 5. PI PAYMENTS STATUS
+// ============================================================
+router.get("/status", (req, res) => {
+  const piApiKey = envManager.get('piApiKey');
+  res.json({
+    ok: true,
+    message: "Real Pi Network payment service",
+    mode: "pi-network",
+    configured: !!piApiKey,
+    endpoints: [
+      "POST /api/pi-payments/approve",
+      "POST /api/pi-payments/complete",
+      "POST /api/pi-payments/incomplete",
+      "POST /api/pi-payments/cancelled"
+    ]
+  });
 });
 
 export default router;

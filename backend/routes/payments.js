@@ -1,45 +1,69 @@
 import express from "express";
+import logger from "../utils/logger.js";
 
 const router = express.Router();
 
-// Demo/payment fallback endpoints used by the existing demo flow
-router.get("/status", (req, res) => {
-  res.json({ ok: true, message: "Payment service ready" });
-});
+/**
+ * DEMO MODE PAYMENT ENDPOINTS
+ * These endpoints handle payments in demo/development mode
+ */
 
-router.post("/process", (req, res) => {
-  res.json({ ok: true, message: "Payment processed" });
-});
-
-// Create payment record (demo mode)
+// ============================================================
+// 1. CREATE PAYMENT RECORD
+// ============================================================
 router.post("/create-record", (req, res) => {
   try {
     const { amount, memo, metadata } = req.body;
 
     // Validate required fields
-    if (!amount || !memo || !metadata) {
+    if (!amount) {
       return res.status(400).json({
         ok: false,
-        error: "Amount, memo, and metadata must be provided."
+        error: "Amount is required"
       });
     }
 
-    // Generate a mock payment ID
-    const paymentId = `demo-payment-${Date.now()}`;
-    const localPaymentId = `local-${Date.now()}`;
+    if (!memo) {
+      return res.status(400).json({
+        ok: false,
+        error: "Memo is required"
+      });
+    }
 
-    console.log(`[Payments] Created demo payment record: ${paymentId}`);
+    if (!metadata || typeof metadata !== 'object') {
+      return res.status(400).json({
+        ok: false,
+        error: "Metadata object is required"
+      });
+    }
 
-    res.json({
+    // Validate amount is a positive number
+    const numAmount = parseFloat(amount);
+    if (isNaN(numAmount) || numAmount <= 0) {
+      return res.status(400).json({
+        ok: false,
+        error: "Amount must be a positive number"
+      });
+    }
+
+    // Generate demo payment IDs
+    const paymentId = `demo-pi-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    const localPaymentId = `local-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+
+    logger.info(`[Demo Payments] Created payment record: ${paymentId}, Amount: ${numAmount}, Memo: ${memo}`);
+
+    res.status(200).json({
       ok: true,
       paymentId,
       localPaymentId,
-      amount,
+      amount: numAmount,
       memo,
-      status: "demo_created",
+      metadata,
+      status: "created",
       timestamp: new Date().toISOString()
     });
   } catch (error) {
+    logger.error(`[Demo Payments] Create record error: ${error.message}`);
     res.status(500).json({
       ok: false,
       error: error.message
@@ -47,7 +71,9 @@ router.post("/create-record", (req, res) => {
   }
 });
 
-// Approve payment (demo mode)
+// ============================================================
+// 2. APPROVE PAYMENT
+// ============================================================
 router.post("/approve", (req, res) => {
   try {
     const { paymentId, localPaymentId } = req.body;
@@ -59,15 +85,17 @@ router.post("/approve", (req, res) => {
       });
     }
 
-    console.log(`[Payments] Approved demo payment: ${paymentId}`);
+    logger.info(`[Demo Payments] Approved payment: ${paymentId}`);
 
-    res.json({
+    res.status(200).json({
       ok: true,
       paymentId,
-      status: "demo_approved",
+      localPaymentId: localPaymentId || null,
+      status: "approved",
       timestamp: new Date().toISOString()
     });
   } catch (error) {
+    logger.error(`[Demo Payments] Approve error: ${error.message}`);
     res.status(500).json({
       ok: false,
       error: error.message
@@ -75,10 +103,12 @@ router.post("/approve", (req, res) => {
   }
 });
 
-// Complete payment (demo mode)
+// ============================================================
+// 3. COMPLETE PAYMENT
+// ============================================================
 router.post("/complete", (req, res) => {
   try {
-    const { paymentId, txid, localPaymentId } = req.body;
+    const { paymentId, localPaymentId, txid } = req.body;
 
     if (!paymentId) {
       return res.status(400).json({
@@ -87,16 +117,21 @@ router.post("/complete", (req, res) => {
       });
     }
 
-    console.log(`[Payments] Completed demo payment: ${paymentId}, txid: ${txid}`);
+    // Generate mock txid if not provided
+    const demoTxid = txid || `demo-tx-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 
-    res.json({
+    logger.info(`[Demo Payments] Completed payment: ${paymentId}, TxID: ${demoTxid}`);
+
+    res.status(200).json({
       ok: true,
       paymentId,
-      txid: txid || `demo-tx-${Date.now()}`,
-      status: "demo_completed",
+      localPaymentId: localPaymentId || null,
+      txid: demoTxid,
+      status: "completed",
       timestamp: new Date().toISOString()
     });
   } catch (error) {
+    logger.error(`[Demo Payments] Complete error: ${error.message}`);
     res.status(500).json({
       ok: false,
       error: error.message
@@ -104,12 +139,53 @@ router.post("/complete", (req, res) => {
   }
 });
 
-// List payments (demo mode)
+// ============================================================
+// 4. LIST PAYMENTS
+// ============================================================
 router.get("/list", (req, res) => {
+  try {
+    logger.info(`[Demo Payments] Listing payments (demo mode - no persistence)`);
+    res.status(200).json({
+      ok: true,
+      payments: [],
+      total: 0,
+      message: "Demo mode - payments are not persisted"
+    });
+  } catch (error) {
+    logger.error(`[Demo Payments] List error: ${error.message}`);
+    res.status(500).json({
+      ok: false,
+      error: error.message
+    });
+  }
+});
+
+// ============================================================
+// 5. PAYMENT STATUS
+// ============================================================
+router.get("/status", (req, res) => {
   res.json({
     ok: true,
-    payments: [],
-    message: "No payments in demo mode yet"
+    message: "Demo payment service ready",
+    mode: "demo",
+    endpoints: [
+      "POST /api/payments/create-record",
+      "POST /api/payments/approve",
+      "POST /api/payments/complete",
+      "GET /api/payments/list",
+      "GET /api/payments/status"
+    ]
+  });
+});
+
+// ============================================================
+// 6. PROCESS (Legacy endpoint)
+// ============================================================
+router.post("/process", (req, res) => {
+  res.json({
+    ok: true,
+    message: "Payment processed",
+    legacy: true
   });
 });
 
