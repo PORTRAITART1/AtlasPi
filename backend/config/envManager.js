@@ -7,34 +7,21 @@ import logger from "../utils/logger.js";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-/**
- * EnvManager: Centralized environment configuration loader
- * 
- * Supports switching between modes:
- * - demo: Local development, no Pi integration
- * - pirc2-sandbox: Pi Network sandbox testing
- * - pirc2-production: Production with real Pi Network
- * 
- * Priority:
- * 1. Environment variable: APP_MODE or NODE_ENV
- * 2. .env file specific to mode (.env.demo, .env.pirc2-sandbox, .env.pirc2-production)
- * 3. Default .env file (fallback for common variables)
- */
-
 class EnvManager {
   constructor() {
-    this.mode = 'demo'; // Will be set by loadEnvironment()
+    this.mode = 'demo';
     this.config = {};
     this.loadEnvironment();
   }
 
   /**
-   * Detect the current mode from environment or default to 'demo'
+   * Detect mode - CHECK process.env FIRST (Render variables), then .env files
    */
   detectMode() {
-    // Priority 1: Environment variable
+    // Priority 1: Direct environment variable (Render sets this directly)
     if (process.env.APP_MODE) {
-      const envMode = process.env.APP_MODE;
+      const envMode = process.env.APP_MODE.toLowerCase().trim();
+      console.log(`[EnvManager] Detected APP_MODE from process.env: ${envMode}`);
       if (['demo', 'pirc2-sandbox', 'pirc2-production'].includes(envMode)) {
         return envMode;
       }
@@ -42,28 +29,27 @@ class EnvManager {
 
     // Priority 2: NODE_ENV
     if (process.env.NODE_ENV === 'production') {
+      console.log(`[EnvManager] Detected production from NODE_ENV`);
       return 'pirc2-production';
     }
 
-    // Default to demo
+    // Default
+    console.log(`[EnvManager] No APP_MODE detected, defaulting to demo`);
     return 'demo';
   }
 
-  /**
-   * Load environment files in priority order
-   * Note: dotenv.config() loads AND sets process.env, so we must check APP_MODE
-   * AFTER loading default .env but BEFORE loading mode-specific .env
-   */
   loadEnvironment() {
-    // Step 1: Load default .env file (this may set APP_MODE)
+    // Step 1: Detect mode FIRST (before loading .env files)
+    // This ensures Render environment variables take priority
+    this.mode = this.detectMode();
+    console.log(`[EnvManager] Mode set to: ${this.mode}`);
+
+    // Step 2: Load default .env file (for local development)
     const defaultEnvPath = path.join(__dirname, '../.env');
     if (fs.existsSync(defaultEnvPath)) {
       dotenv.config({ path: defaultEnvPath });
       logger.info(`✓ Loaded default .env from ${defaultEnvPath}`);
     }
-
-    // Step 2: Detect mode AFTER loading default .env (so APP_MODE from .env is considered)
-    this.mode = this.detectMode();
 
     // Step 3: Load mode-specific .env file (override with final values)
     const modeEnvPath = path.join(__dirname, `../.env.${this.mode}`);
@@ -74,7 +60,7 @@ class EnvManager {
       logger.warn(`⚠ Mode-specific env file not found: ${modeEnvPath}`);
     }
 
-    // Step 4: Populate config object from environment
+    // Step 4: Populate config from environment (process.env has priority)
     this.config = {
       // Core
       mode: this.mode,
@@ -105,7 +91,7 @@ class EnvManager {
       debugMode: process.env.DEBUG_MODE === 'true',
       pirc2SandboxDebug: process.env.PIRC2_SANDBOX_DEBUG === 'true',
 
-      // Security (Production)
+      // Security
       forceHttps: process.env.FORCE_HTTPS === 'true',
       rateLimitWindowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MS) || 900000,
       rateLimitMaxRequests: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS) || 100,
@@ -116,10 +102,6 @@ class EnvManager {
     this.printConfig();
   }
 
-  /**
-   * Validate that critical credentials are not placeholder values
-   * (except in DEMO mode where placeholders are expected)
-   */
   validateCredentials() {
     if (this.mode === 'demo') {
       logger.info('DEMO mode: Placeholder credentials are expected');
@@ -154,9 +136,6 @@ class EnvManager {
     return true;
   }
 
-  /**
-   * Print current configuration (safe, no secrets)
-   */
   printConfig() {
     logger.info('════════════════════════════════════════════════════════════');
     logger.info(`AtlasPi Environment Configuration (Mode: ${this.mode.toUpperCase()})`);
@@ -175,31 +154,19 @@ class EnvManager {
     logger.info('════════════════════════════════════════════════════════════');
   }
 
-  /**
-   * Get a configuration value
-   */
   get(key, defaultValue = null) {
     return this.config[key] !== undefined ? this.config[key] : defaultValue;
   }
 
-  /**
-   * Check if a feature is enabled
-   */
   isFeatureEnabled(feature) {
     const key = `pirc2${feature.charAt(0).toUpperCase() + feature.slice(1)}Enabled`;
     return this.config[key] === true;
   }
 
-  /**
-   * Check if running in specific mode
-   */
   isMode(mode) {
     return this.mode === mode;
   }
 
-  /**
-   * Get mode information
-   */
   getModeInfo() {
     return {
       mode: this.mode,
@@ -210,9 +177,6 @@ class EnvManager {
     };
   }
 
-  /**
-   * Get human-readable mode description
-   */
   getModeDescription() {
     switch (this.mode) {
       case 'demo':
@@ -227,7 +191,6 @@ class EnvManager {
   }
 }
 
-// Create and export singleton instance
 const envManager = new EnvManager();
 
 export default envManager;
