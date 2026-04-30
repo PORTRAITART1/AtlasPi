@@ -13,7 +13,8 @@ import merchantListingRoutes from "./routes/merchantListings.js";
 import envManager from "./config/envManager.js";
 
 const app = express();
-const PORT = envManager.get('port', 3000);
+// On Render, use the PORT assigned by Render (usually 10000), otherwise use envManager
+const PORT = process.env.PORT || envManager.get('port', 3000);
 const PI_API_KEY = process.env.PI_API_KEY;
 
 // Log startup info
@@ -26,9 +27,6 @@ logger.info(`${'='.repeat(60)}\n`);
 app.use(helmet());
 
 // CORS Configuration
-// Whitelist des origins autorisés à faire des requêtes
-// - FRONTEND_URL : frontend réel (Docker port 8080)
-// - FRONTEND_APP_URL : alternative future (ex: Vite dev sur 5173)
 const corsOrigins = [envManager.get('frontendUrl')];
 const frontendAppUrl = envManager.get('frontendAppUrl');
 if (frontendAppUrl) {
@@ -36,7 +34,7 @@ if (frontendAppUrl) {
 }
 
 const allowedOrigins = [
-  process.env.FRONTEND_URL,
+  process.env.FRONTEND_URL || envManager.get('frontendUrl'),
   process.env.FRONTEND_APP_URL,
   "https://atlaspi-frontend.onrender.com"
 ].filter(Boolean);
