@@ -1,5 +1,5 @@
 # Multi-stage Dockerfile for AtlasPi Frontend (Render deployment)
-# Stage 1: Build stage (if needed)
+# Stage 1: Build stage
 FROM node:18-alpine AS builder
 
 WORKDIR /app
@@ -18,12 +18,35 @@ RUN rm -rf /etc/nginx/conf.d/default.conf
 # Copy frontend files from builder
 COPY --from=builder /app/ .
 
-# Copy Nginx config if exists
-COPY frontend/nginx.conf /etc/nginx/nginx.conf 2>/dev/null || true
+# Create basic nginx config
+RUN cat > /etc/nginx/nginx.conf << 'EOF'
+user nginx;
+worker_processes auto;
+error_log /var/log/nginx/error.log warn;
+pid /var/run/nginx.pid;
 
-# Create a basic nginx config if custom one doesn't exist
-RUN if [ ! -f /etc/nginx/nginx.conf ]; then \
-      echo 'user nginx;\nworker_processes auto;\nerror_log /var/log/nginx/error.log warn;\npid /var/run/nginx.pid;\nevents {\n  worker_connections 1024;\n}\nhttp {\n  include /etc/nginx/mime.types;\n  default_type application/octet-stream;\n  sendfile on;\n  keepalive_timeout 65;\n  server {\n    listen 3000;\n    server_name _;\n    root /usr/share/nginx/html;\n    index index.html;\n    location / {\n      try_files $uri $uri/ /index.html;\n    }\n  }\n}' > /etc/nginx/nginx.conf; \n    fi
+events {
+  worker_connections 1024;
+}
+
+http {
+  include /etc/nginx/mime.types;
+  default_type application/octet-stream;
+  sendfile on;
+  keepalive_timeout 65;
+  
+  server {
+    listen 3000;
+    server_name _;
+    root /usr/share/nginx/html;
+    index index.html;
+    
+    location / {
+      try_files $uri $uri/ /index.html;
+    }
+  }
+}
+EOF
 
 # Expose port
 EXPOSE 3000
