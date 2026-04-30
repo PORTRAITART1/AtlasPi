@@ -35,7 +35,7 @@ class PiBrowserPayments {
   }
 
   /**
-   * Initiate payment - routes to real or demo based on SDK availability and mode
+   * Initiate payment - ALWAYS use demo mode unless explicitly in production Pi mode
    */
   async initiatePayment(paymentConfig) {
     const { amount, memo, metadata } = paymentConfig;
@@ -58,15 +58,21 @@ class PiBrowserPayments {
     };
 
     try {
-      // Use real Pi SDK ONLY if:
-      // 1. Pi SDK is available
-      // 2. Current mode is NOT 'demo'
-      // 3. User is in Pi Browser with real SDK
-      if (isPiSdkAvailable && currentMode !== 'demo') {
-        console.log('[PiBrowserPayments] Using REAL Pi Browser payment with real SDK');
+      // FORCE DEMO MODE unless explicitly in production
+      // If mode is 'demo' (the default), ALWAYS use demo payment flow
+      // regardless of Pi SDK availability
+      if (currentMode === 'demo') {
+        console.log('[PiBrowserPayments] DEMO mode detected - using demo payment flow (instant auto-approval)');
+        return await this.initiateDemoPayment(paymentConfig);
+      } 
+      // Only use real Pi SDK if explicitly NOT in demo mode AND Pi SDK is available
+      else if (isPiSdkAvailable && currentMode !== 'demo') {
+        console.log('[PiBrowserPayments] Production mode with Pi SDK detected - using 3-phase payment flow');
         return await this.initiateRealPiPayment(paymentConfig);
-      } else {
-        console.log('[PiBrowserPayments] Using DEMO payment mode (no real Pi SDK or demo mode)');
+      } 
+      // Fallback: demo mode if SDK not available
+      else {
+        console.log('[PiBrowserPayments] Falling back to demo payment (Pi SDK not available)');
         return await this.initiateDemoPayment(paymentConfig);
       }
     } finally {
@@ -152,7 +158,7 @@ class PiBrowserPayments {
 
   /**
    * Real Pi Browser SDK payment flow (3-phase with backend approval)
-   * Only used when Pi SDK is available AND not in demo mode
+   * Only used when NOT in demo mode AND Pi SDK is available
    */
   async initiateRealPiPayment(paymentConfig) {
     const { amount, memo, metadata } = paymentConfig;
@@ -249,13 +255,13 @@ class PiBrowserPayments {
 
   getMode() {
     const currentMode = window.piIntegrationManager?.getMode() || 'demo';
-    return this.isSdkReady() && currentMode !== 'demo' ? 'pi-browser-real' : 'demo-fallback';
+    return currentMode === 'demo' ? 'demo-fallback' : 'pi-browser-real';
   }
 
   getStatusMessage() {
     return this.getMode() === 'pi-browser-real' 
       ? '✅ Pi Browser Payment Ready (Official SDK)'
-      : '⚠️ DEMO Payment Mode (Pi SDK not available or demo mode)';
+      : '⚠️ DEMO Payment Mode (instant auto-approval)';
   }
 }
 
