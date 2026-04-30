@@ -153,6 +153,12 @@ class PiBrowserPayments {
               }
             },
 
+            onCancel: (paymentId) => {
+              console.warn('💳 Payment cancelled by user or programmatically. paymentId:', paymentId);
+              this.paymentInProgress = false;
+              reject(new Error(`Payment cancelled (id: ${paymentId})`));
+            },
+
             onError: (error) => {
               console.error('❌ Payment flow error:', error);
               this.paymentInProgress = false;
