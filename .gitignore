@@ -50,3 +50,7 @@ out/
 *~
 .vscode/settings.json
 .aider*
+AlchemyAPI SDK py/
+PiRC-main/
+SmartContracts-main/
+sdk-main/
