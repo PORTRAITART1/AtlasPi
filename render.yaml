@@ -1,22 +1,20 @@
 services:
   # Frontend Service
   - type: web
-    name: atlaspi-fronted
+    name: atlaspi-frontend
     runtime: docker
     dockerfilePath: ./Dockerfile.frontend
-    buildCommand: "npm ci && npm run build 2>/dev/null || true"
+    buildCommand: "npm ci && npm run build"
     startCommand: "nginx -g 'daemon off;'"
     plan: free
     region: oregon
-    healthCheckPath: /health
+    healthCheckPath: /
     port: 3000
     envVars:
       - key: VITE_PI_API
         value: "https://api.minepi.com"
       - key: VITE_APP_ID
-        fromService:
-          type: env
-          name: VITE_APP_ID
+        value: ${VITE_APP_ID}
       - key: VITE_API_BASE
         value: "https://atlaspi-backend.onrender.com"
       - key: NODE_ENV
@@ -26,6 +24,7 @@ services:
   - type: web
     name: atlaspi-backend
     runtime: node
+    rootDir: backend
     buildCommand: "npm ci"
     startCommand: "npm start"
     plan: free
@@ -38,12 +37,12 @@ services:
       - key: PORT
         value: "3001"
       - key: PI_SERVER_API_KEY
-        fromService:
-          type: env
-          name: PI_SERVER_API_KEY
+        value: ${PI_SERVER_API_KEY}
       - key: PI_NETWORK
         value: "testnet"
       - key: VITE_PI_API
         value: "https://api-testnet.minepi.com"
       - key: LOG_LEVEL
         value: "info"
+      - key: FRONTEND_URL
+        value: "https://atlaspi-frontend.onrender.com"
