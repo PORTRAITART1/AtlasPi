@@ -5,16 +5,20 @@ import envManager from "../config/envManager.js";
 
 const router = express.Router();
 
-// Pi Platform API Client
-const piAPIClient = axios.create({
-  baseURL: envManager.get('piApiBaseUrl', 'https://api.minepi.com'),
-  timeout: 20000,
-});
-
 /**
  * REAL PI NETWORK PAYMENT ENDPOINTS
- * These endpoints handle real Pi Network payments (production mode)
+ * These endpoints handle real Pi Network payments (sandbox/production mode)
  */
+
+// Helper function to get Pi API client with current config
+const getPiAPIClient = () => {
+  const baseURL = envManager.get('piApiBaseUrl', 'https://api.minepi.com');
+  logger.info(`[Pi Payments] Using Pi API base URL: ${baseURL}`);
+  return axios.create({
+    baseURL,
+    timeout: 20000,
+  });
+};
 
 // ============================================================
 // 1. APPROVE PAYMENT (Real Pi Network)
@@ -33,13 +37,17 @@ router.post("/approve", (req, res) => {
 
     // Get Pi API Key
     const piApiKey = envManager.get('piApiKey');
-    if (!piApiKey) {
-      logger.error("[Pi Payments] Pi API Key not configured");
+    if (!piApiKey || piApiKey === 'PLACEHOLDER') {
+      logger.error("[Pi Payments] Pi API Key not configured or placeholder");
       return res.status(500).json({
         ok: false,
-        error: "Pi integration not configured"
+        error: "Pi API Key not configured"
       });
     }
+
+    const piAPIClient = getPiAPIClient();
+
+    logger.info(`[Pi Payments] Approving payment ${paymentId} with key: ${piApiKey.substring(0, 10)}...`);
 
     // Call Pi Platform API to approve
     piAPIClient.post(
@@ -57,11 +65,13 @@ router.post("/approve", (req, res) => {
         });
       })
       .catch((err) => {
-        logger.error(`[Pi Payments] Pi API approve error: ${err.message}`);
+        const errorMsg = err.response?.data?.message || err.message;
+        const errorStatus = err.response?.status || err.status;
+        logger.error(`[Pi Payments] Pi API approve error: ${errorStatus} - ${errorMsg}`);
         return res.status(500).json({
           ok: false,
-          error: "Failed to approve payment with Pi API",
-          details: err.message
+          error: `Failed to approve payment with Pi API: ${errorStatus} ${errorMsg}`,
+          details: errorMsg
         });
       });
 
@@ -98,13 +108,17 @@ router.post("/complete", (req, res) => {
     }
 
     const piApiKey = envManager.get('piApiKey');
-    if (!piApiKey) {
-      logger.error("[Pi Payments] Pi API Key not configured");
+    if (!piApiKey || piApiKey === 'PLACEHOLDER') {
+      logger.error("[Pi Payments] Pi API Key not configured or placeholder");
       return res.status(500).json({
         ok: false,
-        error: "Pi integration not configured"
+        error: "Pi API Key not configured"
       });
     }
+
+    const piAPIClient = getPiAPIClient();
+
+    logger.info(`[Pi Payments] Completing payment ${paymentId} with txid ${txid}`);
 
     // Call Pi Platform API to complete
     piAPIClient.post(
@@ -123,11 +137,13 @@ router.post("/complete", (req, res) => {
         });
       })
       .catch((err) => {
-        logger.error(`[Pi Payments] Pi API complete error: ${err.message}`);
+        const errorMsg = err.response?.data?.message || err.message;
+        const errorStatus = err.response?.status || err.status;
+        logger.error(`[Pi Payments] Pi API complete error: ${errorStatus} - ${errorMsg}`);
         return res.status(500).json({
           ok: false,
-          error: "Failed to complete payment with Pi API",
-          details: err.message
+          error: `Failed to complete payment with Pi API: ${errorStatus} ${errorMsg}`,
+          details: errorMsg
         });
       });
 
@@ -183,7 +199,8 @@ router.post("/incomplete", (req, res) => {
 
         // Notify Pi API about completion
         const piApiKey = envManager.get('piApiKey');
-        if (piApiKey) {
+        if (piApiKey && piApiKey !== 'PLACEHOLDER') {
+          const piAPIClient = getPiAPIClient();
           piAPIClient.post(
             `/v2/payments/${paymentId}/complete`,
             { txid },
@@ -212,7 +229,7 @@ router.post("/incomplete", (req, res) => {
               });
             });
         } else {
-          logger.warn("[Pi Payments] No Pi API Key configured, skipping Pi API notification");
+          logger.warn("[Pi Payments] No valid Pi API Key configured, skipping Pi API notification");
           return res.json({
             ok: true,
             paymentId,
@@ -278,16 +295,21 @@ router.post("/cancelled", (req, res) => {
 // ============================================================
 router.get("/status", (req, res) => {
   const piApiKey = envManager.get('piApiKey');
+  const piApiBase = envManager.get('piApiBaseUrl');
+  const isConfigured = piApiKey && piApiKey !== 'PLACEHOLDER';
+  
   res.json({
     ok: true,
     message: "Real Pi Network payment service",
     mode: "pi-network",
-    configured: !!piApiKey,
+    configured: isConfigured,
+    piApiBaseUrl: piApiBase,
     endpoints: [
       "POST /api/pi-payments/approve",
       "POST /api/pi-payments/complete",
       "POST /api/pi-payments/incomplete",
-      "POST /api/pi-payments/cancelled"
+      "POST /api/pi-payments/cancelled",
+      "GET /api/pi-payments/status"
     ]
   });
 });
