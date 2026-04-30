@@ -4,8 +4,6 @@ services:
     name: atlaspi-frontend
     runtime: docker
     dockerfilePath: ./Dockerfile.frontend
-    buildCommand: "npm ci && npm run build"
-    startCommand: "nginx -g 'daemon off;'"
     plan: free
     region: oregon
     healthCheckPath: /
