@@ -954,6 +954,16 @@
     })();
   </script>
   <script src="config.js?v=3"></script>
+  <script>
+    (function() {
+      setTimeout(() => {
+        const el = document.getElementById("apiStatus");
+        if(!el) return;
+        const url = (window.ATLASPI_CONFIG?.API_BASE_URL || "http://localhost:3000") + "/api/health";
+        fetch(url, {method: "GET", mode: "cors"}).then(r=>r.json()).then(d=>{el.textContent="✅ Backend Connected"; el.style.color="#10b981"; console.log("Backend OK");}).catch(e=>{el.textContent="❌ Backend Unreachable"; el.style.color="#ef4444"; console.error("Backend failed:",e);});
+      }, 1500);
+    })();
+  </script>
   <script src="pi-integration.js"></script>
   <script src="pi-browser-payments.js"></script><script src="auth-handler.js"></script>
   <script src="auth-config.js"></script>
@@ -962,5 +972,6 @@
   <script src="pi-payment-init.js"></script><script src="toggle-admin.js"></script>
 </body>
 </html>
+
 
 
