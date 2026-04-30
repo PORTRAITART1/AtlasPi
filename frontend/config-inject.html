@@ -1,0 +1,14 @@
+<!-- AtlasPi Configuration Injector -->
+<script>
+  // Force correct API base URL for Render deployment
+  (function() {
+    const hostname = window.location.hostname;
+    
+    // Render production setup
+    if (hostname.includes('onrender.com')) {
+      window.ATLASPI_CONFIG = window.ATLASPI_CONFIG || {};
+      window.ATLASPI_CONFIG.API_BASE_URL = 'https://atlaspi-backend.onrender.com';
+      console.log('✓ AtlasPi API configured for Render:', window.ATLASPI_CONFIG.API_BASE_URL);
+    }
+  })();
+</script>
