@@ -35,7 +35,7 @@ class PiBrowserPayments {
   }
 
   /**
-   * Initiate payment - routes to real or demo based on SDK availability
+   * Initiate payment - routes to real or demo based on SDK availability and mode
    */
   async initiatePayment(paymentConfig) {
     const { amount, memo, metadata } = paymentConfig;
@@ -58,12 +58,15 @@ class PiBrowserPayments {
     };
 
     try {
-      // Use real Pi SDK if available and not in demo mode
+      // Use real Pi SDK ONLY if:
+      // 1. Pi SDK is available
+      // 2. Current mode is NOT 'demo'
+      // 3. User is in Pi Browser with real SDK
       if (isPiSdkAvailable && currentMode !== 'demo') {
-        console.log('[PiBrowserPayments] Using REAL Pi Browser payment');
+        console.log('[PiBrowserPayments] Using REAL Pi Browser payment with real SDK');
         return await this.initiateRealPiPayment(paymentConfig);
       } else {
-        console.log('[PiBrowserPayments] Using DEMO payment mode');
+        console.log('[PiBrowserPayments] Using DEMO payment mode (no real Pi SDK or demo mode)');
         return await this.initiateDemoPayment(paymentConfig);
       }
     } finally {
@@ -72,7 +75,7 @@ class PiBrowserPayments {
   }
 
   /**
-   * Demo payment flow - calls backend demo endpoints
+   * Demo payment flow - calls backend demo endpoints (instant auto-approval)
    */
   async initiateDemoPayment(paymentConfig) {
     const { amount, memo, metadata } = paymentConfig;
@@ -83,11 +86,12 @@ class PiBrowserPayments {
       const createResponse = await fetch(`${this.apiBase}/api/payments/create-record`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ amount, memo, metadata })
+        body: JSON.stringify({ amount, memo, metadata: metadata || {} })
       });
 
       if (!createResponse.ok) {
-        throw new Error(`Failed to create payment: ${createResponse.status}`);
+        const errorData = await createResponse.json().catch(() => ({}));
+        throw new Error(`Failed to create payment: ${createResponse.status} - ${errorData.error || 'Unknown error'}`);
       }
 
       const createData = await createResponse.json();
@@ -95,8 +99,8 @@ class PiBrowserPayments {
 
       console.log('[Demo Payment] Payment created:', paymentId);
 
-      // Step 2: Approve payment (auto-approve in demo)
-      console.log('[Demo Payment] Approving payment...');
+      // Step 2: Auto-approve payment (demo only)
+      console.log('[Demo Payment] Auto-approving payment...');
       const approveResponse = await fetch(`${this.apiBase}/api/payments/approve`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -104,25 +108,31 @@ class PiBrowserPayments {
       });
 
       if (!approveResponse.ok) {
-        throw new Error(`Failed to approve payment: ${approveResponse.status}`);
+        const errorData = await approveResponse.json().catch(() => ({}));
+        throw new Error(`Failed to approve payment: ${approveResponse.status} - ${errorData.error || 'Unknown error'}`);
       }
 
-      console.log('[Demo Payment] Payment approved');
+      console.log('[Demo Payment] Payment auto-approved');
 
-      // Step 3: Complete payment (auto-complete in demo)
-      console.log('[Demo Payment] Completing payment...');
+      // Step 3: Auto-complete payment (demo only)
+      console.log('[Demo Payment] Auto-completing payment...');
       const completeResponse = await fetch(`${this.apiBase}/api/payments/complete`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ paymentId, localPaymentId, txid: `demo-tx-${Date.now()}` })
+        body: JSON.stringify({ 
+          paymentId, 
+          localPaymentId, 
+          txid: `demo-tx-${Date.now()}` 
+        })
       });
 
       if (!completeResponse.ok) {
-        throw new Error(`Failed to complete payment: ${completeResponse.status}`);
+        const errorData = await completeResponse.json().catch(() => ({}));
+        throw new Error(`Failed to complete payment: ${completeResponse.status} - ${errorData.error || 'Unknown error'}`);
       }
 
       const completeData = await completeResponse.json();
-      console.log('[Demo Payment] Payment completed:', completeData);
+      console.log('[Demo Payment] Payment auto-completed:', completeData);
 
       return {
         success: true,
@@ -130,7 +140,7 @@ class PiBrowserPayments {
         localPaymentId,
         amount,
         memo,
-        status: 'demo_completed',
+        status: 'completed',
         message: 'Demo payment completed successfully',
         timestamp: new Date().toISOString()
       };
@@ -141,14 +151,15 @@ class PiBrowserPayments {
   }
 
   /**
-   * Real Pi Browser SDK payment flow (3-phase)
+   * Real Pi Browser SDK payment flow (3-phase with backend approval)
+   * Only used when Pi SDK is available AND not in demo mode
    */
   async initiateRealPiPayment(paymentConfig) {
     const { amount, memo, metadata } = paymentConfig;
 
     return new Promise((resolve, reject) => {
       try {
-        console.log('[Real Pi Payment] Starting 3-phase payment:', paymentConfig);
+        console.log('[Real Pi Payment] Starting 3-phase payment with backend approval:', paymentConfig);
 
         window.Pi.createPayment(
           {
@@ -157,55 +168,74 @@ class PiBrowserPayments {
             metadata: metadata || {}
           },
           {
+            // Phase 1: Pi SDK ready for server approval
             onReadyForServerApproval: async (paymentId) => {
               try {
-                console.log('[Real Pi Payment] Phase I - Approving:', paymentId);
+                console.log('[Real Pi Payment] Phase 1 - Server approval for:', paymentId);
+                
+                // Call backend to approve the payment
                 const response = await fetch(`${this.apiBase}/api/pi-payments/approve`, {
                   method: 'POST',
                   headers: { 'Content-Type': 'application/json' },
                   body: JSON.stringify({ paymentId })
                 });
 
-                if (!response.ok) throw new Error(`Approval failed: ${response.status}`);
-                console.log('[Real Pi Payment] Phase I complete');
+                if (!response.ok) {
+                  const errorData = await response.json().catch(() => ({}));
+                  throw new Error(`Approval failed: ${response.status} - ${errorData.error || 'Unknown error'}`);
+                }
+                
+                const approvalData = await response.json();
+                console.log('[Real Pi Payment] Phase 1 complete - server approved:', approvalData);
+                // Phase 1 complete, wait for Phase 2 (blockchain confirmation)
               } catch (error) {
-                console.error('[Real Pi Payment] Phase I error:', error);
+                console.error('[Real Pi Payment] Phase 1 error:', error);
                 reject(error);
               }
             },
 
+            // Phase 2 & 3: Blockchain confirmed, ready for server completion
             onReadyForServerCompletion: async (paymentId, txid) => {
               try {
-                console.log('[Real Pi Payment] Phase III - Completing:', { paymentId, txid });
+                console.log('[Real Pi Payment] Phase 3 - Server completion for:', paymentId, 'txid:', txid);
+                
+                // Call backend to complete the payment
                 const response = await fetch(`${this.apiBase}/api/pi-payments/complete`, {
                   method: 'POST',
                   headers: { 'Content-Type': 'application/json' },
                   body: JSON.stringify({ paymentId, txid })
                 });
 
-                if (!response.ok) throw new Error(`Completion failed: ${response.status}`);
-                const data = await response.json();
-                console.log('[Real Pi Payment] Phase III complete');
+                if (!response.ok) {
+                  const errorData = await response.json().catch(() => ({}));
+                  throw new Error(`Completion failed: ${response.status} - ${errorData.error || 'Unknown error'}`);
+                }
+                
+                const completionData = await response.json();
+                console.log('[Real Pi Payment] Phase 3 complete - payment completed:', completionData);
+                
                 resolve({
                   success: true,
                   paymentId,
                   txid,
-                  message: 'Real Pi payment completed',
+                  message: 'Real Pi payment completed successfully',
                   timestamp: new Date().toISOString()
                 });
               } catch (error) {
-                console.error('[Real Pi Payment] Phase III error:', error);
+                console.error('[Real Pi Payment] Phase 3 error:', error);
                 reject(error);
               }
             },
 
+            // User or system cancelled the payment
             onCancel: (paymentId) => {
-              console.warn('[Real Pi Payment] Cancelled:', paymentId);
+              console.warn('[Real Pi Payment] Cancelled by user:', paymentId);
               reject(new Error(`Payment cancelled (${paymentId})`));
             },
 
+            // Error occurred during payment flow
             onError: (error) => {
-              console.error('[Real Pi Payment] Error:', error);
+              console.error('[Real Pi Payment] SDK error:', error);
               reject(error);
             }
           }
@@ -225,7 +255,7 @@ class PiBrowserPayments {
   getStatusMessage() {
     return this.getMode() === 'pi-browser-real' 
       ? '✅ Pi Browser Payment Ready (Official SDK)'
-      : '⚠️ DEMO Payment Mode (Pi SDK not available)';
+      : '⚠️ DEMO Payment Mode (Pi SDK not available or demo mode)';
   }
 }
 
