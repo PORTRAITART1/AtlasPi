@@ -11,6 +11,9 @@ class PiBrowserPayments {
     console.log(`[PiBrowserPayments] Initialized. SDK Available: ${this.sdkAvailable}`);
   }
 
+  // -------------------------------------------------------------------------
+  // SDK detection (dynamic)
+  // -------------------------------------------------------------------------
   detectPiSdk() {
     if (typeof window === 'undefined') {
       return false;
@@ -25,6 +28,25 @@ class PiBrowserPayments {
   }
 
   /**
+   * Méthode publique pour obtenir l'état actuel du SDK.
+   * Elle effectue une détection dynamique à chaque appel afin de refléter
+   * les changements de disponibilité (ex. script chargé après l'instanciation).
+   */
+  isSdkReady() {
+    return this.detectPiSdk();
+  }
+
+  /**
+   * Si besoin, on peut rafraîchir la propriété sdkAvailable (pour compatibilité
+   * avec du code qui l'utilise directement). Cette méthode n'est pas obligatoire
+   * pour le flow principal mais permet de garder l'ancienne API fonctionnelle.
+   */
+  refreshSdkStatus() {
+    this.sdkAvailable = this.isSdkReady();
+    console.log(`[PiBrowserPayments] SDK status refreshed: ${this.sdkAvailable}`);
+  }
+
+  /**
    * Déclenche le paiement : Pi réel si SDK dispo, sinon fallback démo.
    */
   async initiatePayment(paymentConfig) {
@@ -36,7 +58,7 @@ class PiBrowserPayments {
 
     // Détermine le mode actuel
     const currentMode = window.piIntegrationManager?.getMode() || 'demo'; // Utilise le manager global si dispo
-    const isPiSdkAvailable = this.sdkAvailable;
+    const isPiSdkAvailable = this.isSdkReady();
 
     console.log(`[PiBrowserPayments] Initiating payment. Mode: ${currentMode}, SDK Available: ${isPiSdkAvailable}`);
 
@@ -177,7 +199,7 @@ class PiBrowserPayments {
   // ... (autres méthodes comme getMode, getStatus, etc.)
   getMode() {
     const currentMode = window.piIntegrationManager?.getMode() || 'demo';
-    if (this.sdkAvailable && currentMode !== 'demo') {
+    if (this.isSdkReady() && currentMode !== 'demo') {
       return 'pi-browser-real'; // Indique que le vrai flow est prêt
     } else {
       return 'demo-fallback'; // Indique que le fallback démo est utilisé

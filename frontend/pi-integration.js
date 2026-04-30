@@ -41,7 +41,18 @@ class PiIntegrationManager {
       // Initialise the SDK – sandbox mode for development / testnet
       await Pi.init({ version: '2.0', sandbox: true });
       this.sdkAvailable = true;
-      console.log('[Pi Integration] Pi SDK initialised (sandbox)');
+      // ----- Nouvelle logique : mettre à jour le mode maintenant que le SDK est prêt -----
+      this.mode = 'pirc2-sandbox'; // ou 'pi-ready' selon la configuration
+      console.log('[Pi Integration] Pi SDK initialised (sandbox) – mode set to', this.mode);
+      // ----- Synchroniser l’état SDK avec le gestionnaire de paiement -----
+      if (window.piBrowserPayments) {
+        window.piBrowserPayments.sdkAvailable = true;
+        // Si on veut être sûr que le statut interne est à jour, on peut appeler une méthode de rafraîchissement
+        if (typeof window.piBrowserPayments.refreshSdkStatus === 'function') {
+          window.piBrowserPayments.refreshSdkStatus();
+        }
+        console.log('[Pi Integration] PiBrowserPayments SDK status synchronised.');
+      }
     } catch (e) {
       console.warn('[Pi Integration] Pi SDK not available or init failed', e);
       this.sdkAvailable = false;
