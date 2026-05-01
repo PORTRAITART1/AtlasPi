@@ -41,7 +41,7 @@ router.post("/approve", (req, res) => {
     piAPIClient.post(
       `/v2/payments/${paymentId}/approve`,
       {},
-      { headers: { 'Authorization': `Bearer ${piApiKey}` } }
+      { headers: { 'Authorization': `Key ${piApiKey}` } }
     ).then(() => {
       // Update payment in local DB
       const now = new Date().toISOString();
@@ -109,7 +109,7 @@ router.post("/complete", (req, res) => {
     piAPIClient.post(
       `/v2/payments/${paymentId}/complete`,
       { txid },
-      { headers: { 'Authorization': `Bearer ${piApiKey}` } }
+      { headers: { 'Authorization': `Key ${piApiKey}` } }
     ).then(() => {
       // Update payment in local DB
       const now = new Date().toISOString();
@@ -209,7 +209,7 @@ router.post("/incomplete", (req, res) => {
             piAPIClient.post(
               `/v2/payments/${paymentId}/complete`,
               { txid },
-              { headers: { 'Authorization': `Bearer ${piApiKey}` } }
+              { headers: { 'Authorization': `Key ${piApiKey}` } }
             ).catch((err) => {
               logger.error("Pi API notification error: " + err.message);
             });
