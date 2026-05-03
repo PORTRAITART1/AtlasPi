@@ -974,9 +974,10 @@ main,
     width: 100%;
   }
 
-  .menu.open {
-    display: flex !important;
-  }
+.menu.open {
+  display: flex !important;
+  z-index: 1001;
+}
 
   .hero {
     padding-top: 54px;
