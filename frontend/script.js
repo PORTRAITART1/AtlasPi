@@ -35,7 +35,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // MENU HAMBURGER LOGIC (minimal, non‑intrusive)
   // -------------------------------------------------
   const menuToggle = document.getElementById('menuToggle');
-  const menu = document.getElementById('menu');
+  const menu = document.getElementById('menuPanel');
 
   if (menuToggle && menu) {
     // Ouvrir / fermer le menu au clic sur le bouton hamburger
