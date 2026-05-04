@@ -945,19 +945,30 @@ main,
 }
 
 @media (max-width: 860px) {
+  .menu-shell {
+    position: relative;
+  }
+
   .menu-toggle {
     display: inline-grid;
     place-items: center;
     z-index: 1002;
     position: relative;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.12);
+    color: white;
+    width: 48px;
+    height: 48px;
+    border-radius: 14px;
+    cursor: pointer;
   }
 
-  .menu {
+  .menu-panel {
     position: absolute;
     top: 84px;
     right: 4%;
     width: min(320px, 92%);
-    display: none;
+    display: flex;
     flex-direction: column;
     align-items: flex-start;
     gap: 10px;
@@ -970,14 +981,13 @@ main,
     z-index: 1001;
   }
 
-  .menu a {
-    width: 100%;
+  .menu-panel[hidden] {
+    display: none !important;
   }
 
-.menu.open {
-  display: flex !important;
-  z-index: 1001;
-}
+  .menu-panel a {
+    width: 100%;
+  }
 
   .hero {
     padding-top: 54px;
