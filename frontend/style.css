@@ -1013,3 +1013,8 @@ main,
     padding: 24px;
   }
 }
+
+/* Menu ouvert */
+.menu-panel.open {
+  display: flex !important;
+}
