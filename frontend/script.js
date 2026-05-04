@@ -35,28 +35,28 @@ document.addEventListener("DOMContentLoaded", () => {
   // MENU HAMBURGER LOGIC (minimal, non‑intrusive)
   // -------------------------------------------------
 const menuToggle = document.getElementById('menuToggle');
-const menu = document.getElementById('menu');
+const menuPanel = document.getElementById('menuPanel');
 
-if (menuToggle && menu) {
+if (menuToggle && menuPanel) {
   const closeMenu = () => {
-    menu.classList.remove('open');
+    menuPanel.hidden = true;
     menuToggle.setAttribute('aria-expanded', 'false');
   };
 
   const openMenu = () => {
-    menu.classList.add('open');
+    menuPanel.hidden = false;
     menuToggle.setAttribute('aria-expanded', 'true');
   };
 
   menuToggle.addEventListener('click', () => {
-    if (menu.classList.contains('open')) {
-      closeMenu();
-    } else {
+    if (menuPanel.hidden) {
       openMenu();
+    } else {
+      closeMenu();
     }
   });
 
-  const menuLinks = menu.querySelectorAll('a');
+  const menuLinks = menuPanel.querySelectorAll('a');
   menuLinks.forEach(link => {
     link.addEventListener('click', () => {
       closeMenu();
