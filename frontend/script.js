@@ -34,23 +34,35 @@ document.addEventListener("DOMContentLoaded", () => {
   // -------------------------------------------------
   // MENU HAMBURGER LOGIC (minimal, non‑intrusive)
   // -------------------------------------------------
-  const menuToggle = document.getElementById('menuToggle');
-  const menu = document.getElementById('menu');
+const menuToggle = document.getElementById('menuToggle');
+const menu = document.getElementById('menu');
 
-  if (menuToggle && menu) {
-    // Ouvrir / fermer le menu au clic sur le bouton hamburger
-    menuToggle.addEventListener('click', () => {
-      menu.classList.toggle('open');
-    });
+if (menuToggle && menu) {
+  const closeMenu = () => {
+    menu.classList.remove('open');
+    menuToggle.setAttribute('aria-expanded', 'false');
+  };
 
-    // Fermer le menu lorsqu’on clique sur un lien du menu
-    const menuLinks = menu.querySelectorAll('a');
-    menuLinks.forEach(link => {
-      link.addEventListener('click', () => {
-        menu.classList.remove('open');
-      });
+  const openMenu = () => {
+    menu.classList.add('open');
+    menuToggle.setAttribute('aria-expanded', 'true');
+  };
+
+  menuToggle.addEventListener('click', () => {
+    if (menu.classList.contains('open')) {
+      closeMenu();
+    } else {
+      openMenu();
+    }
+  });
+
+  const menuLinks = menu.querySelectorAll('a');
+  menuLinks.forEach(link => {
+    link.addEventListener('click', () => {
+      closeMenu();
     });
-  }
+  });
+}
 
   // -------------------------------------------------
   // ... (rest of the file unchanged)
