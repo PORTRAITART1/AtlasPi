@@ -40,20 +40,22 @@
   </div>
 </a>
 
-<button type="button" class="menu-toggle" id="menuToggle" aria-label="Open menu" onclick="document.getElementById('menu').classList.toggle('open')">
-  ☰
-</button>
+<div class="menu-shell">
+  <button type="button" class="menu-toggle" id="menuToggle" aria-label="Open menu" aria-expanded="false">
+    ☰
+  </button>
 
-      <nav class="menu" id="menu">
-        <a href="#vision">Vision</a>
-        <a href="#features">Features</a>
-        <a href="#ecosystem">Ecosystem</a>
-        <a href="#trust">Trust</a>
-        <a href="#faq">FAQ</a>
-        <a href="#merchant-form-section">Merchant Listings</a>
-        <a href="#merchant-moderation-section" style="color: #dc2626;">⚠️ Moderation</a>
-        <a href="#join" class="btn btn-nav">Join Early</a>
-      </nav>
+  <nav class="menu-panel" id="menuPanel" hidden>
+    <a href="#vision">Vision</a>
+    <a href="#features">Features</a>
+    <a href="#ecosystem">Ecosystem</a>
+    <a href="#trust">Trust</a>
+    <a href="#faq">FAQ</a>
+    <a href="#merchant-form-section">Merchant Listings</a>
+    <a href="#merchant-moderation-section" style="color: #dc2626;">⚠️ Moderation</a>
+    <a href="#join" class="btn btn-nav">Join Early</a>
+  </nav>
+</div>
     </div>
   </header>
     <section class="section" id="app-demo">
