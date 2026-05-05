@@ -40,10 +40,12 @@
   </div>
 </a>
 
-<details class="menu-shell" id="menuShell">
-  <summary class="menu-toggle" aria-label="Open menu">☰</summary>
+<div class="menu-shell">
+  <button type="button" class="menu-toggle" id="menuToggle" aria-label="Open menu" aria-expanded="false">
+    ☰
+  </button>
 
-  <nav class="menu-panel">
+  <nav class="menu-panel" id="menuPanel" hidden>
     <a href="#vision">Vision</a>
     <a href="#features">Features</a>
     <a href="#ecosystem">Ecosystem</a>
@@ -53,7 +55,7 @@
     <a href="#merchant-moderation-section" style="color: #dc2626;">⚠️ Moderation</a>
     <a href="#join" class="btn btn-nav">Join Early</a>
   </nav>
-</details>
+</div>
     </div>
   </header>
     <section class="section" id="app-demo">
@@ -938,7 +940,9 @@
       z-index: 9999;
     "
   >
-    ↑
+    <button type="button" class="menu-toggle" id="menuToggle" aria-label="Open menu" aria-expanded="false">
+  ☰
+</button>
   </a>
 
   <script src="config.js?v=3"></script>
