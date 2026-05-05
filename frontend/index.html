@@ -41,16 +41,9 @@
 </a>
 
       <div class="menu-shell">
-<button
-  type="button"
-  class="menu-toggle"
-  id="menuToggle"
-  aria-label="Open menu"
-  aria-expanded="false"
-  onclick="const m=document.getElementById('menuPanel'); const expanded=this.getAttribute('aria-expanded')==='true'; this.setAttribute('aria-expanded', expanded ? 'false' : 'true'); if (expanded) { m.setAttribute('hidden',''); m.classList.remove('open'); } else { m.removeAttribute('hidden'); m.classList.add('open'); }"
->
-  ☰
-</button>
+        <button type="button" class="menu-toggle" id="menuToggle" aria-label="Open menu" aria-expanded="false" onclick="const m=document.getElementById('menuPanel'); const expanded=this.getAttribute('aria-expanded')==='true'; this.setAttribute('aria-expanded', expanded ? 'false' : 'true'); if (expanded) { m.setAttribute('hidden', ''); m.classList.remove('open'); } else { m.removeAttribute('hidden'); m.classList.add('open'); }">
+          ☰
+        </button>
 
         <nav class="menu-panel" id="menuPanel" hidden>
           <a href="#vision">Vision</a>
