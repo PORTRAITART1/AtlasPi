@@ -40,22 +40,20 @@
   </div>
 </a>
 
-      <div class="menu-shell">
-        <button type="button" class="menu-toggle" id="menuToggle" aria-label="Open menu" aria-expanded="false" onclick="const m=document.getElementById('menuPanel'); const expanded=this.getAttribute('aria-expanded')==='true'; this.setAttribute('aria-expanded', expanded ? 'false' : 'true'); if (expanded) { m.setAttribute('hidden', ''); m.classList.remove('open'); } else { m.removeAttribute('hidden'); m.classList.add('open'); }">
-          ☰
-        </button>
+<details class="menu-shell" id="menuShell">
+  <summary class="menu-toggle" aria-label="Open menu">☰</summary>
 
-        <nav class="menu-panel" id="menuPanel" hidden>
-          <a href="#vision">Vision</a>
-          <a href="#features">Features</a>
-          <a href="#ecosystem">Ecosystem</a>
-          <a href="#trust">Trust</a>
-          <a href="#faq">FAQ</a>
-          <a href="#merchant-form-section">Merchant Listings</a>
-          <a href="#merchant-moderation-section" style="color: #dc2626;">⚠️ Moderation</a>
-          <a href="#join" class="btn btn-nav">Join Early</a>
-        </nav>
-      </div>
+  <nav class="menu-panel">
+    <a href="#vision">Vision</a>
+    <a href="#features">Features</a>
+    <a href="#ecosystem">Ecosystem</a>
+    <a href="#trust">Trust</a>
+    <a href="#faq">FAQ</a>
+    <a href="#merchant-form-section">Merchant Listings</a>
+    <a href="#merchant-moderation-section" style="color: #dc2626;">⚠️ Moderation</a>
+    <a href="#join" class="btn btn-nav">Join Early</a>
+  </nav>
+</details>
     </div>
   </header>
     <section class="section" id="app-demo">
