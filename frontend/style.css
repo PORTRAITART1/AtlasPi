@@ -949,11 +949,26 @@ main,
     position: relative;
   }
 
+  .menu-shell summary {
+    list-style: none;
+  }
+
+  .menu-shell summary::-webkit-details-marker {
+    display: none;
+  }
+
   .menu-toggle {
     display: inline-grid;
     place-items: center;
     z-index: 1002;
     position: relative;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.12);
+    color: white;
+    width: 48px;
+    height: 48px;
+    border-radius: 14px;
+    cursor: pointer;
   }
 
   .menu-panel {
@@ -961,7 +976,7 @@ main,
     top: 78px;
     right: 16px;
     width: min(320px, calc(100vw - 32px));
-    display: flex;
+    display: none;
     flex-direction: column;
     align-items: flex-start;
     gap: 10px;
@@ -974,8 +989,8 @@ main,
     z-index: 9999;
   }
 
-  .menu-panel[hidden] {
-    display: none !important;
+  .menu-shell[open] .menu-panel {
+    display: flex !important;
   }
 
   .menu-panel a {
