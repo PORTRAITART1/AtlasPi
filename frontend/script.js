@@ -39,12 +39,12 @@ const menuPanel = document.getElementById('menuPanel');
 
 if (menuToggle && menuPanel) {
   const closeMenu = () => {
-    menuPanel.hidden = true;
+    menuPanel.classList.remove("open"); menuPanel.setAttribute("hidden", "");
     menuToggle.setAttribute('aria-expanded', 'false');
   };
 
   const openMenu = () => {
-    menuPanel.hidden = false;
+    menuPanel.classList.add("open"); menuPanel.removeAttribute("hidden");
     menuToggle.setAttribute('aria-expanded', 'true');
   };
 
