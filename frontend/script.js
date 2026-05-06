@@ -67,3 +67,47 @@ if (menuToggle && menuPanel) {
   // -------------------------------------------------
   // ... (rest of the file unchanged)
 });
+
+// Backend Status Check
+document.addEventListener('DOMContentLoaded', () => {
+  const apiStatusEl = document.getElementById('apiStatus');
+  
+  if (apiStatusEl) {
+    const API_BASE_URL = window.ATLASPI_CONFIG?.API_BASE_URL || 
+                         'https://atlaspi-backend.onrender.com';
+    
+    fetch(API_BASE_URL)
+      .then(res => res.json())
+      .then(data => {
+        if (data.ok && data.status === 'running') {
+          apiStatusEl.textContent = `✅ Backend connected (${data.mode} mode)`;
+          apiStatusEl.style.color = '#10b981';
+        } else {
+          apiStatusEl.textContent = '⚠️ Backend responded but status unclear';
+          apiStatusEl.style.color = '#f59e0b';
+        }
+      })
+      .catch(err => {
+        apiStatusEl.textContent = '❌ Backend connection failed';
+        apiStatusEl.style.color = '#ef4444';
+        console.error('Backend check error:', err);
+      });
+  }
+});
+
+// Close menu when clicking outside
+document.addEventListener('click', (e) => {
+  const menuPanel = document.getElementById('menuPanel');
+  const menuToggle = document.getElementById('menuToggle');
+  
+  if (menuPanel && menuToggle) {
+    const isClickInsideMenu = menuPanel.contains(e.target);
+    const isClickOnToggle = menuToggle.contains(e.target);
+    
+    if (!isClickInsideMenu && !isClickOnToggle && menuPanel.classList.contains('open')) {
+      menuPanel.classList.remove('open');
+      menuPanel.setAttribute('hidden', '');
+      menuToggle.setAttribute('aria-expanded', 'false');
+    }
+  }
+});
