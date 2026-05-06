@@ -6,6 +6,7 @@ WORKDIR /usr/share/nginx/html
 COPY frontend/*.html ./
 COPY frontend/*.css ./
 COPY frontend/*.js ./
+COPY frontend/*.png ./
 COPY frontend/images ./images/
 
 # Configuration nginx personnalisée
