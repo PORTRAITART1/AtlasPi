@@ -1,20 +1,32 @@
-// ... (début de la classe)
+// Pi Integration Manager – synchronisation du mode frontend/backend
+// ---------------------------------------------------------------
+// Ce fichier a été mis à jour pour que le mode utilisé côté
+// frontend reflète exactement le mode configuré côté backend
+// (demo, pirc2-sandbox ou pirc2-production).  
+// Aucun autre comportement n'est modifié.
 
 class PiIntegrationManager {
   constructor() {
-    this.mode = this.detectMode();
-    this.sdkAvailable = this.detectPiSdk(); // initial detection (may be false until script loads)
+    // Valeur par défaut – sera remplacée dès que le backend renvoie son mode
+    this.mode = 'demo';
+    this.sdkAvailable = this.detectPiSdk(); // Détection initiale (peut être false jusqu'au chargement du script)
     this.user = null;
     this.config = this.initConfig();
 
-    console.log(`[Pi Integration] Mode: ${this.mode}, SDK Available: ${this.sdkAvailable}`);
+    console.log(`[Pi Integration] Mode initial (temp): ${this.mode}, SDK Available: ${this.sdkAvailable}`);
+
+    // Récupérer le mode réel depuis le backend dès l'instanciation
+    // (ne bloque pas le constructeur, on gère les erreurs silencieusement)
+    this.fetchBackendMode().catch(() => {
+      console.warn('[Pi Integration] Impossible de récupérer le mode depuis le backend – on garde le mode par défaut');
+    });
   }
 
   // -------------------------------------------------------------------------
-  // SDK loading & initialization (official Pi SDK)
+  // SDK loading & initialisation (official Pi SDK)
   // -------------------------------------------------------------------------
   async loadPiSdk() {
-    // If the SDK is already present, resolve immediately
+    // Si le SDK est déjà présent, on résout immédiatement
     if (window.Pi) {
       return;
     }
@@ -38,13 +50,16 @@ class PiIntegrationManager {
   async initPiSdk() {
     try {
       await this.loadPiSdk();
-      // Initialise the SDK – sandbox mode for development / testnet
+
+      // Initialise le SDK – sandbox mode pour le développement / testnet
+      // Le mode réel (sandbox ou production) sera déterminé par le backend,
+      // on ne force donc plus de mode ici.
       await Pi.init({ version: '2.0', sandbox: true });
       this.sdkAvailable = true;
-      // ----- Nouvelle logique : mettre à jour le mode maintenant que le SDK est prêt -----
-      this.mode = 'pirc2-sandbox'; // ou 'pi-ready' selon la configuration
-      console.log('[Pi Integration] Pi SDK initialised (sandbox) – mode set to', this.mode);
-      // ----- Synchroniser l’état SDK avec le gestionnaire de paiement -----
+
+      console.log('[Pi Integration] Pi SDK initialised (sandbox) – mode conservé:', this.mode);
+
+      // Synchroniser l’état SDK avec le gestionnaire de paiement
       if (window.piBrowserPayments) {
         window.piBrowserPayments.sdkAvailable = true;
         // Si on veut être sûr que le statut interne est à jour, on peut appeler une méthode de rafraîchissement
@@ -56,6 +71,29 @@ class PiIntegrationManager {
     } catch (e) {
       console.warn('[Pi Integration] Pi SDK not available or init failed', e);
       this.sdkAvailable = false;
+    }
+  }
+
+  // -------------------------------------------------------------------------
+  // Helper : récupérer le mode depuis le backend (health endpoint)
+  // -------------------------------------------------------------------------
+  async fetchBackendMode() {
+    const apiBase = window.ATLASPI_CONFIG?.API_BASE_URL || 'http://localhost:3000';
+    try {
+      const response = await fetch(apiBase);
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`);
+      }
+      const data = await response.json();
+      if (data && data.mode) {
+        this.mode = data.mode;
+        this.config.mode = data.mode;
+        console.log(`[Pi Integration] Backend mode fetched: ${this.mode}`);
+      } else {
+        console.warn('[Pi Integration] Backend health response does not contain mode');
+      }
+    } catch (err) {
+      console.warn('[Pi Integration] Unable to fetch backend mode:', err);
     }
   }
 
@@ -93,14 +131,16 @@ class PiIntegrationManager {
   }
 
   /**
-   * Set backend mode info (called after backend health check)
+   * Set backend mode info (appelé après le health‑check du backend)
+   * Cette méthode n'est plus utilisée dans le flux normal, mais elle reste
+   * disponible pour des appels manuels éventuels.
    */
   setBackendMode(mode) {
     this.mode = mode;
     this.config.mode = mode;
     // Assurer que piBrowserPayments est aussi informé si disponible
     if (window.piBrowserPayments) {
-      // Re-detect SDK availability as it might depend on the environment Pi is running in
+      // Re‑détecter la disponibilité du SDK (peut dépendre de l’environnement Pi)
       window.piBrowserPayments.sdkAvailable = window.piBrowserPayments.detectPiSdk(); 
       console.log(`[Pi Integration] Updated backend mode to ${mode}. Pi SDK available for payments: ${window.piBrowserPayments.sdkAvailable}`);
     }
@@ -178,11 +218,11 @@ class PiIntegrationManager {
       const authResult = await Pi.authenticate(
         ['payments'], // request the payments scope (minimum required for createPayment)
         (payment) => {
-          // onIncompletePaymentFound – simply log for now
+          // onIncompletePaymentFound – simplement log for now
           console.warn('[Pi Auth] Incomplete payment found', payment);
         }
       );
-      // authResult follows the AuthResult shape defined in the docs
+      // authResult suit la forme définie dans la documentation Pi
       this.user = authResult.user;
       return { ok: true, user: this.user, mode: this.mode };
     } catch (error) {
