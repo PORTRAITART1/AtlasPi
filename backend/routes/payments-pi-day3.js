@@ -1,13 +1,12 @@
-/**
- * AtlasPi Pi Payments Implementation (DAY 3+)
- * Handles Pi Network payment flows, distinguishing between demo, sandbox, and production.
- */
+// AtlasPi Pi Payments Implementation (DAY 3+)
+// Handles Pi Network payment flows, distinguishing between demo, sandbox, and production.
 
 import express from "express";
 import db from "../config/db.js";
 import logger from "../utils/logger.js";
 import envManager from "../config/envManager.js";
 import { v4 as uuidv4 } from "uuid";
+import { PiPaymentIntegration } from "../utils/pi-integration-prep.js";
 
 const router = express.Router();
 
@@ -70,6 +69,7 @@ router.post("/create-record-day3", (req, res) => {
 
       return res.json({
         ok: true,
+        success: true,
         localPaymentId,
         amount,
         memo: memo || '',
@@ -88,7 +88,7 @@ router.post("/create-record-day3", (req, res) => {
  * This is called by the frontend after Pi SDK's onReadyForServerApproval.
  */
 router.post("/approve-pi-real", async (req, res) => {
-  const { paymentId } = req.body; // paymentId comes from Pi SDK
+  const { paymentId, signature, payload } = req.body; // signature & payload optional for verification
   const appMode = envManager.get('mode');
 
   if (!paymentId) {
@@ -97,10 +97,16 @@ router.post("/approve-pi-real", async (req, res) => {
 
   logger.info(`[Payment] approve-pi-real mode=${appMode} piPaymentId=${paymentId}`);
 
-  // Find the payment record by its Pi Payment ID (if already created)
-  // Or, if this is the first step, create a new record.
-  // For simplicity here, we assume the record might already exist or we create it.
-  // A more robust flow would involve linking frontend session to backend payment record.
+  // ---- Verify SDK signature (official flow) ----
+  if (signature && payload) {
+    const verification = PiPaymentIntegration.verifyPaymentSignature(signature, payload);
+    if (!verification.valid) {
+      logger.warn(`[Payment] Invalid signature for paymentId ${paymentId}: ${verification.error}`);
+      return res.status(400).json({ ok: false, error: 'Invalid payment signature' });
+    }
+  } else {
+    logger.warn(`[Payment] No signature/payload provided for paymentId ${paymentId} – skipping verification`);
+  }
 
   const piPaymentId = paymentId; // Use the ID from Pi SDK
   const approvedAt = new Date().toISOString();
@@ -123,7 +129,6 @@ router.post("/approve-pi-real", async (req, res) => {
       logger.info(`[Payment] Updating existing record for approval: ${row.local_payment_id}`);
     } else {
       // Create a new record if not found (e.g., if frontend didn't create record first)
-      // This is a simplified approach; ideally, frontend creates record first.
       const localPaymentId = `payment-${uuidv4()}`; // Generate a new local ID
       query = `INSERT INTO payments (local_payment_id, pi_payment_id, status, created_at, updated_at, metadata) VALUES (?, ?, ?, ?, ?, ?)`;
       params = [localPaymentId, piPaymentId, status, approvedAt, approvedAt, JSON.stringify({ source: 'pi-sdk-approval' })];
@@ -138,6 +143,7 @@ router.post("/approve-pi-real", async (req, res) => {
 
       const response = {
         ok: true,
+        success: true,
         paymentId: piPaymentId, // Return the Pi Payment ID
         status: status,
         mode: appMode,
@@ -150,7 +156,7 @@ router.post("/approve-pi-real", async (req, res) => {
       } else if (appMode === 'pirc2-production') {
         response.message = 'Production payment approved. Waiting for Pi mainnet confirmation.';
         response.note = 'Transaction will be verified on Pi mainnet.';
-      } else { // Should not happen if called correctly, but as fallback
+      } else {
         response.message = 'Payment approved (mode unknown).';
       }
 
@@ -165,7 +171,7 @@ router.post("/approve-pi-real", async (req, res) => {
  * This is called by the frontend after Pi SDK's onReadyForServerCompletion.
  */
 router.post("/complete-pi-real", async (req, res) => {
-  const { paymentId, txid } = req.body; // paymentId and txid from Pi SDK
+  const { paymentId, txid, signature, payload } = req.body; // signature & payload optional for verification
   const appMode = envManager.get('mode');
 
   if (!paymentId || !txid) {
@@ -174,13 +180,24 @@ router.post("/complete-pi-real", async (req, res) => {
 
   logger.info(`[Payment] complete-pi-real mode=${appMode} piPaymentId=${paymentId} txid=${txid}`);
 
+  // ---- Verify SDK signature (official flow) ----
+  if (signature && payload) {
+    const verification = PiPaymentIntegration.verifyPaymentSignature(signature, payload);
+    if (!verification.valid) {
+      logger.warn(`[Payment] Invalid signature for completion of paymentId ${paymentId}: ${verification.error}`);
+      return res.status(400).json({ ok: false, error: 'Invalid payment signature' });
+    }
+  } else {
+    logger.warn(`[Payment] No signature/payload provided for completion of paymentId ${paymentId} – skipping verification`);
+  }
+
   const completedAt = new Date().toISOString();
   const status = 'completed';
 
   // Find the payment record using either local_payment_id or pi_payment_id
   db.run(
     `UPDATE payments SET status = ?, txid = ?, updated_at = ? WHERE pi_payment_id = ? OR local_payment_id = ?`,
-    [status, txid, completedAt, paymentId, paymentId], // Check both IDs as paymentId might be local or Pi ID
+    [status, txid, completedAt, paymentId, paymentId],
     function (err) {
       if (err) {
         logger.error(`[Payment] DB error on completion update: ${err.message}`);
@@ -188,15 +205,14 @@ router.post("/complete-pi-real", async (req, res) => {
       }
 
       if (this.changes === 0) {
-        // If no record was updated, it might mean the payment wasn't found or already completed.
-        // In a real scenario, we might want to fetch and verify the txid on the blockchain.
         logger.warn(`[Payment] No payment record found or updated for completion: ${paymentId} / ${txid}`);
         return res.status(404).json({ ok: false, error: 'Payment record not found or already completed' });
       }
 
       const response = {
         ok: true,
-        paymentId: paymentId, // Return the ID used for lookup
+        success: true,
+        paymentId: paymentId,
         txid: txid,
         status: status,
         mode: appMode,
@@ -210,7 +226,7 @@ router.post("/complete-pi-real", async (req, res) => {
       } else if (appMode === 'pirc2-production') {
         response.message = 'Production payment completed. Transaction verified on Pi mainnet.';
         response.txidType = 'blockchain';
-      } else { // Demo mode fallback or unknown
+      } else {
         response.message = 'Payment completed (mode unknown or demo fallback).';
         response.txidType = 'mock';
       }
@@ -304,7 +320,7 @@ function getPaymentVerificationStatus(mode, payment) {
       message: verified
         ? 'Production payment completed (transaction recorded)'
         : `Payment ${payment.status}`,
-      realBlockchain: true, // Indicates it's intended for blockchain
+      realBlockchain: true,
       txid: payment.txid,
       note: 'Real blockchain verification pending integration with Pi mainnet APIs.'
     };

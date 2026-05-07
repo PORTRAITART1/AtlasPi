@@ -218,7 +218,7 @@ class PiIntegrationManager {
       const authResult = await Pi.authenticate(
         ['payments'], // request the payments scope (minimum required for createPayment)
         (payment) => {
-          // onIncompletePaymentFound – simplement log for now
+          // onIncompletePaymentFound – simplement log pour now
           console.warn('[Pi Auth] Incomplete payment found', payment);
         }
       );

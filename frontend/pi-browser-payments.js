@@ -112,6 +112,7 @@ class PiBrowserPayments {
             onReadyForServerApproval: async (paymentId) => {
               try {
                 console.log('💳 PHASE I: Server approval - paymentId:', paymentId);
+
                 // Appel au backend pour approuver le paiement
                 const approvalResponse = await fetch(`${this.apiBase}/api/payments/approve-pi-real`, { // Nouvelle route backend
                   method: 'POST',
@@ -209,7 +210,7 @@ class PiBrowserPayments {
   getStatusMessage() {
     const mode = this.getMode();
     if (mode === 'pi-browser-real') {
-      return '✅ Pi Browser Payment Ready (Official SDK)';
+      return '✅ Pi Browser Payment Ready (Official SDK');
     } else {
       return '⚠️ DEMO Payment Mode (Pi SDK not available or in demo mode)';
     }
