@@ -218,8 +218,29 @@ class PiIntegrationManager {
       const authResult = await Pi.authenticate(
         ['payments'], // request the payments scope (minimum required for createPayment)
         (payment) => {
-          // onIncompletePaymentFound – simplement log pour now
-          console.warn('[Pi Auth] Incomplete payment found', payment);
+          if (payment && payment.identifier && payment.transaction && payment.transaction.txid) {
+            const apiBase = window.ATLASPI_CONFIG?.API_BASE_URL || 'https://atlaspi-backend.onrender.com';
+
+            fetch(`${apiBase}/api/payments/complete-pi-real`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({
+                paymentId: payment.identifier,
+                txid: payment.transaction.txid
+              })
+            })
+              .then((res) => res.json())
+              .then((data) => {
+                console.log('[Pi Auth] Incomplete payment completed', data);
+              })
+              .catch((err) => {
+                console.warn('[Pi Auth] Failed to complete incomplete payment', err);
+              });
+          } else {
+            console.warn('[Pi Auth] Incomplete payment found but missing required data', payment);
+          }
         }
       );
       // authResult suit la forme définie dans la documentation Pi
