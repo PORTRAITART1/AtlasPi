@@ -27,14 +27,19 @@ document.addEventListener("DOMContentLoaded", () => {
       try {
         const amount = payAmount ? payAmount.value : '';
         const memo = payMemo ? payMemo.value : '';
-        const piPaymentHandler = window.piBrowserPayments;
+        let piPaymentHandler = window.piBrowserPayments;
 
-      if (!piPaymentHandler) {
-        if (paymentStatusElement) {
-          paymentStatusElement.textContent = '❌ Pi payment handler not ready.';
+        if (!piPaymentHandler && window.PiBrowserPayments) {
+          piPaymentHandler = new window.PiBrowserPayments();
+          window.piBrowserPayments = piPaymentHandler;
         }
-        return;
-      }
+
+        if (!piPaymentHandler) {
+          if (paymentStatusElement) {
+            paymentStatusElement.textContent = '❌ Pi payment handler not ready.';
+          }
+          return;
+        }
 
       if (!amount || Number(amount) <= 0) {
         if (paymentStatusElement) {

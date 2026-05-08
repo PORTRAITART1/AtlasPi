@@ -219,5 +219,6 @@ class PiBrowserPayments {
 
 // Exposer globalement
 if (typeof window !== 'undefined') {
-  window.piBrowserPayments = new PiBrowserPayments(); // Instancier globalement
+  window.PiBrowserPayments = PiBrowserPayments;
+  window.piBrowserPayments = new PiBrowserPayments();
 }
