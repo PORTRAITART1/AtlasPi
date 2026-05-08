@@ -22,39 +22,6 @@ document.addEventListener("DOMContentLoaded", () => {
   // piIntegrationManager and piBrowserPayments are initialized globally in their respective files
   const piManager = window.piIntegrationManager;
   const piPaymentHandler = window.piBrowserPayments; // Use the new payment handler
-    if (createPaymentBtn && piPaymentHandler) {
-    createPaymentBtn.addEventListener('click', async () => {
-      try {
-        const amount = payAmount ? payAmount.value : '';
-        const memo = payMemo ? payMemo.value : '';
-
-        if (!amount || Number(amount) <= 0) {
-          if (paymentStatusElement) {
-            paymentStatusElement.textContent = '❌ Please enter a valid amount.';
-          }
-          return;
-        }
-
-        if (paymentStatusElement) {
-          paymentStatusElement.textContent = '⏳ Starting Pi payment...';
-        }
-
-        const result = await piPaymentHandler.initiatePayment({
-          amount: Number(amount),
-          memo: memo || 'AtlasPi payment'
-        });
-
-        if (paymentStatusElement) {
-          paymentStatusElement.textContent =
-            result?.message || '✅ Payment flow started.';
-        }
-      } catch (error) {
-        if (paymentStatusElement) {
-          paymentStatusElement.textContent = `❌ ${error.message || 'Payment failed.'}`;
-        }
-      }
-    });
-  }
 
   if (createPaymentBtn && piPaymentHandler) {
     createPaymentBtn.addEventListener('click', async () => {
