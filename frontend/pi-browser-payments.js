@@ -71,7 +71,7 @@ class PiBrowserPayments {
     };
 
     // Si le SDK Pi est disponible ET que le mode n'est PAS 'demo'
-    if (isPiSdkAvailable && currentMode !== 'demo') {
+    if (isPiSdkAvailable) {
       console.log('[PiBrowserPayments] Attempting REAL Pi Browser payment flow...');
       return this.initiateRealPiPayment(paymentConfig);
     } else {
