@@ -201,16 +201,16 @@ class PiBrowserPayments {
   getMode() {
     const currentMode = window.piIntegrationManager?.getMode() || 'demo';
     if (this.isSdkReady() && currentMode !== 'demo') {
-      return 'pi-browser-real'; // Indique que le vrai flow est prêt
+      return 'pi-browser-real';
     } else {
-      return 'demo-fallback'; // Indique que le fallback démo est utilisé
+      return 'demo-fallback';
     }
   }
 
   getStatusMessage() {
     const mode = this.getMode();
     if (mode === 'pi-browser-real') {
-      return '✅ Pi Browser Payment Ready (Official SDK');
+      return '✅ Pi Browser Payment Ready (Official SDK)';
     } else {
       return '⚠️ DEMO Payment Mode (Pi SDK not available or in demo mode)';
     }
