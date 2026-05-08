@@ -21,41 +21,47 @@ document.addEventListener("DOMContentLoaded", () => {
   // --- Initialization ---
   // piIntegrationManager and piBrowserPayments are initialized globally in their respective files
   const piManager = window.piIntegrationManager;
-  const piPaymentHandler = window.piBrowserPayments; // Use the new payment handler
+  if (createPaymentBtn) {
+  createPaymentBtn.addEventListener('click', async () => {
+    try {
+      const amount = payAmount ? payAmount.value : '';
+      const memo = payMemo ? payMemo.value : '';
+      const piPaymentHandler = window.piBrowserPayments;
 
-  if (createPaymentBtn && piPaymentHandler) {
-    createPaymentBtn.addEventListener('click', async () => {
-      try {
-        const amount = payAmount ? payAmount.value : '';
-        const memo = payMemo ? payMemo.value : '';
-
-        if (!amount || Number(amount) <= 0) {
-          if (paymentStatusElement) {
-            paymentStatusElement.textContent = '❌ Please enter a valid amount.';
-          }
-          return;
-        }
-
+      if (!piPaymentHandler) {
         if (paymentStatusElement) {
-          paymentStatusElement.textContent = '⏳ Starting Pi payment...';
+          paymentStatusElement.textContent = '❌ Pi payment handler not ready.';
         }
-
-        const result = await piPaymentHandler.initiatePayment({
-          amount: Number(amount),
-          memo: memo || 'AtlasPi payment'
-        });
-
-        if (paymentStatusElement) {
-          paymentStatusElement.textContent =
-            result?.message || '✅ Payment flow started.';
-        }
-      } catch (error) {
-        if (paymentStatusElement) {
-          paymentStatusElement.textContent = `❌ ${error.message || 'Payment failed.'}`;
-        }
+        return;
       }
-    });
-  }
+
+      if (!amount || Number(amount) <= 0) {
+        if (paymentStatusElement) {
+          paymentStatusElement.textContent = '❌ Please enter a valid amount.';
+        }
+        return;
+      }
+
+      if (paymentStatusElement) {
+        paymentStatusElement.textContent = '⏳ Starting Pi payment...';
+      }
+
+      const result = await piPaymentHandler.initiatePayment({
+        amount: Number(amount),
+        memo: memo || 'AtlasPi payment'
+      });
+
+      if (paymentStatusElement) {
+        paymentStatusElement.textContent =
+          result?.message || '✅ Payment flow started.';
+      }
+    } catch (error) {
+      if (paymentStatusElement) {
+        paymentStatusElement.textContent = `❌ ${error.message || 'Payment failed.'}`;
+      }
+    }
+  });
+}
 
   // Initialise the Pi SDK (load script + Pi.init) – non‑blocking, fallback to demo if it fails
   piManager.initPiSdk().catch(() => {
