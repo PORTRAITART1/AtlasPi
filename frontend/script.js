@@ -48,6 +48,21 @@ document.addEventListener("DOMContentLoaded", () => {
         return;
       }
 
+            if (paymentStatusElement) {
+        paymentStatusElement.textContent = '⏳ Requesting Pi payments permission...';
+      }
+
+      if (window.piIntegrationManager && typeof window.piIntegrationManager.authPiSdk === 'function') {
+        const authResult = await window.piIntegrationManager.authPiSdk();
+
+        if (!authResult || !authResult.ok) {
+          if (paymentStatusElement) {
+            paymentStatusElement.textContent = `❌ ${authResult?.error || 'Pi authentication failed.'}`;
+          }
+          return;
+        }
+      }
+
       if (paymentStatusElement) {
         paymentStatusElement.textContent = '⏳ Starting Pi payment...';
       }
