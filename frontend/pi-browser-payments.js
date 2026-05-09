@@ -103,11 +103,15 @@ class PiBrowserPayments {
         console.log('💳 Initiating official 3-phase payment:', paymentConfig);
 
         window.Pi.createPayment(
-          {
-            amount: parseFloat(amount),
-            memo: memo || 'AtlasPi payment',
-            // metadata: { ... } // Peut être ajouté si nécessaire
-          },
+  {
+    amount: parseFloat(amount),
+    memo: memo || 'AtlasPi payment',
+    metadata: {
+      source: 'atlaspi',
+      type: 'user_to_app_payment',
+      createdAt: new Date().toISOString()
+    }
+  },
           {
             onReadyForServerApproval: async (paymentId) => {
               try {
