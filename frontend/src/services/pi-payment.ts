@@ -100,7 +100,7 @@ class PiPaymentService {
 
               // Send paymentId to backend for approval (dedicated route for real Pi)
               const response = await this.apiClient.post<PaymentResult>(
-                '/api/payments/approve-pi-real', // New backend route
+                '/api/pi-payments/approve-pi-real', // New backend route
                 { paymentId }
               );
 
@@ -131,7 +131,7 @@ class PiPaymentService {
 
               // Send txid to backend for completion (dedicated route for real Pi)
               const response = await this.apiClient.post<PaymentResult>(
-                '/api/payments/complete-pi-real', // New backend route
+                '/api/pi-payments/complete-pi-real', // New backend route
                 { paymentId, txid }
               );
 

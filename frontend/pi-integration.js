@@ -221,7 +221,7 @@ class PiIntegrationManager {
           if (payment && payment.identifier && payment.transaction && payment.transaction.txid) {
             const apiBase = window.ATLASPI_CONFIG?.API_BASE_URL || 'https://atlaspi-backend.onrender.com';
 
-            fetch(`${apiBase}/api/payments/complete-pi-real`, {
+            fetch(`${apiBase}/api/pi-payments/complete-pi-real`, {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json'

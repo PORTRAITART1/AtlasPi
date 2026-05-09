@@ -118,7 +118,7 @@ class PiBrowserPayments {
                 console.log('💳 PHASE I: Server approval - paymentId:', paymentId);
 
                 // Appel au backend pour approuver le paiement
-                const approvalResponse = await fetch(`${this.apiBase}/api/payments/approve-pi-real`, { // Nouvelle route backend
+                const approvalResponse = await fetch(`${this.apiBase}/api/pi-payments/approve-pi-real`, { // Nouvelle route backend
                   method: 'POST',
                   headers: {
                     'Content-Type': 'application/json',
@@ -148,7 +148,7 @@ class PiBrowserPayments {
                 console.log('💳 PHASE III: Server completion starting...');
 
                 // Appel au backend pour compléter le paiement
-                const completionResponse = await fetch(`${this.apiBase}/api/payments/complete-pi-real`, { // Nouvelle route backend
+                const completionResponse = await fetch(`${this.apiBase}/api/pi-payments/complete-pi-real`, { // Nouvelle route backend
                   method: 'POST',
                   headers: {
                     'Content-Type': 'application/json',
