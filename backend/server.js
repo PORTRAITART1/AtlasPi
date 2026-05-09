@@ -7,7 +7,7 @@ import rateLimit from "express-rate-limit";
 import authRoutes from "./routes/auth.js";
 import paymentRoutes from "./routes/payments.js";
 import subscriptionRoutes from "./routes/subscriptions.js";
-import piPaymentRoutes from "./routes/pi-payments.js";
+import piPaymentRoutes from "./routes/payments-pi-day3.js";
 import logger from "./utils/logger.js";
 import merchantListingRoutes from "./routes/merchantListings.js";
 import envManager from "./config/envManager.js";
