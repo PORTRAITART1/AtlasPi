@@ -239,8 +239,41 @@ router.post("/complete-pi-real", async (req, res) => {
       }
 
       if (this.changes === 0) {
-        logger.warn(`[Payment] No payment record found or updated for completion: ${paymentId} / ${txid}`);
-        return res.status(404).json({ ok: false, error: 'Payment record not found or already completed' });
+        logger.warn(`[Payment] No payment record found for completion, creating one: ${paymentId} / ${txid}`);
+
+        const localPaymentId = `payment-${uuidv4()}`;
+
+        return db.run(
+          `INSERT INTO payments (local_payment_id, pi_payment_id, txid, status, created_at, updated_at, metadata)
+           VALUES (?, ?, ?, ?, ?, ?, ?)`,
+          [
+            localPaymentId,
+            paymentId,
+            txid,
+            status,
+            completedAt,
+            completedAt,
+            JSON.stringify({ source: 'pi-sdk-completion-recovery' })
+          ],
+          function (insertErr) {
+            if (insertErr) {
+              logger.error(`[Payment] DB error on completion recovery insert: ${insertErr.message}`);
+              return res.status(500).json({ ok: false, error: 'Database error' });
+            }
+
+            return res.json({
+              ok: true,
+              success: true,
+              paymentId: paymentId,
+              txid: txid,
+              status: status,
+              mode: appMode,
+              message: 'Sandbox payment completed. Transaction recorded.',
+              txidType: 'placeholder',
+              note: 'Recovered completion for payment without prior local record.'
+            });
+          }
+        );
       }
 
       const response = {
