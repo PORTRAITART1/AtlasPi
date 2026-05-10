@@ -90,8 +90,15 @@ class EnvManager {
 
       // Pi Network
       piApiKey: process.env.PI_API_KEY || 'PLACEHOLDER',
-      piApiBaseUrl: process.env.PI_API_BASE_URL || 'https://api.minepi.com',
-      piSandbox: process.env.PI_SANDBOX === 'true',
+      piApiBaseUrl:
+        process.env.PI_API_BASE_URL ||
+        (process.env.APP_MODE === 'pirc2-sandbox'
+          ? 'https://api-testnet.minepi.com'
+          : 'https://api.minepi.com'),
+
+      piSandbox:
+        process.env.PI_SANDBOX === 'true' ||
+        process.env.APP_MODE === 'pirc2-sandbox',
       piSdkAppId: process.env.PI_SDK_APP_ID || 'PLACEHOLDER',
       piSdkAppName: process.env.PI_SDK_APP_NAME || 'AtlasPi',
 
