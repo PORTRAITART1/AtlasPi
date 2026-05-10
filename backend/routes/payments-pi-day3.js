@@ -108,6 +108,40 @@ router.post("/approve-pi-real", async (req, res) => {
     logger.warn(`[Payment] No signature/payload provided for paymentId ${paymentId} – skipping verification`);
   }
 
+  // ---- Real Pi server-side approval ----
+  const piApiKey = envManager.get('piApiKey');
+  const piApiBaseUrl = envManager.get('piApiBaseUrl', 'https://api.minepi.com');
+
+  if (!piApiKey) {
+    logger.error('[Payment] PI_API_KEY missing for approve-pi-real');
+    return res.status(500).json({ ok: false, error: 'Pi API key missing' });
+  }
+
+  try {
+    const approveResponse = await fetch(`${piApiBaseUrl}/v2/payments/${paymentId}/approve`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Key ${piApiKey}`,
+        'Content-Type': 'application/json'
+      }
+    });
+
+    if (!approveResponse.ok) {
+      const errorText = await approveResponse.text();
+      logger.error(`[Payment] Pi API approve failed: ${approveResponse.status} ${errorText}`);
+      return res.status(500).json({
+        ok: false,
+        error: `Pi API approve failed: ${approveResponse.status}`
+      });
+    }
+  } catch (err) {
+    logger.error(`[Payment] Pi API approve error: ${err.message}`);
+    return res.status(500).json({
+      ok: false,
+      error: 'Failed to approve payment with Pi API'
+    });
+  }
+
   const piPaymentId = paymentId; // Use the ID from Pi SDK
   const approvedAt = new Date().toISOString();
   const status = 'approved'; // Payment is now approved, waiting for completion
