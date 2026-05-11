@@ -95,10 +95,7 @@ class EnvManager {
         (process.env.APP_MODE === 'pirc2-sandbox'
           ? 'https://api-testnet.minepi.com'
           : 'https://api.minepi.com'),
-<<<<<<< HEAD
 
-=======
->>>>>>> Fix sandbox fallback in envManager
       piSandbox:
         process.env.PI_SANDBOX === 'true' ||
         process.env.APP_MODE === 'pirc2-sandbox',
