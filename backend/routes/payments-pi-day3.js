@@ -228,6 +228,41 @@ router.post("/complete-pi-real", async (req, res) => {
   const completedAt = new Date().toISOString();
   const status = 'completed';
 
+  // ---- Real Pi server-side completion ----
+  const piApiKey = envManager.get('piApiKey');
+  const piApiBaseUrl = envManager.get('piApiBaseUrl', 'https://api.minepi.com');
+
+  if (!piApiKey) {
+    logger.error('[Payment] PI_API_KEY missing for complete-pi-real');
+    return res.status(500).json({ ok: false, error: 'Pi API key missing' });
+  }
+
+  try {
+    const completeResponse = await fetch(`${piApiBaseUrl}/v2/payments/${paymentId}/complete`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Key ${piApiKey}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ txid })
+    });
+
+    if (!completeResponse.ok) {
+      const errorText = await completeResponse.text();
+      logger.error(`[Payment] Pi API complete failed: ${completeResponse.status} ${errorText}`);
+      return res.status(500).json({
+        ok: false,
+        error: `Pi API complete failed: ${completeResponse.status}`
+      });
+    }
+  } catch (err) {
+    logger.error(`[Payment] Pi API complete error: ${err.message}`);
+    return res.status(500).json({
+      ok: false,
+      error: 'Failed to complete payment with Pi API'
+    });
+  }
+
   // Find the payment record using either local_payment_id or pi_payment_id
   db.run(
     `UPDATE payments SET status = ?, txid = ?, updated_at = ? WHERE pi_payment_id = ? OR local_payment_id = ?`,
