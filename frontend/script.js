@@ -29,6 +29,14 @@ document.addEventListener("DOMContentLoaded", () => {
     if (completeBtn) completeBtn.style.display = "none";
   }
 
+  const approveBtn = document.getElementById("approvePaymentBtn");
+  const completeBtn = document.getElementById("completePaymentBtn");
+
+  if (window.Pi) {
+    if (approveBtn) approveBtn.style.display = "none";
+    if (completeBtn) completeBtn.style.display = "none";
+  }
+
   if (createPaymentBtn) {
     createPaymentBtn.addEventListener('click', async () => {
       try {
