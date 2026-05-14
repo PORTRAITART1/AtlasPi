@@ -21,14 +21,6 @@ document.addEventListener("DOMContentLoaded", () => {
   // --- Initialization ---
   // piIntegrationManager and piBrowserPayments are initialized globally in their respective files
   const piManager = window.piIntegrationManager;
-
-  const approveBtn = document.getElementById("approvePaymentBtn");
-  const completeBtn = document.getElementById("completePaymentBtn");
-
-  if (window.Pi) {
-    if (approveBtn) approveBtn.style.display = "none";
-    if (completeBtn) completeBtn.style.display = "none";
-  }
   
   const approveBtn = document.getElementById("approvePaymentBtn");
   const completeBtn = document.getElementById("completePaymentBtn");
