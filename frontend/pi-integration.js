@@ -279,7 +279,7 @@ class PiIntegrationManager {
     const mode = this.getMode();
 
     if (!sdkAvailable) {
-      return 'Open in Pi Browser';
+      return '⚠️ Pi SDK not available - using DEMO mode fallback';
     }
 
     switch (mode) {
