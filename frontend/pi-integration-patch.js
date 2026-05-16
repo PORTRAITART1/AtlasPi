@@ -46,7 +46,9 @@
         const result = await authHandler.handleAuthButtonClick(
           (authResult) => {
             // Success callback
-            piStatus.textContent = `✅ ${authHandler.getAuthModeLabel()}: Connected and saved in backend.`;
+            piStatus.textContent = authHandler.getAuthStatus().isDemoMode
+  ? 'Connected in test mode.'
+  : 'Connected with your Pi account.';
 
             const user = authHandler.getUser();
             if (piUsername) piUsername.textContent = user?.username || '-';
