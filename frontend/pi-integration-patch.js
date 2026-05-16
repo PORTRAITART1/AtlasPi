@@ -55,7 +55,12 @@ piStatus.style.fontWeight = '600';
 
             const user = authHandler.getUser();
             if (piUsername) piUsername.textContent = user?.username || '-';
-            if (piWallet) piWallet.textContent = user?.wallet_address || '-';
+            if (piWallet) {
+              piWallet.textContent =
+                user?.wallet_address && user.wallet_address !== 'DUMMY_WALLET_123'
+                  ? user.wallet_address
+                  : 'Wallet connected';
+            }
 
             // Update button label
             if (piConnectBtn) {
