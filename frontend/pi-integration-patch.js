@@ -47,8 +47,11 @@
           (authResult) => {
             // Success callback
             piStatus.textContent = authHandler.getAuthStatus().isDemoMode
-  ? 'Connected in test mode.'
-  : 'Connected with your Pi account.';
+  ? '✅ Connected in test mode.'
+  : '✅ Connected with your Pi account.';
+
+piStatus.style.color = '#10b981';
+piStatus.style.fontWeight = '600';
 
             const user = authHandler.getUser();
             if (piUsername) piUsername.textContent = user?.username || '-';
