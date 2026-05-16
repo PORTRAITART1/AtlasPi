@@ -149,7 +149,7 @@ document.addEventListener('DOMContentLoaded', () => {
       .then(res => res.json())
       .then(data => {
         if (data.ok && data.status === 'running') {
-          apiStatusEl.textContent = `✅ Backend connected (${data.mode} mode)`;
+          apiStatusEl.textContent = "Ready in Pi Browser.";
           apiStatusEl.style.color = '#10b981';
         } else {
           apiStatusEl.textContent = '⚠️ Backend responded but status unclear';
