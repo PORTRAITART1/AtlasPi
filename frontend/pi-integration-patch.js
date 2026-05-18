@@ -53,14 +53,28 @@
 piStatus.style.color = '#10b981';
 piStatus.style.fontWeight = '600';
 
-            const user = authHandler.getUser();
-            if (piUsername) piUsername.textContent = user?.username || '-';
-            if (piWallet) {
-              piWallet.textContent =
-                user?.wallet_address && user.wallet_address !== 'DUMMY_WALLET_123'
-                  ? user.wallet_address
-                  : 'Wallet connected';
-            }
+const user = authHandler.getUser();
+if (piUsername) piUsername.textContent = user?.username || '-';
+if (piWallet) {
+  piWallet.textContent =
+    user?.wallet_address && user.wallet_address !== 'DUMMY_WALLET_123'
+      ? user.wallet_address
+      : 'Wallet connected';
+}
+
+const pioneerUsername = document.getElementById("pioneerUsername");
+const pioneerWallet = document.getElementById("pioneerWallet");
+
+if (pioneerUsername) {
+  pioneerUsername.textContent = user?.username ? `@${user.username}` : '-';
+}
+
+if (pioneerWallet) {
+  pioneerWallet.textContent =
+    user?.wallet_address && user.wallet_address !== 'DUMMY_WALLET_123'
+      ? user.wallet_address
+      : 'Wallet connected';
+}
 
             // Update button label
             if (piConnectBtn) {
