@@ -54,6 +54,87 @@ document.addEventListener("DOMContentLoaded", () => {
   if (toggleAdminBtn) {
     toggleAdminBtn.addEventListener("click", toggleAdmin);
   }
+
+  const loadPendingListingsBtn = document.getElementById("loadPendingListingsBtn");
+  const adminSecretInput = document.getElementById("adminSecret");
+  const moderationStatus = document.getElementById("moderationStatus");
+  const pendingListingsList = document.getElementById("pendingListingsList");
+
+  if (loadPendingListingsBtn) {
+    loadPendingListingsBtn.addEventListener("click", async () => {
+      const secret = adminSecretInput ? adminSecretInput.value.trim() : "";
+
+      if (!secret) {
+        if (moderationStatus) {
+          moderationStatus.innerHTML = '<p style="margin:0;color:#dc2626;">❌ Please enter your admin secret.</p>';
+        }
+        return;
+      }
+
+      if (moderationStatus) {
+        moderationStatus.innerHTML = '<p style="margin:0;">⏳ Loading pending listings...</p>';
+      }
+
+      if (pendingListingsList) {
+        pendingListingsList.innerHTML = "";
+      }
+
+      try {
+        const apiBase = window.ATLASPI_CONFIG?.API_BASE_URL || "https://atlaspi-backend.onrender.com";
+        const response = await fetch(`${apiBase}/api/merchant-listings/pending`, {
+          headers: {
+            "x-admin-secret": secret
+          }
+        });
+
+        const data = await response.json();
+
+        if (!data.ok) {
+          if (moderationStatus) {
+            moderationStatus.innerHTML = `<p style="margin:0;color:#dc2626;">❌ ${data.error || "Failed to load pending listings."}</p>`;
+          }
+          return;
+        }
+
+        const listings = data.listings || [];
+
+        if (!listings.length) {
+          if (moderationStatus) {
+            moderationStatus.innerHTML = '<p style="margin:0;color:#3b82f6;">ℹ️ No pending listings to review.</p>';
+          }
+          return;
+        }
+
+        if (moderationStatus) {
+          moderationStatus.innerHTML = `<p style="margin:0;color:#10b981;">✅ ${listings.length} pending listing(s) loaded.</p>`;
+        }
+
+        if (pendingListingsList) {
+          listings.forEach((listing) => {
+            const item = document.createElement("div");
+            item.style.marginTop = "12px";
+            item.style.padding = "12px";
+            item.style.borderRadius = "10px";
+            item.style.background = "rgba(255,255,255,0.05)";
+            item.style.border = "1px solid rgba(255,255,255,0.08)";
+
+            item.innerHTML = `
+              <p><strong>${listing.listing_public_name || "-"}</strong></p>
+              <p>Business: ${listing.business_name || "-"}</p>
+              <p>Status: ${listing.listing_status || "-"}</p>
+              <p>City: ${listing.city || "-"} | Country: ${listing.country || "-"}</p>
+            `;
+
+            pendingListingsList.appendChild(item);
+          });
+        }
+      } catch (error) {
+        if (moderationStatus) {
+          moderationStatus.innerHTML = '<p style="margin:0;color:#dc2626;">❌ Failed to contact backend.</p>';
+        }
+      }
+    });
+  }
 });
 
 function addAdminSectionIDs() {
