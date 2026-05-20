@@ -10,7 +10,21 @@ document.addEventListener("DOMContentLoaded", () => {
   const payAmount = document.getElementById("payAmount");
   const payMemo = document.getElementById("payMemo");
   const paymentStatusElement = document.getElementById("paymentStatus"); // Added for payment status display
-
+  const merchantListingForm = document.getElementById("merchantListingForm");
+  const merchantOwnerUserId = document.getElementById("merchantOwnerUserId");
+  const merchantListingPublicName = document.getElementById("merchantListingPublicName");
+  const merchantProfileType = document.getElementById("merchantProfileType");
+  const merchantBusinessName = document.getElementById("merchantBusinessName");
+  const merchantDescription = document.getElementById("merchantDescription");
+  const merchantDomain = document.getElementById("merchantDomain");
+  const merchantCategory = document.getElementById("merchantCategory");
+  const merchantProductsServices = document.getElementById("merchantProductsServices");
+  const merchantCountry = document.getElementById("merchantCountry");
+  const merchantCity = document.getElementById("merchantCity");
+  const merchantPhone = document.getElementById("merchantPhone");
+  const merchantPiWallet = document.getElementById("merchantPiWallet");
+  const merchantFormStatus = document.getElementById("merchantFormStatus");
+  
   // --- Global Variables ---
   // Assuming API_BASE_URL is globally available or loaded from config
   const API_BASE_URL = window.ATLASPI_CONFIG?.API_BASE_URL || 'http://localhost:3000';
@@ -24,6 +38,93 @@ document.addEventListener("DOMContentLoaded", () => {
   
   const approveBtn = document.getElementById("approvePaymentBtn");
   const completeBtn = document.getElementById("completePaymentBtn");
+  async function createMerchantListing(event) {
+    event.preventDefault();
+
+    if (!merchantFormStatus) return;
+
+    const owner_user_id = merchantOwnerUserId ? merchantOwnerUserId.value.trim() : "";
+    const listing_public_name = merchantListingPublicName ? merchantListingPublicName.value.trim() : "";
+    const profile_type = merchantProfileType ? merchantProfileType.value : "";
+    const business_name = merchantBusinessName ? merchantBusinessName.value.trim() : "";
+    const public_description_short = merchantDescription ? merchantDescription.value.trim() : "";
+    const domain = merchantDomain ? merchantDomain.value.trim() : "";
+    const category = merchantCategory ? merchantCategory.value.trim() : "";
+    const products_services_summary = merchantProductsServices ? merchantProductsServices.value.trim() : "";
+    const country = merchantCountry ? merchantCountry.value.trim() : "";
+    const city = merchantCity ? merchantCity.value.trim() : "";
+    const phone_business = merchantPhone ? merchantPhone.value.trim() : "";
+    const merchant_pi_wallet = merchantPiWallet ? merchantPiWallet.value.trim() : "";
+
+    if (
+      !owner_user_id ||
+      !listing_public_name ||
+      !profile_type ||
+      !business_name ||
+      !public_description_short ||
+      !domain ||
+      !category ||
+      !products_services_summary ||
+      !country ||
+      !city ||
+      !phone_business
+    ) {
+      merchantFormStatus.textContent = "❌ Please fill in all required merchant fields.";
+      return;
+    }
+
+    merchantFormStatus.textContent = "⏳ Creating merchant listing...";
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/merchant-listings/create`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          owner_user_id,
+          listing_public_name,
+          profile_type,
+          business_name,
+          public_description_short,
+          domain,
+          category,
+          products_services_summary,
+          country,
+          city,
+          phone_business,
+          merchant_pi_wallet,
+          merchant_pi_payments_enabled: false,
+          accepts_pi: true,
+          consent_terms: true,
+          consent_privacy: true,
+          consent_public_display: true,
+          terms_version_accepted: "v1",
+          privacy_version_accepted: "v1",
+          listing_policy_version_accepted: "v1"
+        })
+      });
+
+      const data = await response.json();
+
+      if (!data.ok) {
+        merchantFormStatus.textContent = `❌ ${data.error || "Failed to create merchant listing."}`;
+        return;
+      }
+
+      merchantFormStatus.textContent = "✅ Merchant listing created successfully.";
+
+      if (merchantListingForm) {
+        merchantListingForm.reset();
+      }
+
+      if (merchantOwnerUserId && currentUser?.uid) {
+        merchantOwnerUserId.value = currentUser.uid;
+      }
+    } catch (error) {
+      merchantFormStatus.textContent = "❌ Failed to contact backend for merchant listing creation.";
+    }
+  }
 
   if (window.Pi) {
     if (approveBtn) approveBtn.style.display = "none";
@@ -90,6 +191,10 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     }
   });
+}
+
+if (merchantListingForm) {
+  merchantListingForm.addEventListener("submit", createMerchantListing);
 }
 
   // Initialise the Pi SDK (load script + Pi.init) – non‑blocking, fallback to demo if it fails
