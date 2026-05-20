@@ -119,11 +119,21 @@ document.addEventListener("DOMContentLoaded", () => {
             item.style.border = "1px solid rgba(255,255,255,0.08)";
 
             item.innerHTML = `
-              <p><strong>${listing.listing_public_name || "-"}</strong></p>
-              <p>Business: ${listing.business_name || "-"}</p>
-              <p>Status: ${listing.listing_status || "-"}</p>
-              <p>City: ${listing.city || "-"} | Country: ${listing.country || "-"}</p>
-            `;
+  <p><strong>${listing.listing_public_name || "-"}</strong></p>
+  <p><strong>Business:</strong> ${listing.business_name || "-"}</p>
+  <p><strong>Profile Type:</strong> ${listing.profile_type || "-"}</p>
+  <p><strong>Domain:</strong> ${listing.domain || "-"}</p>
+  <p><strong>Category:</strong> ${listing.category || "-"}</p>
+  <p><strong>Short Description:</strong> ${listing.public_description_short || "-"}</p>
+  <p><strong>Status:</strong> ${listing.listing_status || "-"}</p>
+  <p><strong>Verification:</strong> ${listing.verification_status || "-"}</p>
+  <p><strong>City:</strong> ${listing.city || "-"}</p>
+  <p><strong>Country:</strong> ${listing.country || "-"}</p>
+  <p><strong>Accepts Pi:</strong> ${listing.accepts_pi ? "Yes" : "No"}</p>
+  <p><strong>Pi Payments Enabled:</strong> ${listing.merchant_pi_payments_enabled ? "Yes" : "No"}</p>
+  <p><strong>Merchant Pi Wallet:</strong> ${listing.merchant_pi_wallet || "-"}</p>
+  <p><strong>Created:</strong> ${listing.created_at || "-"}</p>
+`;
 
             pendingListingsList.appendChild(item);
           });
