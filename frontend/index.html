@@ -913,10 +913,10 @@
     <section class="section" id="merchant-moderation-section" style="background: linear-gradient(135deg, rgba(220,38,38,0.08) 0%, rgba(59,130,246,0.08) 100%); border-top: 2px solid rgba(220,38,38,0.3);">
       <div class="container">
         <div class="section-heading">
-          <span class="eyebrow">🔐 Admin Panel</span>
-          <h2>Moderate Merchant Listings</h2>
+          <span class="eyebrow">🔐 Owner Review</span>
+          <h2>Merchant Review Center</h2>
           <p>
-            Review and moderate merchant listing statuses. Access requires valid admin secret.
+            Review, manage, and validate merchant listings in a secure owner space.
           </p>
         </div>
 
@@ -926,30 +926,30 @@
           <h3 style="margin-bottom: 20px;">⚙️ Moderation Tools</h3>
 
           <div style="margin-bottom: 16px;">
-            <label for="adminSecret"><strong>Admin Secret Key</strong></label><br />
+            <label for="adminSecret"><strong>Owner Access Key</strong></label><br />
             <input
               type="password"
               id="adminSecret"
               placeholder="Enter admin secret (required for moderation)"
               style="width: 100%; padding: 10px; margin-top: 6px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.1);"
             />
-            <p style="margin-top: 6px; font-size: 12px; opacity: 0.7;">Your secret is never sent outside this action.</p>
+            <p style="margin-top: 6px; font-size: 12px; opacity: 0.7;">This secure key gives access to owner review tools.</p>
           </div>
 
           <div style="margin-bottom: 20px; padding: 12px; background: rgba(59,130,246,0.1); border-radius: 6px; border-left: 3px solid #3b82f6;">
             <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; margin-bottom: 0;">
               <input type="checkbox" id="togglePendingListings" />
-              <span><strong>Show Pending Listings for Review</strong></span>
+              <span><strong>Show listings waiting for review</strong></span>
             </label>
-            <p style="margin-top: 8px; margin-bottom: 0; font-size: 13px; opacity: 0.8; margin-left: 26px;">Check to view all pending_review listings (hidden from public).</p>
+            <p style="margin-top: 8px; margin-bottom: 0; font-size: 13px; opacity: 0.8; margin-left: 26px;">Display listings that are currently hidden from the public until reviewed.</p>
           </div>
 
           <button type="button" class="btn btn-primary" id="loadPendingListingsBtn" style="margin-bottom: 20px;">
-            Load Pending Listings
+            Load Review Queue
           </button>
 
           <div id="moderationStatus" style="margin-top: 12px; padding: 12px; background: rgba(255,255,255,0.03); border-radius: 6px; border-left: 3px solid #7c3aed;">
-            <p style="margin: 0;">No moderation actions yet. Load pending listings to begin.</p>
+            <p style="margin: 0;">No review action started yet. Load the review queue to begin.</p>
           </div>
 
           <div id="pendingListingsList" style="margin-top: 20px;"></div>
