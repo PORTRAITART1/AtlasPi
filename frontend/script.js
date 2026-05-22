@@ -129,23 +129,9 @@ document.addEventListener("DOMContentLoaded", () => {
   if (window.Pi) {
     if (approveBtn) approveBtn.style.display = "none";
     if (completeBtn) completeBtn.style.display = "none";
-  } else {
-    const openPiBrowser = () => {
-      window.location.href = "https://minepi.com/browser";
-    };
-
-    if (piConnectBtn) {
-      piConnectBtn.textContent = "Open in Pi Browser";
-      piConnectBtn.addEventListener("click", openPiBrowser);
-    }
-
-    if (createPaymentBtn) {
-      createPaymentBtn.textContent = "Open in Pi Browser";
-      createPaymentBtn.addEventListener("click", openPiBrowser);
-    }
   }
 
-  if (createPaymentBtn && window.Pi) {
+  if (createPaymentBtn) {
     createPaymentBtn.addEventListener('click', async () => {
       try {
         const amount = payAmount ? payAmount.value : '';
