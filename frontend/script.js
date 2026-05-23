@@ -2,13 +2,10 @@
 
 document.addEventListener("DOMContentLoaded", () => {
   const piBrowserOnlyNotice = document.getElementById("piBrowserOnlyNotice");
+  const isPiBrowser = typeof window !== "undefined" && !!window.Pi;
 
   if (piBrowserOnlyNotice) {
-    if (!window.Pi) {
-      piBrowserOnlyNotice.style.display = "block";
-    } else {
-      piBrowserOnlyNotice.style.display = "none";
-    }
+    piBrowserOnlyNotice.style.display = isPiBrowser ? "none" : "block";
   }
   // --- DOM Element References ---
   const piStatus = document.getElementById("piStatus");
