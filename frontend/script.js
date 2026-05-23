@@ -1,6 +1,15 @@
 // ... (existing code)
 
 document.addEventListener("DOMContentLoaded", () => {
+  const piBrowserOnlyNotice = document.getElementById("piBrowserOnlyNotice");
+
+  if (piBrowserOnlyNotice) {
+    if (!window.Pi) {
+      piBrowserOnlyNotice.style.display = "block";
+    } else {
+      piBrowserOnlyNotice.style.display = "none";
+    }
+  }
   // --- DOM Element References ---
   const piStatus = document.getElementById("piStatus");
   const piConnectBtn = document.getElementById("piConnectBtn");
