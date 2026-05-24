@@ -169,21 +169,22 @@
         );
       }
   
-      function handlePreviewHero() {
+      function updatePreviewHero() {
         const previewHero = document.getElementById("preview-hero");
         if (!previewHero) return;
   
         if (isPiBrowser()) {
-          previewHero.remove();
+          previewHero.style.display = "none";
         } else {
           previewHero.style.display = "block";
         }
       }
   
-      document.addEventListener("DOMContentLoaded", handlePreviewHero);
-      window.addEventListener("load", handlePreviewHero);
-      setTimeout(handlePreviewHero, 300);
-      setTimeout(handlePreviewHero, 1200);
+      document.addEventListener("DOMContentLoaded", updatePreviewHero);
+      window.addEventListener("load", updatePreviewHero);
+      setTimeout(updatePreviewHero, 300);
+      setTimeout(updatePreviewHero, 1200);
+      setTimeout(updatePreviewHero, 2500);
     })();
   </script>
 </body>
