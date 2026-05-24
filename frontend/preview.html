@@ -5,8 +5,33 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>AtlasPi - Preview</title>
   <link rel="stylesheet" href="style.css" />
+  <style>
+    body.pi-browser #preview-hero {
+      display: none !important;
+    }
+  </style>
+  
+  <script>
+    (function () {
+      function detectPiBrowser() {
+        const ua = (navigator.userAgent || "").toLowerCase();
+        const ref = (document.referrer || "").toLowerCase();
+        return (
+          ua.includes("pibrowser") ||
+          ua.includes("pi browser") ||
+          ua.includes("minepi") ||
+          ref.includes("minepi") ||
+          typeof window.Pi !== "undefined"
+        );
+      }
+  
+      if (detectPiBrowser()) {
+        document.documentElement.classList.add("pi-browser");
+      }
+    })();
+  </script>
 </head>
-<body>
+<body class="preview-page">
   <header class="site-header">
     <div class="container nav">
       <a href="#" class="brand">
@@ -153,17 +178,30 @@
   </footer>
   <script>
     (function () {
-      const ua = navigator.userAgent || "";
-      const isPiBrowser =
-        ua.toLowerCase().includes("pibrowser") ||
-        typeof window.Pi !== "undefined";
+      function hidePiBlock() {
+        const ua = (navigator.userAgent || "").toLowerCase();
+        const ref = (document.referrer || "").toLowerCase();
+        const isPiBrowser =
+          ua.includes("pibrowser") ||
+          ua.includes("pi browser") ||
+          ua.includes("minepi") ||
+          ref.includes("minepi") ||
+          typeof window.Pi !== "undefined";
   
-      if (isPiBrowser) {
-        const previewHero = document.getElementById("preview-hero");
-        if (previewHero) {
-          previewHero.style.display = "none";
+        if (isPiBrowser) {
+          document.body.classList.add("pi-browser");
+  
+          const previewHero = document.getElementById("preview-hero");
+          if (previewHero) {
+            previewHero.style.display = "none";
+          }
         }
       }
+  
+      hidePiBlock();
+      window.addEventListener("load", hidePiBlock);
+      setTimeout(hidePiBlock, 500);
+      setTimeout(hidePiBlock, 1500);
     })();
   </script>
 </body>
