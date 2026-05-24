@@ -5,7 +5,31 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>AtlasPi - Preview</title>
   <link rel="stylesheet" href="style.css" />
+  <style>
+    body.pi-browser #preview-hero {
+      display: none !important;
+    }
+  </style>
   
+  <script>
+    (function () {
+      function detectPiBrowser() {
+        const ua = (navigator.userAgent || "").toLowerCase();
+        const ref = (document.referrer || "").toLowerCase();
+        return (
+          ua.includes("pibrowser") ||
+          ua.includes("pi browser") ||
+          ua.includes("minepi") ||
+          ref.includes("minepi") ||
+          typeof window.Pi !== "undefined"
+        );
+      }
+  
+      if (detectPiBrowser()) {
+        document.documentElement.classList.add("pi-browser");
+      }
+    })();
+  </script>
 </head>
 <body class="preview-page">
   <header class="site-header">
@@ -20,7 +44,7 @@
     </div>
   </header>
 
-  <section class="section" id="preview-hero" style="display:none;">
+  <section class="section" id="preview-hero">
     <div class="container">
       <article class="feature-card" style="text-align:center; max-width:720px; margin:0 auto;">
         <div class="feature-icon">📱</div>
@@ -154,37 +178,30 @@
   </footer>
   <script>
     (function () {
-      function isPiBrowser() {
+      function hidePiBlock() {
         const ua = (navigator.userAgent || "").toLowerCase();
         const ref = (document.referrer || "").toLowerCase();
-        const href = (window.location.href || "").toLowerCase();
-  
-        return (
+        const isPiBrowser =
           ua.includes("pibrowser") ||
           ua.includes("pi browser") ||
           ua.includes("minepi") ||
           ref.includes("minepi") ||
-          href.includes("pi://") ||
-          typeof window.Pi !== "undefined"
-        );
-      }
+          typeof window.Pi !== "undefined";
   
-      function updatePreviewHero() {
-        const previewHero = document.getElementById("preview-hero");
-        if (!previewHero) return;
+        if (isPiBrowser) {
+          document.body.classList.add("pi-browser");
   
-        if (isPiBrowser()) {
-          previewHero.style.display = "none";
-        } else {
-          previewHero.style.display = "block";
+          const previewHero = document.getElementById("preview-hero");
+          if (previewHero) {
+            previewHero.style.display = "none";
+          }
         }
       }
   
-      document.addEventListener("DOMContentLoaded", updatePreviewHero);
-      window.addEventListener("load", updatePreviewHero);
-      setTimeout(updatePreviewHero, 300);
-      setTimeout(updatePreviewHero, 1200);
-      setTimeout(updatePreviewHero, 2500);
+      hidePiBlock();
+      window.addEventListener("load", hidePiBlock);
+      setTimeout(hidePiBlock, 500);
+      setTimeout(hidePiBlock, 1500);
     })();
   </script>
 </body>
