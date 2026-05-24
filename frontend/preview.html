@@ -169,22 +169,21 @@
         );
       }
   
-      function updatePreviewHero() {
+      function handlePreviewHero() {
         const previewHero = document.getElementById("preview-hero");
         if (!previewHero) return;
   
         if (isPiBrowser()) {
-          previewHero.style.display = "none";
+          previewHero.remove();
         } else {
           previewHero.style.display = "block";
         }
       }
   
-      document.addEventListener("DOMContentLoaded", updatePreviewHero);
-      window.addEventListener("load", updatePreviewHero);
-      setTimeout(updatePreviewHero, 300);
-      setTimeout(updatePreviewHero, 1200);
-      setTimeout(updatePreviewHero, 2500);
+      document.addEventListener("DOMContentLoaded", handlePreviewHero);
+      window.addEventListener("load", handlePreviewHero);
+      setTimeout(handlePreviewHero, 300);
+      setTimeout(handlePreviewHero, 1200);
     })();
   </script>
 </body>
