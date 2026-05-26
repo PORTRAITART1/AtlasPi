@@ -17,43 +17,266 @@
           <span>The Trusted Map of Pi Commerce</span>
         </div>
       </a>
+
+      <div class="menu-shell">
+        <nav class="menu-panel" style="display:flex; gap:16px; align-items:center;">
+          <a href="index.html">Home</a>
+          <a href="discover.html">Discover</a>
+          <a href="vip.html">VIP</a>
+          <a href="support.html">Support</a>
+          <a href="profile.html" class="btn btn-nav">Profile</a>
+        </nav>
+      </div>
     </div>
   </header>
 
   <main>
-    <section class="section">
+    <section class="hero" id="discover-hero">
+      <div class="container hero-grid">
+        <div class="hero-copy">
+          <span class="eyebrow">Discover</span>
+          <h1>
+            Discover
+            <span class="gradient-text">Pi-Oriented Merchants</span>
+          </h1>
+          <p class="hero-lead">
+            Explore businesses, categories, and trusted profiles designed to make
+            AtlasPi discovery clearer, more useful, and more connected to real Pi commerce.
+          </p>
+
+          <div class="hero-actions">
+            <a href="#discover-search" class="btn btn-primary">Browse Listings</a>
+            <a href="index.html" class="btn btn-secondary">Back to Home</a>
+          </div>
+        </div>
+
+        <div class="hero-visual">
+          <div class="feature-card">
+            <div class="feature-icon">🌍</div>
+            <h3>Global Merchant Discovery</h3>
+            <p>
+              Discover merchants, trusted profiles, and useful categories across
+              the AtlasPi ecosystem.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="discover-search">
       <div class="container">
         <div class="section-heading">
-          <span class="eyebrow">Discover</span>
-          <h1>Discover Merchants</h1>
+          <span class="eyebrow">Search</span>
+          <h2>Find merchants more easily</h2>
           <p>
-            This page will host AtlasPi merchant discovery, listings, filters, and map experience.
+            Search by category, country, or city to explore businesses and profiles
+            across the AtlasPi ecosystem.
+          </p>
+        </div>
+
+        <article class="feature-card" style="max-width: 980px; margin: 0 auto;">
+          <div style="display:grid; gap:16px;">
+            <div>
+              <label for="merchantSearch"><strong>Search merchants</strong></label><br />
+              <input
+                id="merchantSearch"
+                type="text"
+                placeholder="Search by merchant name or keyword"
+                style="width:100%; margin-top:8px; padding:14px; border-radius:12px; border:1px solid rgba(255,255,255,0.12); background:rgba(255,255,255,0.04); color:inherit;"
+              />
+            </div>
+
+            <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap:16px;">
+              <div>
+                <label for="categoryFilter"><strong>Category</strong></label><br />
+                <select
+                  id="categoryFilter"
+                  style="width:100%; margin-top:8px; padding:14px; border-radius:12px; border:1px solid rgba(255,255,255,0.12); background:rgba(255,255,255,0.04); color:inherit;"
+                >
+                  <option>All Categories</option>
+                  <option>Food & Drinks</option>
+                  <option>Electronics</option>
+                  <option>Handmade Goods</option>
+                  <option>Services</option>
+                  <option>Fashion</option>
+                  <option>Local Shops</option>
+                </select>
+              </div>
+
+              <div>
+                <label for="countryFilter"><strong>Country</strong></label><br />
+                <select
+                  id="countryFilter"
+                  style="width:100%; margin-top:8px; padding:14px; border-radius:12px; border:1px solid rgba(255,255,255,0.12); background:rgba(255,255,255,0.04); color:inherit;"
+                >
+                  <option>All Countries</option>
+                  <option>Morocco</option>
+                  <option>Ghana</option>
+                  <option>Kenya</option>
+                  <option>Nigeria</option>
+                  <option>Senegal</option>
+                </select>
+              </div>
+
+              <div>
+                <label for="cityFilter"><strong>City</strong></label><br />
+                <select
+                  id="cityFilter"
+                  style="width:100%; margin-top:8px; padding:14px; border-radius:12px; border:1px solid rgba(255,255,255,0.12); background:rgba(255,255,255,0.04); color:inherit;"
+                >
+                  <option>All Cities</option>
+                  <option>Casablanca</option>
+                  <option>Accra</option>
+                  <option>Nairobi</option>
+                  <option>Lagos</option>
+                  <option>Marrakech</option>
+                  <option>Dakar</option>
+                </select>
+              </div>
+
+              <div style="display:flex; align-items:flex-end;">
+                <button type="button" class="btn btn-primary" style="width:100%;">Search</button>
+              </div>
+            </div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="section" id="merchant-grid">
+      <div class="container">
+        <div class="section-heading">
+          <span class="eyebrow">Listings</span>
+          <h2>Explore merchant profiles</h2>
+          <p>
+            Browse example AtlasPi merchant cards built for visibility, trust, and future discovery.
           </p>
         </div>
 
         <div class="feature-grid">
           <article class="feature-card">
-            <div class="feature-icon">📍</div>
-            <h3>Merchant Discovery</h3>
-            <p>Browse merchants, categories, and trusted business profiles.</p>
+            <div class="feature-icon">☕</div>
+            <h3>Sunrise Café</h3>
+            <p><strong>Category:</strong> Food & Drinks</p>
+            <p><strong>Location:</strong> Casablanca, Morocco</p>
+            <p>A welcoming café with a clear local presence and a trusted community-friendly identity.</p>
+            <span class="profile-badge">Verified</span>
+            <div style="margin-top:16px;">
+              <a href="merchant-detail.html" class="btn btn-secondary">View Details</a>
+            </div>
           </article>
 
           <article class="feature-card">
-            <div class="feature-icon">🌍</div>
-            <h3>Global Reach</h3>
-            <p>Explore Pi-oriented businesses across cities and countries.</p>
+            <div class="feature-icon">💻</div>
+            <h3>Atlas Tech Store</h3>
+            <p><strong>Category:</strong> Electronics</p>
+            <p><strong>Location:</strong> Accra, Ghana</p>
+            <p>A modern electronics merchant profile built for visibility, clarity, and stronger discovery.</p>
+            <span class="profile-badge">Trusted</span>
+            <div style="margin-top:16px;">
+              <a href="merchant-detail.html" class="btn btn-secondary">View Details</a>
+            </div>
           </article>
 
           <article class="feature-card">
-            <div class="feature-icon">🛠️</div>
-            <h3>Coming Next</h3>
-            <p>Filters, search, map view, and detailed merchant pages will be added here.</p>
+            <div class="feature-icon">🧵</div>
+            <h3>Global Craft House</h3>
+            <p><strong>Category:</strong> Handmade Goods</p>
+            <p><strong>Location:</strong> Nairobi, Kenya</p>
+            <p>A creative merchant presence designed to highlight premium visibility and trusted presentation.</p>
+            <span class="profile-badge">VIP</span>
+            <div style="margin-top:16px;">
+              <a href="merchant-detail.html" class="btn btn-secondary">View Details</a>
+            </div>
+          </article>
+
+          <article class="feature-card">
+            <div class="feature-icon">🏪</div>
+            <h3>Pi Market Hub</h3>
+            <p><strong>Category:</strong> Local Shops</p>
+            <p><strong>Location:</strong> Lagos, Nigeria</p>
+            <p>A local business profile focused on making merchant discovery easier and more structured.</p>
+            <span class="profile-badge">Verified</span>
+            <div style="margin-top:16px;">
+              <a href="merchant-detail.html" class="btn btn-secondary">View Details</a>
+            </div>
+          </article>
+
+          <article class="feature-card">
+            <div class="feature-icon">📱</div>
+            <h3>Sahara Mobile Shop</h3>
+            <p><strong>Category:</strong> Electronics</p>
+            <p><strong>Location:</strong> Marrakech, Morocco</p>
+            <p>A merchant listing prepared for stronger trust signals and future map-based visibility.</p>
+            <span class="profile-badge">Trusted</span>
+            <div style="margin-top:16px;">
+              <a href="merchant-detail.html" class="btn btn-secondary">View Details</a>
+            </div>
+          </article>
+
+          <article class="feature-card">
+            <div class="feature-icon">🍽️</div>
+            <h3>Community Food Point</h3>
+            <p><strong>Category:</strong> Food & Drinks</p>
+            <p><strong>Location:</strong> Dakar, Senegal</p>
+            <p>A food-oriented merchant card showing how AtlasPi can support useful local discovery.</p>
+            <span class="profile-badge">VIP</span>
+            <div style="margin-top:16px;">
+              <a href="merchant-detail.html" class="btn btn-secondary">View Details</a>
+            </div>
           </article>
         </div>
+      </div>
+    </section>
 
-        <div class="section-actions">
-          <a href="index.html" class="btn btn-primary">Back to Home</a>
+    <section class="section" id="discover-trust">
+      <div class="container">
+        <div class="section-heading">
+          <span class="eyebrow">Trust</span>
+          <h2>Why Discover with AtlasPi?</h2>
+          <p>
+            AtlasPi is being built to help pioneers discover businesses through a clearer,
+            more trusted, and more structured experience.
+          </p>
         </div>
+
+        <div class="feature-grid">
+          <article class="feature-card">
+            <div class="feature-icon">👁️</div>
+            <h3>Clearer visibility</h3>
+            <p>Explore merchants through better presentation and easier discovery.</p>
+          </article>
+
+          <article class="feature-card">
+            <div class="feature-icon">🛡️</div>
+            <h3>Trust signals</h3>
+            <p>See profiles that feel more reliable, structured, and useful.</p>
+          </article>
+
+          <article class="feature-card">
+            <div class="feature-icon">🚀</div>
+            <h3>Future-ready discovery</h3>
+            <p>Prepare for a stronger ecosystem built around practical Pi utility.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="discover-cta">
+      <div class="container">
+        <article class="feature-card" style="text-align:center; max-width:760px; margin:0 auto;">
+          <div class="feature-icon">📣</div>
+          <h2>Want to build your presence too?</h2>
+          <p>
+            AtlasPi is also being built for merchants and pioneers who want stronger visibility,
+            cleaner profiles, and better discovery across the ecosystem.
+          </p>
+
+          <div class="hero-actions" style="justify-content:center; margin-top:20px;">
+            <a href="index.html" class="btn btn-primary">Back to Home</a>
+            <a href="vip.html" class="btn btn-secondary">Learn About VIP</a>
+          </div>
+        </article>
       </div>
     </section>
   </main>
@@ -63,14 +286,13 @@
       <div>
         <strong>AtlasPi</strong>
         <p>The Trusted Map of Pi Commerce</p>
+        <p>
+          Helping pioneers and merchants move toward stronger discovery, trust,
+          and real-world Pi utility.
+        </p>
       </div>
 
       <div>
         <a href="index.html">Home</a><br />
-        <a href="privacy.html">Privacy</a><br />
-        <a href="terms.html">Terms</a>
-      </div>
-    </div>
-  </footer>
-</body>
-</html>
+        <a href="support.html">Support</a><br />
+        <a href="privacy.html">P
