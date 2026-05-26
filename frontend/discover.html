@@ -314,13 +314,7 @@
                   id="cityFilter"
                   style="width:100%; margin-top:8px; padding:14px; border-radius:12px; border:1px solid rgba(255,255,255,0.12); background:rgba(255,255,255,0.04); color:inherit;"
                 >
-                  <option>All Cities</option>
-                  <option>Casablanca</option>
-                  <option>Accra</option>
-                  <option>Nairobi</option>
-                  <option>Lagos</option>
-                  <option>Marrakech</option>
-                  <option>Dakar</option>
+                  <option value="">Select a country first</option>
                 </select>
               </div>
 
@@ -485,4 +479,96 @@
       <div>
         <a href="index.html">Home</a><br />
         <a href="support.html">Support</a><br />
-        <a href="privacy.html">P
+        <a href="privacy.html">Privacy</a><br />
+        <a href="terms.html">Terms</a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    const cityData = {
+      "Morocco": [
+        "Casablanca", "Rabat", "Marrakech", "Fes", "Tangier", "Agadir",
+        "Meknes", "Oujda", "Kenitra", "Tetouan", "Safi", "El Jadida"
+      ],
+      "France": [
+        "Paris", "Marseille", "Lyon", "Toulouse", "Nice",
+        "Nantes", "Strasbourg", "Montpellier", "Bordeaux", "Lille"
+      ],
+      "United States": [
+        "New York", "Los Angeles", "Chicago", "Houston", "Phoenix",
+        "Philadelphia", "San Antonio", "San Diego", "Dallas", "Miami"
+      ],
+      "Brazil": [
+        "Sao Paulo", "Rio de Janeiro", "Brasilia", "Salvador", "Fortaleza",
+        "Belo Horizonte", "Manaus", "Curitiba", "Recife", "Porto Alegre"
+      ],
+      "Japan": [
+        "Tokyo", "Osaka", "Yokohama", "Nagoya", "Sapporo",
+        "Fukuoka", "Kyoto", "Kobe", "Sendai", "Hiroshima"
+      ],
+      "Ghana": [
+        "Accra", "Kumasi", "Tamale", "Takoradi", "Cape Coast",
+        "Tema", "Koforidua", "Ho", "Wa", "Bolgatanga"
+      ],
+      "Kenya": [
+        "Nairobi", "Mombasa", "Kisumu", "Nakuru", "Eldoret",
+        "Thika", "Malindi", "Kitale", "Garissa", "Nyeri"
+      ],
+      "Nigeria": [
+        "Lagos", "Abuja", "Kano", "Ibadan", "Port Harcourt",
+        "Benin City", "Kaduna", "Jos", "Ilorin", "Enugu"
+      ],
+      "Senegal": [
+        "Dakar", "Touba", "Thies", "Saint-Louis", "Mbour",
+        "Kaolack", "Ziguinchor", "Diourbel", "Louga", "Tambacounda"
+      ],
+      "United Kingdom": [
+        "London", "Manchester", "Birmingham", "Liverpool", "Leeds",
+        "Glasgow", "Edinburgh", "Bristol", "Cardiff", "Belfast"
+      ]
+    };
+
+    const countryFilter = document.getElementById("countryFilter");
+    const cityFilter = document.getElementById("cityFilter");
+
+    function updateCities() {
+      const selectedCountry = countryFilter.value;
+      const cities = cityData[selectedCountry] || [];
+
+      cityFilter.innerHTML = "";
+
+      if (!selectedCountry || selectedCountry === "All Countries") {
+        const option = document.createElement("option");
+        option.value = "";
+        option.textContent = "Select a country first";
+        cityFilter.appendChild(option);
+        return;
+      }
+
+      const defaultOption = document.createElement("option");
+      defaultOption.value = "";
+      defaultOption.textContent = "All Cities";
+      cityFilter.appendChild(defaultOption);
+
+      cities.forEach((city) => {
+        const option = document.createElement("option");
+        option.value = city;
+        option.textContent = city;
+        cityFilter.appendChild(option);
+      });
+
+      if (cities.length === 0) {
+        const option = document.createElement("option");
+        option.value = "";
+        option.textContent = "No cities available yet";
+        cityFilter.appendChild(option);
+      }
+    }
+
+    if (countryFilter && cityFilter) {
+      countryFilter.addEventListener("change", updateCities);
+    }
+  </script>
+</body>
+</html>
