@@ -1,92 +1,391 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>AtlasPi - Merchant Detail</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="shared-theme.css" />
 
   <style>
-    @keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(12px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-    body {
-  font-family: Arial, sans-serif;
-  color: white;
-  margin: 0;
-  padding: 20px;
-  position: relative;
-  background: linear-gradient(135deg, #2b0a3d, #4b156d, #6d28a8);
-}
-
-body::before {
-  content: "";
-  position: fixed;
-  inset: 0;
-  background:
-    linear-gradient(rgba(43, 10, 61, 0.72), rgba(31, 10, 46, 0.78)),
-    url("images/atlaspi-globelink.png") center center / cover no-repeat;
-  opacity: 0.38;
-  z-index: -1;
-  animation: atlasBgFloat 18s ease-in-out infinite;
-  transform: scale(1.05);
-}
-
-@keyframes atlasBgFloat {
-  0% {
-    transform: scale(1.05) translateY(0px);
-  }
-  50% {
-    transform: scale(1.09) translateY(-10px);
-  }
-  100% {
-    transform: scale(1.05) translateY(0px);
-  }
-}
-
-    a {
-      color: #7dd3fc;
+    .merchant-detail-hero {
+      padding-top: 40px;
     }
 
-    #merchantDetailCard {
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 12px;
-  padding: 16px;
-  margin-top: 16px;
-  animation: fadeInUp 0.5s ease;
-}
+    .merchant-detail-card {
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      background: linear-gradient(180deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.03) 100%);
+      border-radius: 22px;
+      padding: 24px;
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.18);
+    }
 
-#merchantDetailCard h2 {
-  margin-top: 18px;
-  margin-bottom: 10px;
-  color: #f4c542;
-  font-size: 18px;
-  border-bottom: 1px solid rgba(244, 197, 66, 0.35);
-  padding-bottom: 6px;
-}
+    .merchant-top-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin: 14px 0 18px;
+    }
 
-#merchantDetailCard h2:first-child {
-  margin-top: 0;
-}
-}
+    .merchant-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(124, 58, 237, 0.16);
+      border: 1px solid rgba(124, 58, 237, 0.28);
+      color: #d8c7ff;
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+
+    .merchant-overview-grid,
+    .contact-grid,
+    .highlights-grid,
+    .trust-signals-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 18px;
+    }
+
+    .info-card {
+      border-radius: 18px;
+      padding: 18px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .info-card strong {
+      display: block;
+      margin-bottom: 8px;
+      color: #ffffff;
+    }
+
+    .merchant-main-grid {
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr;
+      gap: 24px;
+      align-items: start;
+    }
+
+    .merchant-side-card {
+      border-radius: 20px;
+      padding: 22px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      box-shadow: 0 10px 24px rgba(0,0,0,0.14);
+    }
+
+    .merchant-side-card h3,
+    .merchant-detail-card h3,
+    .info-card h3 {
+      margin-top: 0;
+    }
+
+    .merchant-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 20px;
+    }
+
+    .merchant-actions .btn {
+      min-width: 180px;
+      justify-content: center;
+    }
+
+    .merchant-highlight-list {
+      display: grid;
+      gap: 12px;
+      margin-top: 18px;
+    }
+
+    .merchant-highlight-item {
+      padding: 14px 16px;
+      border-radius: 16px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.06);
+    }
+
+    @media (max-width: 900px) {
+      .merchant-main-grid {
+        grid-template-columns: 1fr;
+      }
+    }
   </style>
 </head>
 <body>
-  <p><a href="index.html#merchant-listings">⬅ Back to Merchant Listings</a></p>
+  <header class="site-header">
+    <div class="container nav">
+      <a href="index.html" class="brand">
+        <img src="logo-atlaspi.png" alt="AtlasPi logo" class="brand-logo" />
+        <div class="brand-text">
+          <strong>AtlasPi</strong>
+          <span>The Trusted Map of Pi Commerce</span>
+        </div>
+      </a>
 
-  <h1>Merchant Detail</h1>
+      <div class="menu-shell">
+        <nav class="menu-panel" style="display:flex; gap:16px; align-items:center;">
+          <a href="index.html">Home</a>
+          <a href="discover.html">Discover</a>
+          <a href="vip.html">VIP</a>
+          <a href="support.html">Support</a>
+          <a href="profile.html" class="btn btn-nav">Profile</a>
+        </nav>
+      </div>
+    </div>
+  </header>
 
-  <p id="detailStatus">Loading merchant detail...</p>
+  <main>
+    <section class="hero merchant-detail-hero" id="merchant-hero">
+      <div class="container hero-grid">
+        <div class="hero-copy">
+          <span class="eyebrow">Merchant Profile</span>
+          <h1>
+            Sunrise
+            <span class="gradient-text">Café</span>
+          </h1>
+          <p class="hero-lead">
+            A trusted local merchant presence inside the AtlasPi ecosystem.
+          </p>
+          <p>
+            Discover a merchant profile designed to make local business visibility clearer,
+            more trusted, and more useful for pioneers exploring real Pi-oriented commerce.
+          </p>
 
-  <div id="merchantDetailCard"></div>
+          <div class="merchant-top-meta">
+            <span class="merchant-pill">✅ Verified</span>
+            <span class="merchant-pill">☕ Food & Drinks</span>
+            <span class="merchant-pill">📍 Casablanca, Morocco</span>
+          </div>
 
-  <script src="merchant-detail.js"></script>
+          <div class="hero-actions">
+            <a href="discover.html" class="btn btn-primary">Back to Discover</a>
+            <a href="payments.html" class="btn btn-secondary">Support AtlasPi</a>
+          </div>
+        </div>
+
+        <div class="hero-visual">
+          <article class="merchant-detail-card">
+            <div class="feature-icon">🏪</div>
+            <h3>Merchant Overview</h3>
+            <div class="merchant-overview-grid">
+              <div class="info-card">
+                <strong>Category</strong>
+                <span>Food & Drinks</span>
+              </div>
+              <div class="info-card">
+                <strong>Location</strong>
+                <span>Casablanca, Morocco</span>
+              </div>
+              <div class="info-card">
+                <strong>Status</strong>
+                <span>Verified</span>
+              </div>
+              <div class="info-card">
+                <strong>Discovery Level</strong>
+                <span>AtlasPi Ready</span>
+              </div>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="merchant-about">
+      <div class="container">
+        <div class="merchant-main-grid">
+          <article class="merchant-detail-card">
+            <div class="section-heading" style="text-align:left; margin-bottom:18px;">
+              <span class="eyebrow">About</span>
+              <h2>About this merchant</h2>
+            </div>
+
+            <p>
+              Sunrise Café is presented as a welcoming local business profile built to reflect
+              clarity, trust, and better discoverability inside the AtlasPi ecosystem. Its presence
+              illustrates how merchants can become easier to find and more credible for pioneers
+              seeking useful local options.
+            </p>
+
+            <div class="merchant-highlight-list">
+              <div class="merchant-highlight-item">Friendly local business presence</div>
+              <div class="merchant-highlight-item">Clear public merchant profile</div>
+              <div class="merchant-highlight-item">Discovery-ready presentation</div>
+              <div class="merchant-highlight-item">Future-ready visibility inside AtlasPi</div>
+            </div>
+          </article>
+
+          <aside class="merchant-side-card">
+            <div class="section-heading" style="text-align:left; margin-bottom:18px;">
+              <span class="eyebrow">Overview</span>
+              <h2>Merchant Snapshot</h2>
+            </div>
+
+            <p><strong>Visibility:</strong> Public Profile</p>
+            <p><strong>Ecosystem Role:</strong> Pi-Oriented Merchant</p>
+            <p><strong>Profile Type:</strong> Local Discovery Business</p>
+            <p><strong>Map Status:</strong> Coming soon</p>
+          </aside>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="merchant-highlights">
+      <div class="container">
+        <div class="section-heading">
+          <span class="eyebrow">Highlights</span>
+          <h2>Merchant Highlights</h2>
+          <p>
+            A structured merchant profile helps pioneers understand what makes a business easier
+            to discover and trust.
+          </p>
+        </div>
+
+        <div class="highlights-grid">
+          <article class="feature-card">
+            <div class="feature-icon">🤝</div>
+            <h3>Friendly Presence</h3>
+            <p>A welcoming local business identity that feels easier to explore.</p>
+          </article>
+
+          <article class="feature-card">
+            <div class="feature-icon">📋</div>
+            <h3>Clear Profile</h3>
+            <p>Structured information helps improve merchant visibility and understanding.</p>
+          </article>
+
+          <article class="feature-card">
+            <div class="feature-icon">🚀</div>
+            <h3>Discovery-Ready</h3>
+            <p>Built to support future AtlasPi discovery and stronger local exposure.</p>
+          </article>
+
+          <article class="feature-card">
+            <div class="feature-icon">🌍</div>
+            <h3>Ecosystem Utility</h3>
+            <p>Represents the kind of merchant presence AtlasPi aims to make more useful.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="merchant-trust">
+      <div class="container">
+        <div class="section-heading">
+          <span class="eyebrow">Trust</span>
+          <h2>Trust Signals</h2>
+          <p>
+            AtlasPi merchant profiles are designed to encourage better visibility, clearer identity,
+            and stronger confidence for pioneers exploring business discovery.
+          </p>
+        </div>
+
+        <div class="trust-signals-grid">
+          <article class="feature-card">
+            <div class="feature-icon">✅</div>
+            <h3>Verified Presence</h3>
+            <p>This merchant profile is displayed with a structured and trustworthy presentation.</p>
+          </article>
+
+          <article class="feature-card">
+            <div class="feature-icon">🛡️</div>
+            <h3>Clear Identity</h3>
+            <p>The business information is organized to improve visibility and reduce confusion.</p>
+          </article>
+
+          <article class="feature-card">
+            <div class="feature-icon">📍</div>
+            <h3>Future Discovery Ready</h3>
+            <p>This profile is aligned with a broader vision of useful and trusted ecosystem discovery.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="merchant-contact">
+      <div class="container">
+        <div class="section-heading">
+          <span class="eyebrow">Contact</span>
+          <h2>Location & Contact</h2>
+          <p>
+            Clear business identity and visibility are part of a more trusted discovery experience.
+          </p>
+        </div>
+
+        <div class="contact-grid">
+          <article class="info-card">
+            <strong>City</strong>
+            <span>Casablanca</span>
+          </article>
+
+          <article class="info-card">
+            <strong>Country</strong>
+            <span>Morocco</span>
+          </article>
+
+          <article class="info-card">
+            <strong>Contact</strong>
+            <span>contact@sunrisecafe.example</span>
+          </article>
+
+          <article class="info-card">
+            <strong>Availability</strong>
+            <span>Public merchant profile</span>
+          </article>
+
+          <article class="info-card">
+            <strong>Status</strong>
+            <span>Verified</span>
+          </article>
+
+          <article class="info-card">
+            <strong>Map Status</strong>
+            <span>Coming soon</span>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="merchant-cta">
+      <div class="container">
+        <article class="feature-card" style="text-align:center; max-width:780px; margin:0 auto;">
+          <div class="feature-icon">📣</div>
+          <h2>Want your business to be visible too?</h2>
+          <p>
+            AtlasPi is also being built for merchants who want stronger visibility,
+            better trust signals, and a more discoverable presence in the Pi ecosystem.
+          </p>
+
+          <div class="merchant-actions" style="justify-content:center;">
+            <a href="discover.html" class="btn btn-primary">Back to Discover</a>
+            <a href="vip.html" class="btn btn-secondary">Learn About VIP</a>
+          </div>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-grid">
+      <div>
+        <strong>AtlasPi</strong>
+        <p>The Trusted Map of Pi Commerce</p>
+        <p>
+          Helping pioneers and merchants move toward stronger discovery, trust,
+          and real-world Pi utility.
+        </p>
+      </div>
+
+      <div>
+        <a href="index.html">Home</a><br />
+        <a href="discover.html">Discover</a><br />
+        <a href="support.html">Support</a><br />
+        <a href="terms.html">Terms</a>
+      </div>
+    </div>
+  </footer>
 </body>
 </html>
