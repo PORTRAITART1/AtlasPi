@@ -319,7 +319,7 @@
               </div>
 
               <div style="display:flex; align-items:flex-end;">
-                <button type="button" class="btn btn-primary" style="width:100%;">Search</button>
+                <button type="button" class="btn btn-primary" id="searchBtn" style="width:100%;">Search</button>
               </div>
             </div>
           </div>
@@ -336,9 +336,15 @@
             Browse example AtlasPi merchant cards built for visibility, trust, and future discovery.
           </p>
         </div>
-
-        <div class="feature-grid">
-          <article class="feature-card">
+    
+        <div class="feature-grid" id="merchantCardsGrid">
+          <article
+            class="feature-card merchant-card"
+            data-name="Sunrise Café"
+            data-category="Food & Drinks"
+            data-country="Morocco"
+            data-city="Casablanca"
+          >
             <div class="feature-icon">☕</div>
             <h3>Sunrise Café</h3>
             <p><strong>Category:</strong> Food & Drinks</p>
@@ -349,8 +355,14 @@
               <a href="merchant-detail.html" class="btn btn-secondary">View Details</a>
             </div>
           </article>
-
-          <article class="feature-card">
+    
+          <article
+            class="feature-card merchant-card"
+            data-name="Atlas Tech Store"
+            data-category="Electronics"
+            data-country="Ghana"
+            data-city="Accra"
+          >
             <div class="feature-icon">💻</div>
             <h3>Atlas Tech Store</h3>
             <p><strong>Category:</strong> Electronics</p>
@@ -361,8 +373,14 @@
               <a href="merchant-detail.html" class="btn btn-secondary">View Details</a>
             </div>
           </article>
-
-          <article class="feature-card">
+    
+          <article
+            class="feature-card merchant-card"
+            data-name="Global Craft House"
+            data-category="Handmade Goods"
+            data-country="Kenya"
+            data-city="Nairobi"
+          >
             <div class="feature-icon">🧵</div>
             <h3>Global Craft House</h3>
             <p><strong>Category:</strong> Handmade Goods</p>
@@ -373,8 +391,14 @@
               <a href="merchant-detail.html" class="btn btn-secondary">View Details</a>
             </div>
           </article>
-
-          <article class="feature-card">
+    
+          <article
+            class="feature-card merchant-card"
+            data-name="Pi Market Hub"
+            data-category="Local Shops"
+            data-country="Nigeria"
+            data-city="Lagos"
+          >
             <div class="feature-icon">🏪</div>
             <h3>Pi Market Hub</h3>
             <p><strong>Category:</strong> Local Shops</p>
@@ -385,8 +409,14 @@
               <a href="merchant-detail.html" class="btn btn-secondary">View Details</a>
             </div>
           </article>
-
-          <article class="feature-card">
+    
+          <article
+            class="feature-card merchant-card"
+            data-name="Sahara Mobile Shop"
+            data-category="Electronics"
+            data-country="Morocco"
+            data-city="Marrakech"
+          >
             <div class="feature-icon">📱</div>
             <h3>Sahara Mobile Shop</h3>
             <p><strong>Category:</strong> Electronics</p>
@@ -397,8 +427,14 @@
               <a href="merchant-detail.html" class="btn btn-secondary">View Details</a>
             </div>
           </article>
-
-          <article class="feature-card">
+    
+          <article
+            class="feature-card merchant-card"
+            data-name="Community Food Point"
+            data-category="Food & Drinks"
+            data-country="Senegal"
+            data-city="Dakar"
+          >
             <div class="feature-icon">🍽️</div>
             <h3>Community Food Point</h3>
             <p><strong>Category:</strong> Food & Drinks</p>
@@ -410,6 +446,10 @@
             </div>
           </article>
         </div>
+    
+        <p id="noResultsMessage" style="display:none; text-align:center; margin-top:20px; opacity:0.8;">
+          No merchants match your search yet.
+        </p>
       </div>
     </section>
 
@@ -486,49 +526,128 @@
   </footer>
 
   <script src="city-data.js"></script>
-<script>
-  const cityData = window.ATLASPI_CITY_DATA || {};
-
-  const countryFilter = document.getElementById("countryFilter");
-  const cityFilter = document.getElementById("cityFilter");
-
-  function updateCities() {
-    const selectedCountry = countryFilter.value;
-    const cities = cityData[selectedCountry] || [];
-
-    cityFilter.innerHTML = "";
-
-    if (!selectedCountry || selectedCountry === "All Countries") {
-      const option = document.createElement("option");
-      option.value = "";
-      option.textContent = "Select a country first";
-      cityFilter.appendChild(option);
-      return;
+  <script>
+    const cityData = window.ATLASPI_CITY_DATA || {};
+  
+    const merchantSearch = document.getElementById("merchantSearch");
+    const categoryFilter = document.getElementById("categoryFilter");
+    const countryFilter = document.getElementById("countryFilter");
+    const cityFilter = document.getElementById("cityFilter");
+    const searchBtn = document.getElementById("searchBtn");
+    const merchantCards = document.querySelectorAll(".merchant-card");
+    const noResultsMessage = document.getElementById("noResultsMessage");
+  
+    function updateCities() {
+      const selectedCountry = countryFilter.value;
+      const cities = cityData[selectedCountry] || [];
+  
+      cityFilter.innerHTML = "";
+  
+      if (!selectedCountry || selectedCountry === "All Countries") {
+        const option = document.createElement("option");
+        option.value = "";
+        option.textContent = "Select a country first";
+        cityFilter.appendChild(option);
+        return;
+      }
+  
+      const defaultOption = document.createElement("option");
+      defaultOption.value = "";
+      defaultOption.textContent = "All Cities";
+      cityFilter.appendChild(defaultOption);
+  
+      cities.forEach((city) => {
+        const option = document.createElement("option");
+        option.value = city;
+        option.textContent = city;
+        cityFilter.appendChild(option);
+      });
+  
+      if (cities.length === 0) {
+        const option = document.createElement("option");
+        option.value = "";
+        option.textContent = "No cities available yet";
+        cityFilter.appendChild(option);
+      }
     }
-
-    const defaultOption = document.createElement("option");
-    defaultOption.value = "";
-    defaultOption.textContent = "All Cities";
-    cityFilter.appendChild(defaultOption);
-
-    cities.forEach((city) => {
-      const option = document.createElement("option");
-      option.value = city;
-      option.textContent = city;
-      cityFilter.appendChild(option);
-    });
-
-    if (cities.length === 0) {
-      const option = document.createElement("option");
-      option.value = "";
-      option.textContent = "No cities available yet";
-      cityFilter.appendChild(option);
+  
+    function filterMerchants() {
+      const keyword = (merchantSearch.value || "").toLowerCase().trim();
+      const selectedCategory = categoryFilter.value;
+      const selectedCountry = countryFilter.value;
+      const selectedCity = cityFilter.value;
+  
+      let visibleCount = 0;
+  
+      merchantCards.forEach((card) => {
+        const name = (card.dataset.name || "").toLowerCase();
+        const category = card.dataset.category || "";
+        const country = card.dataset.country || "";
+        const city = card.dataset.city || "";
+        const fullText = (card.textContent || "").toLowerCase();
+  
+        const matchesKeyword =
+          !keyword ||
+          name.includes(keyword) ||
+          fullText.includes(keyword);
+  
+        const matchesCategory =
+          selectedCategory === "All Categories" ||
+          category === selectedCategory;
+  
+        const matchesCountry =
+          selectedCountry === "All Countries" ||
+          !selectedCountry ||
+          country === selectedCountry;
+  
+        const matchesCity =
+          !selectedCity ||
+          selectedCity === "All Cities" ||
+          city === selectedCity;
+  
+        const shouldShow =
+          matchesKeyword &&
+          matchesCategory &&
+          matchesCountry &&
+          matchesCity;
+  
+        card.style.display = shouldShow ? "" : "none";
+  
+        if (shouldShow) {
+          visibleCount += 1;
+        }
+      });
+  
+      if (noResultsMessage) {
+        noResultsMessage.style.display = visibleCount === 0 ? "block" : "none";
+      }
     }
-  }
-
-  if (countryFilter && cityFilter) {
-    countryFilter.addEventListener("change", updateCities);
-  }
-</script>
+  
+    if (countryFilter && cityFilter) {
+      countryFilter.addEventListener("change", () => {
+        updateCities();
+        filterMerchants();
+      });
+    }
+  
+    if (cityFilter) {
+      cityFilter.addEventListener("change", filterMerchants);
+    }
+  
+    if (categoryFilter) {
+      categoryFilter.addEventListener("change", filterMerchants);
+    }
+  
+    if (merchantSearch) {
+      merchantSearch.addEventListener("input", filterMerchants);
+    }
+  
+    if (searchBtn) {
+      searchBtn.addEventListener("click", filterMerchants);
+    }
+  
+    updateCities();
+    filterMerchants();
+  </script>
 </body>
 </html>
