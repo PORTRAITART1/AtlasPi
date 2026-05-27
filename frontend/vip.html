@@ -6,6 +6,131 @@
   <title>AtlasPi - VIP</title>
   <link rel="stylesheet" href="style.css" />
   <link rel="stylesheet" href="shared-theme.css" />
+
+  <style>
+    .vip-hero {
+      padding-top: 40px;
+    }
+
+    .vip-main-card,
+    .vip-side-card,
+    .vip-price-card,
+    .vip-faq-card {
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      background: linear-gradient(180deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.03) 100%);
+      border-radius: 22px;
+      padding: 24px;
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.18);
+    }
+
+    .vip-top-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin: 14px 0 18px;
+    }
+
+    .vip-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(124, 58, 237, 0.16);
+      border: 1px solid rgba(124, 58, 237, 0.28);
+      color: #d8c7ff;
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+
+    .vip-main-grid {
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr;
+      gap: 24px;
+      align-items: start;
+    }
+
+    .vip-info-grid,
+    .vip-benefits-grid,
+    .vip-faq-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 18px;
+    }
+
+    .vip-info-card {
+      border-radius: 18px;
+      padding: 18px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .vip-info-card strong {
+      display: block;
+      margin-bottom: 8px;
+      color: #ffffff;
+    }
+
+    .vip-highlight-list {
+      display: grid;
+      gap: 12px;
+      margin-top: 18px;
+    }
+
+    .vip-highlight-item {
+      padding: 14px 16px;
+      border-radius: 16px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .vip-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 20px;
+    }
+
+    .vip-actions .btn {
+      min-width: 180px;
+      justify-content: center;
+    }
+
+    .vip-price-list {
+      display: grid;
+      gap: 12px;
+      margin-top: 18px;
+    }
+
+    .vip-price-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 12px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .vip-price-row:last-child {
+      border-bottom: none;
+    }
+
+    .vip-price-row strong {
+      color: #ffffff;
+    }
+
+    .vip-faq-item {
+      padding: 18px;
+      border-radius: 18px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.06);
+    }
+
+    @media (max-width: 900px) {
+      .vip-main-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
 </head>
 <body>
   <header class="site-header">
@@ -17,7 +142,7 @@
           <span>The Trusted Map of Pi Commerce</span>
         </div>
       </a>
-  
+
       <div class="menu-shell">
         <nav class="menu-panel" style="display:flex; gap:16px; align-items:center;">
           <a href="index.html">Home</a>
@@ -31,40 +156,249 @@
   </header>
 
   <main>
-    <section class="section">
+    <section class="hero vip-hero" id="vip-hero">
+      <div class="container hero-grid">
+        <div class="hero-copy">
+          <span class="eyebrow">Premium Visibility</span>
+          <h1>
+            AtlasPi
+            <span class="gradient-text">VIP</span>
+          </h1>
+          <p class="hero-lead">
+            Stand out with stronger visibility, trusted presence, and future-ready positioning.
+          </p>
+          <p>
+            AtlasPi VIP is designed for merchants and profiles that want more visibility,
+            a stronger identity, and better positioning inside a trusted Pi-oriented ecosystem.
+          </p>
+
+          <div class="vip-top-meta">
+            <span class="vip-pill">💎 Premium Visibility</span>
+            <span class="vip-pill">🏅 VIP Badge</span>
+            <span class="vip-pill">🚀 Future-Ready Positioning</span>
+          </div>
+
+          <div class="hero-actions">
+            <a href="payments.html" class="btn btn-primary">Choose VIP</a>
+            <a href="index.html" class="btn btn-secondary">Back to Home</a>
+          </div>
+        </div>
+
+        <div class="hero-visual">
+          <article class="vip-main-card">
+            <div class="feature-icon">💠</div>
+            <h3>Why AtlasPi VIP matters</h3>
+            <p>
+              Visibility is essential for discovery. AtlasPi VIP helps merchants and profiles
+              appear more clearly, build stronger recognition, and prepare for premium
+              opportunities across the ecosystem.
+            </p>
+
+            <div class="vip-info-grid" style="margin-top:18px;">
+              <div class="vip-info-card">
+                <strong>Visibility</strong>
+                <span>Enhanced</span>
+              </div>
+              <div class="vip-info-card">
+                <strong>Recognition</strong>
+                <span>Stronger presence</span>
+              </div>
+              <div class="vip-info-card">
+                <strong>Status</strong>
+                <span>Future-ready premium access</span>
+              </div>
+              <div class="vip-info-card">
+                <strong>Positioning</strong>
+                <span>Discovery-oriented</span>
+              </div>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="vip-benefits">
       <div class="container">
         <div class="section-heading">
-          <span class="eyebrow">Premium</span>
-          <h1>AtlasPi VIP</h1>
+          <span class="eyebrow">Benefits</span>
+          <h2>VIP Benefits</h2>
           <p>
-            AtlasPi VIP is designed for merchants and profiles that want stronger visibility,
-            premium presence, and future-ready positioning in the ecosystem.
+            AtlasPi VIP is designed to strengthen presence, improve recognition,
+            and prepare profiles for premium ecosystem visibility.
           </p>
         </div>
 
-        <div class="feature-grid">
+        <div class="vip-benefits-grid">
           <article class="feature-card">
             <div class="feature-icon">💎</div>
             <h3>Premium Visibility</h3>
-            <p>Stand out more clearly and strengthen your presence in AtlasPi.</p>
+            <p>Stand out more clearly across the AtlasPi experience.</p>
           </article>
 
           <article class="feature-card">
             <div class="feature-icon">🏅</div>
             <h3>VIP Badge</h3>
-            <p>Show a stronger and more recognizable merchant or profile identity.</p>
+            <p>Display a stronger and more recognizable presence.</p>
+          </article>
+
+          <article class="feature-card">
+            <div class="feature-icon">📈</div>
+            <h3>Discovery Boost</h3>
+            <p>Improve how your profile is noticed and remembered.</p>
+          </article>
+
+          <article class="feature-card">
+            <div class="feature-icon">🗺️</div>
+            <h3>Future Map Priority</h3>
+            <p>Prepare for stronger positioning in future discovery layers.</p>
+          </article>
+
+          <article class="feature-card">
+            <div class="feature-icon">🛡️</div>
+            <h3>Trusted Presence</h3>
+            <p>Support a more complete and credible merchant image.</p>
           </article>
 
           <article class="feature-card">
             <div class="feature-icon">🚀</div>
-            <h3>Coming Next</h3>
-            <p>Future visibility options, premium positioning, and upgraded discovery benefits will appear here.</p>
+            <h3>Growth Readiness</h3>
+            <p>Position yourself for future premium ecosystem opportunities.</p>
           </article>
         </div>
+      </div>
+    </section>
 
-        <div class="section-actions">
-          <a href="index.html" class="btn btn-primary">Back to Home</a>
+    <section class="section" id="vip-presence">
+      <div class="container">
+        <div class="vip-main-grid">
+          <article class="vip-main-card">
+            <div class="section-heading" style="text-align:left; margin-bottom:18px;">
+              <span class="eyebrow">Presence</span>
+              <h2>More than a badge — a stronger presence</h2>
+            </div>
+
+            <p>
+              AtlasPi VIP is not only about visibility. It is about presenting your
+              merchant or profile identity in a cleaner, stronger, and more memorable way
+              for pioneers exploring useful opportunities.
+            </p>
+
+            <div class="vip-highlight-list">
+              <div class="vip-highlight-item">Clearer profile visibility across the ecosystem</div>
+              <div class="vip-highlight-item">Stronger recognition through premium identity cues</div>
+              <div class="vip-highlight-item">Better positioning for future discovery experiences</div>
+              <div class="vip-highlight-item">A more memorable and trusted merchant presence</div>
+            </div>
+          </article>
+
+          <aside class="vip-side-card">
+            <div class="section-heading" style="text-align:left; margin-bottom:18px;">
+              <span class="eyebrow">Snapshot</span>
+              <h2>VIP Presence Snapshot</h2>
+            </div>
+
+            <p><strong>Audience:</strong> Merchants and Profiles</p>
+            <p><strong>Goal:</strong> Stronger visibility</p>
+            <p><strong>Identity:</strong> Premium presence</p>
+            <p><strong>Positioning:</strong> Future-ready</p>
+          </aside>
         </div>
+      </div>
+    </section>
+
+    <section class="section" id="vip-pricing">
+      <div class="container">
+        <div class="section-heading">
+          <span class="eyebrow">Access</span>
+          <h2>Simple VIP access</h2>
+          <p>
+            AtlasPi VIP is designed as a premium visibility layer for merchants and
+            profiles that want stronger presence inside the ecosystem.
+          </p>
+        </div>
+
+        <article class="vip-price-card" style="max-width:760px; margin:0 auto;">
+          <div class="vip-price-list">
+            <div class="vip-price-row">
+              <strong>Plan</strong>
+              <span>VIP</span>
+            </div>
+            <div class="vip-price-row">
+              <strong>Price</strong>
+              <span>0.1 Pi / month</span>
+            </div>
+            <div class="vip-price-row">
+              <strong>Status</strong>
+              <span>Future-ready premium access</span>
+            </div>
+            <div class="vip-price-row">
+              <strong>Visibility Level</strong>
+              <span>Enhanced</span>
+            </div>
+          </div>
+
+          <p style="margin-top:18px;">
+            Premium visibility is designed to support stronger exposure and
+            future-ready positioning with clarity and transparency.
+          </p>
+
+          <div class="vip-actions">
+            <a href="payments.html" class="btn btn-primary">Choose VIP</a>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="section" id="vip-faq">
+      <div class="container">
+        <div class="section-heading">
+          <span class="eyebrow">FAQ</span>
+          <h2>VIP FAQ</h2>
+        </div>
+
+        <div class="vip-faq-grid">
+          <article class="vip-faq-item">
+            <h3>What is AtlasPi VIP?</h3>
+            <p>
+              AtlasPi VIP is a premium visibility option designed to give stronger
+              presence and recognition inside the AtlasPi ecosystem.
+            </p>
+          </article>
+
+          <article class="vip-faq-item">
+            <h3>Who is VIP for?</h3>
+            <p>
+              VIP is for merchants and profiles that want more visibility, better
+              trust signals, and stronger positioning.
+            </p>
+          </article>
+
+          <article class="vip-faq-item">
+            <h3>Does VIP improve discovery?</h3>
+            <p>
+              Yes. AtlasPi VIP is designed to strengthen how a profile is seen,
+              remembered, and prioritized in future discovery experiences.
+            </p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="vip-cta">
+      <div class="container">
+        <article class="feature-card" style="text-align:center; max-width:780px; margin:0 auto;">
+          <div class="feature-icon">📣</div>
+          <h2>Ready to strengthen your presence?</h2>
+          <p>
+            AtlasPi VIP is built for merchants and profiles that want clearer visibility,
+            stronger identity, and better positioning in a growing ecosystem.
+          </p>
+
+          <div class="vip-actions" style="justify-content:center;">
+            <a href="payments.html" class="btn btn-primary">Choose VIP</a>
+            <a href="discover.html" class="btn btn-secondary">Discover Merchants</a>
+          </div>
+        </article>
       </div>
     </section>
   </main>
@@ -79,7 +413,7 @@
           and real-world Pi utility.
         </p>
       </div>
-  
+
       <div>
         <a href="index.html">Home</a><br />
         <a href="discover.html">Discover</a><br />
