@@ -6,6 +6,127 @@
   <title>AtlasPi - Payments</title>
   <link rel="stylesheet" href="style.css" />
   <link rel="stylesheet" href="shared-theme.css" />
+
+  <style>
+    .payments-hero {
+      padding-top: 40px;
+    }
+
+    .payments-main-card,
+    .payments-side-card,
+    .payments-detail-card,
+    .payments-faq-card {
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      background: linear-gradient(180deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.03) 100%);
+      border-radius: 22px;
+      padding: 24px;
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.18);
+    }
+
+    .payments-top-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin: 14px 0 18px;
+    }
+
+    .payments-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(124, 58, 237, 0.16);
+      border: 1px solid rgba(124, 58, 237, 0.28);
+      color: #d8c7ff;
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+
+    .payments-main-grid {
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr;
+      gap: 24px;
+      align-items: start;
+    }
+
+    .payments-info-grid,
+    .payments-reasons-grid,
+    .payments-trust-grid,
+    .payments-faq-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 18px;
+    }
+
+    .payments-info-card {
+      border-radius: 18px;
+      padding: 18px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .payments-info-card strong {
+      display: block;
+      margin-bottom: 8px;
+      color: #ffffff;
+    }
+
+    .payments-detail-list {
+      display: grid;
+      gap: 12px;
+      margin-top: 18px;
+    }
+
+    .payments-detail-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 12px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .payments-detail-row:last-child {
+      border-bottom: none;
+    }
+
+    .payments-detail-row strong {
+      color: #ffffff;
+    }
+
+    .payments-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 20px;
+    }
+
+    .payments-actions .btn {
+      min-width: 180px;
+      justify-content: center;
+    }
+
+    .payments-faq-item {
+      padding: 18px;
+      border-radius: 18px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .payments-note {
+      margin-top: 18px;
+      padding: 16px 18px;
+      border-radius: 16px;
+      background: rgba(59, 130, 246, 0.08);
+      border: 1px solid rgba(59, 130, 246, 0.18);
+    }
+
+    @media (max-width: 900px) {
+      .payments-main-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
 </head>
 <body>
   <header class="site-header">
@@ -17,7 +138,7 @@
           <span>The Trusted Map of Pi Commerce</span>
         </div>
       </a>
-  
+
       <div class="menu-shell">
         <nav class="menu-panel" style="display:flex; gap:16px; align-items:center;">
           <a href="index.html">Home</a>
@@ -31,49 +152,240 @@
   </header>
 
   <main>
-    <section class="section">
+    <section class="hero payments-hero" id="payments-hero">
+      <div class="container hero-grid">
+        <div class="hero-copy">
+          <span class="eyebrow">Support</span>
+          <h1>
+            Support AtlasPi with
+            <span class="gradient-text">Testnet Payments</span>
+          </h1>
+          <p class="hero-lead">
+            Transparent, test-only support for AtlasPi validation and growth.
+          </p>
+          <p>
+            AtlasPi can be supported through transparent test payments designed to help
+            validate the app experience, improve technical flows, and strengthen its path
+            toward real utility.
+          </p>
+
+          <div class="payments-top-meta">
+            <span class="payments-pill">🧪 Testnet Only</span>
+            <span class="payments-pill">🔒 No Mainnet Risk</span>
+            <span class="payments-pill">🤝 Transparent Support</span>
+          </div>
+
+          <div class="hero-actions">
+            <a href="#payments-details" class="btn btn-primary">Support with Testnet</a>
+            <a href="index.html" class="btn btn-secondary">Back to Home</a>
+          </div>
+        </div>
+
+        <div class="hero-visual">
+          <article class="payments-main-card">
+            <div class="feature-icon">💸</div>
+            <h3>Testnet only — no real mainnet payment</h3>
+            <p>
+              All support actions on this page are strictly for testing purposes.
+              No real mainnet Pi is involved, and no real-value payment is being requested here.
+            </p>
+
+            <div class="payments-info-grid" style="margin-top:18px;">
+              <div class="payments-info-card">
+                <strong>Network</strong>
+                <span>Testnet only</span>
+              </div>
+              <div class="payments-info-card">
+                <strong>Mainnet Use</strong>
+                <span>None</span>
+              </div>
+              <div class="payments-info-card">
+                <strong>Purpose</strong>
+                <span>Validation and improvement</span>
+              </div>
+              <div class="payments-info-card">
+                <strong>Approach</strong>
+                <span>Transparent and test-based</span>
+              </div>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="payments-why">
       <div class="container">
         <div class="section-heading">
-          <span class="eyebrow">Support</span>
-          <h1>Support AtlasPi</h1>
+          <span class="eyebrow">Why Support</span>
+          <h2>Why support AtlasPi?</h2>
           <p>
-            This page explains how AtlasPi support works through transparent test payments.
+            Support through testnet payments helps AtlasPi validate payment flows,
+            improve the user experience, and demonstrate useful progress toward
+            a stronger Pi-oriented application.
           </p>
         </div>
 
-        <article class="feature-card" style="max-width: 760px; margin: 0 auto 24px; text-align: center;">
-          <div class="feature-icon">💸</div>
-          <h3>Testnet only</h3>
-          <p><strong>No real mainnet payment is involved.</strong></p>
-          <p>
-            Support actions on AtlasPi are meant to help test, improve, and validate
-            the app with full transparency.
-          </p>
-        </article>
-
-        <div class="feature-grid">
+        <div class="payments-reasons-grid">
           <article class="feature-card">
-            <div class="feature-icon">🧪</div>
-            <h3>Test Payments</h3>
-            <p>Use testnet flows to support app validation and technical improvement.</p>
+            <div class="feature-icon">✅</div>
+            <h3>Validate the app</h3>
+            <p>Help confirm that key support and payment flows work properly.</p>
+          </article>
+
+          <article class="feature-card">
+            <div class="feature-icon">🛠️</div>
+            <h3>Improve the experience</h3>
+            <p>Support testing helps refine AtlasPi into a cleaner and more reliable platform.</p>
+          </article>
+
+          <article class="feature-card">
+            <div class="feature-icon">🌍</div>
+            <h3>Strengthen real utility</h3>
+            <p>Your action supports the vision of useful, transparent, and practical ecosystem growth.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="payments-details">
+      <div class="container">
+        <div class="payments-main-grid">
+          <article class="payments-detail-card">
+            <div class="section-heading" style="text-align:left; margin-bottom:18px;">
+              <span class="eyebrow">Details</span>
+              <h2>Support Details</h2>
+            </div>
+
+            <p>
+              A simple and transparent support structure helps pioneers understand
+              what they are doing and why it matters.
+            </p>
+
+            <div class="payments-detail-list">
+              <div class="payments-detail-row">
+                <strong>Type</strong>
+                <span>Testnet Support</span>
+              </div>
+              <div class="payments-detail-row">
+                <strong>Amount</strong>
+                <span>0.1 Pi</span>
+              </div>
+              <div class="payments-detail-row">
+                <strong>Network</strong>
+                <span>Testnet only</span>
+              </div>
+              <div class="payments-detail-row">
+                <strong>Purpose</strong>
+                <span>App validation and development support</span>
+              </div>
+              <div class="payments-detail-row">
+                <strong>Status</strong>
+                <span>Safe test flow</span>
+              </div>
+            </div>
+
+            <div class="payments-note">
+              This support flow is presented for testing, validation, and transparency only.
+            </div>
+
+            <div class="payments-actions">
+              <a href="#" class="btn btn-primary">Support with Testnet</a>
+            </div>
+          </article>
+
+          <aside class="payments-side-card">
+            <div class="section-heading" style="text-align:left; margin-bottom:18px;">
+              <span class="eyebrow">Snapshot</span>
+              <h2>Support Snapshot</h2>
+            </div>
+
+            <p><strong>Mode:</strong> Test-based support</p>
+            <p><strong>Risk:</strong> No mainnet risk</p>
+            <p><strong>Clarity:</strong> Full transparency</p>
+            <p><strong>Goal:</strong> Improve and validate AtlasPi</p>
+          </aside>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="payments-trust">
+      <div class="container">
+        <div class="section-heading">
+          <span class="eyebrow">Trust</span>
+          <h2>Trust & Safety</h2>
+          <p>
+            AtlasPi is committed to presenting support actions with clarity.
+            This page is designed to avoid confusion and make it clear that support
+            here is test-based, transparent, and non-mainnet.
+          </p>
+        </div>
+
+        <div class="payments-trust-grid">
+          <article class="feature-card">
+            <div class="feature-icon">🎯</div>
+            <h3>Clear purpose</h3>
+            <p>The goal is app testing, validation, and improvement.</p>
           </article>
 
           <article class="feature-card">
             <div class="feature-icon">🔒</div>
-            <h3>Transparent Use</h3>
-            <p>These actions are for testing and support only, not real-value mainnet transactions.</p>
+            <h3>No mainnet risk</h3>
+            <p>No real mainnet Pi is involved anywhere on this page.</p>
           </article>
 
           <article class="feature-card">
-            <div class="feature-icon">🚧</div>
-            <h3>Coming Next</h3>
-            <p>Payment details, history, and clearer support actions will appear here.</p>
+            <div class="feature-icon">📘</div>
+            <h3>Transparent support</h3>
+            <p>Every support action is framed as testing, not investment or speculation.</p>
           </article>
         </div>
+      </div>
+    </section>
 
-        <div class="section-actions">
-          <a href="index.html" class="btn btn-primary">Back to Home</a>
+    <section class="section" id="payments-faq">
+      <div class="container">
+        <div class="section-heading">
+          <span class="eyebrow">FAQ</span>
+          <h2>Payments FAQ</h2>
         </div>
+
+        <div class="payments-faq-grid">
+          <article class="payments-faq-item">
+            <h3>Is this a real payment?</h3>
+            <p>No. This page is designed for testnet support only.</p>
+          </article>
+
+          <article class="payments-faq-item">
+            <h3>Is mainnet Pi involved?</h3>
+            <p>No. No real mainnet Pi is used here.</p>
+          </article>
+
+          <article class="payments-faq-item">
+            <h3>Why does this support matter?</h3>
+            <p>
+              Because it helps validate AtlasPi, improve the flow, and strengthen
+              the app's path toward useful ecosystem development.
+            </p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="payments-cta">
+      <div class="container">
+        <article class="feature-card" style="text-align:center; max-width:780px; margin:0 auto;">
+          <div class="feature-icon">📣</div>
+          <h2>Want to help AtlasPi grow?</h2>
+          <p>
+            A simple testnet support action can help AtlasPi improve, validate its flow,
+            and move closer to becoming a stronger and more useful platform.
+          </p>
+
+          <div class="payments-actions" style="justify-content:center;">
+            <a href="#" class="btn btn-primary">Support with Testnet</a>
+            <a href="discover.html" class="btn btn-secondary">Discover Merchants</a>
+          </div>
+        </article>
       </div>
     </section>
   </main>
@@ -88,7 +400,7 @@
           and real-world Pi utility.
         </p>
       </div>
-  
+
       <div>
         <a href="index.html">Home</a><br />
         <a href="discover.html">Discover</a><br />
