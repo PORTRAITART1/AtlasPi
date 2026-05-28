@@ -161,6 +161,173 @@
       }
     }
   </style>
+  <style>
+    body {
+      background:
+        radial-gradient(circle at top left, rgba(124, 58, 237, 0.08), transparent 28%),
+        radial-gradient(circle at top right, rgba(59, 130, 246, 0.08), transparent 24%),
+        linear-gradient(180deg, #0b1020 0%, #0f172a 100%);
+    }
+  
+    .site-header {
+      backdrop-filter: blur(14px);
+      background: rgba(10, 14, 28, 0.72);
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+  
+    .hero {
+      min-height: 78vh;
+      display: flex;
+      align-items: center;
+      padding-top: 72px;
+      padding-bottom: 72px;
+    }
+  
+    .hero h1 {
+      font-size: clamp(2.6rem, 5vw, 4.8rem);
+      line-height: 1.02;
+      letter-spacing: -0.04em;
+      max-width: 760px;
+    }
+  
+    .hero-lead {
+      font-size: 1.15rem;
+      line-height: 1.8;
+      max-width: 680px;
+      opacity: 0.92;
+    }
+  
+    .gradient-text {
+      background: linear-gradient(135deg, #c084fc 0%, #60a5fa 45%, #facc15 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+  
+    .hero-actions .btn,
+    .section-actions .btn {
+      border-radius: 14px;
+      padding: 14px 22px;
+      font-weight: 700;
+      box-shadow: 0 10px 24px rgba(0,0,0,0.18);
+    }
+  
+    .btn.btn-primary {
+      background: linear-gradient(135deg, #7c3aed 0%, #2563eb 100%);
+      border: none;
+    }
+  
+    .btn.btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 14px 28px rgba(37, 99, 235, 0.28);
+    }
+  
+    .btn.btn-secondary {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+  
+    .hero-metrics .metric-card,
+    .dashboard-card,
+    #what-is-atlaspi .feature-card,
+    #for-pioneers .feature-card,
+    #for-merchants .feature-card,
+    #discover-preview .feature-card,
+    #trust-atlaspi .feature-card,
+    #vip-preview .feature-card,
+    #support-atlaspi .feature-card {
+      backdrop-filter: blur(12px);
+    }
+  
+    .hero-metrics .metric-card {
+      border: 1px solid rgba(255,255,255,0.08);
+      background: linear-gradient(180deg, rgba(255,255,255,0.07), rgba(255,255,255,0.03));
+      border-radius: 18px;
+      box-shadow: 0 12px 30px rgba(0,0,0,0.16);
+    }
+  
+    .dashboard-card {
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 28px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.08), rgba(255,255,255,0.03));
+      box-shadow: 0 24px 60px rgba(0,0,0,0.26);
+    }
+  
+    .section {
+      padding-top: 74px;
+      padding-bottom: 74px;
+    }
+  
+    .section-heading .eyebrow {
+      display: inline-block;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(124, 58, 237, 0.12);
+      border: 1px solid rgba(124, 58, 237, 0.24);
+      color: #d8c7ff;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+    }
+  
+    .section-heading h2 {
+      font-size: clamp(2rem, 3vw, 3rem);
+      line-height: 1.08;
+      margin-top: 18px;
+      margin-bottom: 14px;
+    }
+  
+    #what-is-atlaspi .feature-card,
+    #for-pioneers .feature-card,
+    #for-merchants .feature-card,
+    #discover-preview .feature-card,
+    #trust-atlaspi .feature-card,
+    #vip-preview .feature-card,
+    #support-atlaspi .feature-card {
+      padding: 26px;
+    }
+  
+    #what-is-atlaspi .feature-card h3,
+    #for-pioneers .feature-card h3,
+    #for-merchants .feature-card h3,
+    #discover-preview .feature-card h3,
+    #trust-atlaspi .feature-card h3,
+    #vip-preview .feature-card h3,
+    #support-atlaspi .feature-card h3 {
+      font-size: 1.15rem;
+      margin-top: 8px;
+      margin-bottom: 10px;
+    }
+  
+    #vision .section-heading {
+      padding: 28px;
+      border-radius: 24px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02));
+      border: 1px solid rgba(255,255,255,0.07);
+      box-shadow: 0 16px 36px rgba(0,0,0,0.18);
+    }
+  
+    .site-footer {
+      border-top: 1px solid rgba(255,255,255,0.06);
+      background: rgba(10, 14, 28, 0.5);
+    }
+  
+    @media (max-width: 768px) {
+      .hero {
+        min-height: auto;
+        padding-top: 48px;
+        padding-bottom: 48px;
+      }
+  
+      .section {
+        padding-top: 56px;
+        padding-bottom: 56px;
+      }
+  
+      .hero h1 {
+        font-size: clamp(2.2rem, 8vw, 3.2rem);
+      }
+    }
+  </style>
 </head>
 <body id="top"></body>
   <div class="bg-grid"></div>
