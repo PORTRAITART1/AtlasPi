@@ -6,6 +6,110 @@
   <title>AtlasPi - Profile</title>
   <link rel="stylesheet" href="style.css" />
   <link rel="stylesheet" href="shared-theme.css" />
+
+  <style>
+    .profile-hero {
+      padding-top: 40px;
+    }
+
+    .profile-main-card,
+    .profile-side-card,
+    .profile-section-card,
+    .profile-future-card {
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      background: linear-gradient(180deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.03) 100%);
+      border-radius: 22px;
+      padding: 24px;
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.18);
+    }
+
+    .profile-top-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin: 14px 0 18px;
+    }
+
+    .profile-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(124, 58, 237, 0.16);
+      border: 1px solid rgba(124, 58, 237, 0.28);
+      color: #d8c7ff;
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+
+    .profile-main-grid {
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr;
+      gap: 24px;
+      align-items: start;
+    }
+
+    .profile-info-grid,
+    .profile-badges-grid,
+    .profile-readiness-grid,
+    .profile-future-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 18px;
+    }
+
+    .profile-info-card {
+      border-radius: 18px;
+      padding: 18px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .profile-info-card strong {
+      display: block;
+      margin-bottom: 8px;
+      color: #ffffff;
+    }
+
+    .profile-highlight-list {
+      display: grid;
+      gap: 12px;
+      margin-top: 18px;
+    }
+
+    .profile-highlight-item {
+      padding: 14px 16px;
+      border-radius: 16px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .profile-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 20px;
+    }
+
+    .profile-actions .btn {
+      min-width: 180px;
+      justify-content: center;
+    }
+
+    .profile-badge-card {
+      padding: 18px;
+      border-radius: 18px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.06);
+    }
+
+    @media (max-width: 900px) {
+      .profile-main-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
 </head>
 <body>
   <header class="site-header">
@@ -17,7 +121,7 @@
           <span>The Trusted Map of Pi Commerce</span>
         </div>
       </a>
-  
+
       <div class="menu-shell">
         <nav class="menu-panel" style="display:flex; gap:16px; align-items:center;">
           <a href="index.html">Home</a>
@@ -31,40 +135,239 @@
   </header>
 
   <main>
-    <section class="section">
+    <section class="hero profile-hero" id="profile-hero">
+      <div class="container hero-grid">
+        <div class="hero-copy">
+          <span class="eyebrow">Profile</span>
+          <h1>
+            Pioneer
+            <span class="gradient-text">Profile</span>
+          </h1>
+          <p class="hero-lead">
+            Build a stronger identity inside the AtlasPi ecosystem.
+          </p>
+          <p>
+            Your AtlasPi profile is designed to help you build visibility, trust,
+            and readiness across a growing ecosystem focused on discovery and useful
+            Pi-oriented presence.
+          </p>
+
+          <div class="profile-top-meta">
+            <span class="profile-pill">👤 @pioneer</span>
+            <span class="profile-pill">🔗 Wallet Connected</span>
+            <span class="profile-pill">📍 Casablanca, Morocco</span>
+          </div>
+
+          <div class="hero-actions">
+            <a href="#" class="btn btn-primary">Update Profile</a>
+            <a href="index.html" class="btn btn-secondary">Back to Home</a>
+          </div>
+        </div>
+
+        <div class="hero-visual">
+          <article class="profile-main-card">
+            <div class="feature-icon">🪪</div>
+            <h3>Profile Overview</h3>
+            <div class="profile-info-grid" style="margin-top:18px;">
+              <div class="profile-info-card">
+                <strong>Username</strong>
+                <span>@pioneer</span>
+              </div>
+              <div class="profile-info-card">
+                <strong>Wallet Status</strong>
+                <span>Connected</span>
+              </div>
+              <div class="profile-info-card">
+                <strong>Country</strong>
+                <span>Morocco</span>
+              </div>
+              <div class="profile-info-card">
+                <strong>City</strong>
+                <span>Casablanca</span>
+              </div>
+              <div class="profile-info-card">
+                <strong>Role</strong>
+                <span>Pioneer</span>
+              </div>
+              <div class="profile-info-card">
+                <strong>Profile Status</strong>
+                <span>Active</span>
+              </div>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="profile-identity">
+      <div class="container">
+        <div class="profile-main-grid">
+          <article class="profile-section-card">
+            <div class="section-heading" style="text-align:left; margin-bottom:18px;">
+              <span class="eyebrow">Identity</span>
+              <h2>Identity & Presence</h2>
+            </div>
+
+            <p>
+              A clear profile helps pioneers appear more credible, easier to recognize,
+              and better prepared for future discovery across AtlasPi.
+            </p>
+
+            <div class="profile-highlight-list">
+              <div class="profile-highlight-item">Visible profile identity</div>
+              <div class="profile-highlight-item">Cleaner ecosystem presence</div>
+              <div class="profile-highlight-item">Stronger recognition</div>
+              <div class="profile-highlight-item">Future-ready positioning</div>
+            </div>
+          </article>
+
+          <aside class="profile-side-card">
+            <div class="section-heading" style="text-align:left; margin-bottom:18px;">
+              <span class="eyebrow">Snapshot</span>
+              <h2>Profile Snapshot</h2>
+            </div>
+
+            <p><strong>Account Type:</strong> Pioneer</p>
+            <p><strong>Presence:</strong> Public ecosystem identity</p>
+            <p><strong>Readiness:</strong> Discovery-oriented</p>
+            <p><strong>Direction:</strong> Future-ready</p>
+          </aside>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="profile-trust">
       <div class="container">
         <div class="section-heading">
-          <span class="eyebrow">Profile</span>
-          <h1>Pioneer Profile</h1>
+          <span class="eyebrow">Trust</span>
+          <h2>Trust Signals</h2>
           <p>
-            This page will host the AtlasPi pioneer profile experience, including account identity,
-            presence, and future profile-related features.
+            AtlasPi profiles are designed to grow with stronger visibility,
+            clearer trust indicators, and more structured identity.
           </p>
         </div>
 
-        <div class="feature-grid">
+        <div class="profile-badges-grid">
+          <article class="profile-badge-card">
+            <div class="feature-icon">🗺️</div>
+            <h3>Map-ready</h3>
+            <p>Prepared for future visibility inside AtlasPi map-based discovery.</p>
+          </article>
+
+          <article class="profile-badge-card">
+            <div class="feature-icon">💎</div>
+            <h3>VIP-ready</h3>
+            <p>Ready for stronger premium positioning and future profile upgrades.</p>
+          </article>
+
+          <article class="profile-badge-card">
+            <div class="feature-icon">🔎</div>
+            <h3>Discovery-ready</h3>
+            <p>Aligned with clearer profile visibility and structured ecosystem presence.</p>
+          </article>
+
+          <article class="profile-badge-card">
+            <div class="feature-icon">🛡️</div>
+            <h3>Trusted presence</h3>
+            <p>Built to support a more credible and recognizable Pioneer identity.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="profile-readiness">
+      <div class="container">
+        <div class="section-heading">
+          <span class="eyebrow">Readiness</span>
+          <h2>Readiness & Activity</h2>
+          <p>
+            Your profile reflects how prepared you are to participate in a more
+            structured and discoverable AtlasPi ecosystem.
+          </p>
+        </div>
+
+        <div class="profile-readiness-grid">
           <article class="feature-card">
-            <div class="feature-icon">👤</div>
-            <h3>Identity</h3>
-            <p>Display a clearer Pioneer presence inside the AtlasPi ecosystem.</p>
+            <div class="feature-icon">✅</div>
+            <h3>Presence Level</h3>
+            <p>Ready</p>
+          </article>
+
+          <article class="feature-card">
+            <div class="feature-icon">📍</div>
+            <h3>Discovery Status</h3>
+            <p>Enabled</p>
+          </article>
+
+          <article class="feature-card">
+            <div class="feature-icon">📈</div>
+            <h3>Trust Level</h3>
+            <p>Growing</p>
+          </article>
+
+          <article class="feature-card">
+            <div class="feature-icon">🚀</div>
+            <h3>Activity Direction</h3>
+            <p>Future-ready</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="profile-future">
+      <div class="container">
+        <div class="section-heading">
+          <span class="eyebrow">Future</span>
+          <h2>Future Profile Features</h2>
+          <p>
+            AtlasPi profiles are being built to support deeper identity, stronger trust,
+            and more useful ecosystem participation over time.
+          </p>
+        </div>
+
+        <div class="profile-future-grid">
+          <article class="feature-card">
+            <div class="feature-icon">📝</div>
+            <h3>Richer Profile Information</h3>
+            <p>More complete details will help strengthen identity and credibility.</p>
           </article>
 
           <article class="feature-card">
             <div class="feature-icon">🛡️</div>
-            <h3>Trust Signals</h3>
-            <p>Prepare for stronger profile structure, badges, and visibility indicators.</p>
+            <h3>Stronger Trust Layers</h3>
+            <p>Future trust features will help make profiles clearer and more reliable.</p>
           </article>
 
           <article class="feature-card">
-            <div class="feature-icon">🚧</div>
-            <h3>Coming Next</h3>
-            <p>Profile details, badges, account data, and future personalization will appear here.</p>
+            <div class="feature-icon">🤝</div>
+            <h3>Merchant Interaction</h3>
+            <p>Profiles will support stronger connection with future merchant discovery.</p>
+          </article>
+
+          <article class="feature-card">
+            <div class="feature-icon">🌍</div>
+            <h3>Ecosystem Participation</h3>
+            <p>Future features will support more visible and useful AtlasPi presence.</p>
           </article>
         </div>
+      </div>
+    </section>
 
-        <div class="section-actions">
-          <a href="index.html" class="btn btn-primary">Back to Home</a>
-        </div>
+    <section class="section" id="profile-cta">
+      <div class="container">
+        <article class="feature-card" style="text-align:center; max-width:780px; margin:0 auto;">
+          <div class="feature-icon">📣</div>
+          <h2>Want to strengthen your AtlasPi presence?</h2>
+          <p>
+            A stronger profile helps you appear more clearly, build trust,
+            and prepare for better discovery across the AtlasPi ecosystem.
+          </p>
+
+          <div class="profile-actions" style="justify-content:center;">
+            <a href="discover.html" class="btn btn-primary">Discover Merchants</a>
+            <a href="vip.html" class="btn btn-secondary">Learn About VIP</a>
+          </div>
+        </article>
       </div>
     </section>
   </main>
@@ -79,7 +382,7 @@
           and real-world Pi utility.
         </p>
       </div>
-  
+
       <div>
         <a href="index.html">Home</a><br />
         <a href="discover.html">Discover</a><br />
