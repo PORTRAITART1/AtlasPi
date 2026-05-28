@@ -6,6 +6,111 @@
   <title>AtlasPi - Support</title>
   <link rel="stylesheet" href="style.css" />
   <link rel="stylesheet" href="shared-theme.css" />
+
+  <style>
+    .support-hero {
+      padding-top: 40px;
+    }
+
+    .support-main-card,
+    .support-side-card,
+    .support-section-card,
+    .support-future-card {
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      background: linear-gradient(180deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.03) 100%);
+      border-radius: 22px;
+      padding: 24px;
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.18);
+    }
+
+    .support-top-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin: 14px 0 18px;
+    }
+
+    .support-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(124, 58, 237, 0.16);
+      border: 1px solid rgba(124, 58, 237, 0.28);
+      color: #d8c7ff;
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+
+    .support-main-grid {
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr;
+      gap: 24px;
+      align-items: start;
+    }
+
+    .support-info-grid,
+    .support-areas-grid,
+    .support-trust-grid,
+    .support-faq-grid,
+    .support-future-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 18px;
+    }
+
+    .support-info-card {
+      border-radius: 18px;
+      padding: 18px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .support-info-card strong {
+      display: block;
+      margin-bottom: 8px;
+      color: #ffffff;
+    }
+
+    .support-highlight-list {
+      display: grid;
+      gap: 12px;
+      margin-top: 18px;
+    }
+
+    .support-highlight-item {
+      padding: 14px 16px;
+      border-radius: 16px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .support-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 20px;
+    }
+
+    .support-actions .btn {
+      min-width: 180px;
+      justify-content: center;
+    }
+
+    .support-faq-item {
+      padding: 18px;
+      border-radius: 18px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.06);
+    }
+
+    @media (max-width: 900px) {
+      .support-main-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
 </head>
 <body>
   <header class="site-header">
@@ -17,7 +122,7 @@
           <span>The Trusted Map of Pi Commerce</span>
         </div>
       </a>
-  
+
       <div class="menu-shell">
         <nav class="menu-panel" style="display:flex; gap:16px; align-items:center;">
           <a href="index.html">Home</a>
@@ -31,39 +136,272 @@
   </header>
 
   <main>
-    <section class="section">
+    <section class="hero support-hero" id="support-hero">
+      <div class="container hero-grid">
+        <div class="hero-copy">
+          <span class="eyebrow">Support</span>
+          <h1>
+            AtlasPi
+            <span class="gradient-text">Support Center</span>
+          </h1>
+          <p class="hero-lead">
+            Get help, guidance, and clarity across the AtlasPi experience.
+          </p>
+          <p>
+            AtlasPi Support is designed to help pioneers and merchants understand
+            the platform more clearly, solve common issues, and move forward with confidence.
+          </p>
+
+          <div class="support-top-meta">
+            <span class="support-pill">🛟 User Guidance</span>
+            <span class="support-pill">📘 Clear Answers</span>
+            <span class="support-pill">🛡️ Trusted Support</span>
+          </div>
+
+          <div class="hero-actions">
+            <a href="#support-contact" class="btn btn-primary">Get Help</a>
+            <a href="index.html" class="btn btn-secondary">Back to Home</a>
+          </div>
+        </div>
+
+        <div class="hero-visual">
+          <article class="support-main-card">
+            <div class="feature-icon">💬</div>
+            <h3>How AtlasPi Support helps</h3>
+            <p>
+              A strong support page makes AtlasPi easier to use, easier to trust,
+              and easier to grow. This space is built to guide users through key questions,
+              account understanding, and platform support needs.
+            </p>
+
+            <div class="support-info-grid" style="margin-top:18px;">
+              <div class="support-info-card">
+                <strong>Guidance</strong>
+                <span>Clear and structured</span>
+              </div>
+              <div class="support-info-card">
+                <strong>Focus</strong>
+                <span>User confidence</span>
+              </div>
+              <div class="support-info-card">
+                <strong>Scope</strong>
+                <span>Pioneers and merchants</span>
+              </div>
+              <div class="support-info-card">
+                <strong>Direction</strong>
+                <span>Future-ready support</span>
+              </div>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="support-areas">
       <div class="container">
         <div class="section-heading">
-          <span class="eyebrow">Support</span>
-          <h1>Support AtlasPi</h1>
+          <span class="eyebrow">Guidance</span>
+          <h2>Main Support Areas</h2>
           <p>
-            Find help, get guidance, and stay informed about AtlasPi features, support flows, and user assistance.
+            AtlasPi Support is built to guide users through key questions,
+            account understanding, platform direction, and support-related needs.
           </p>
         </div>
 
-        <div class="feature-grid">
+        <div class="support-areas-grid">
           <article class="feature-card">
-            <div class="feature-icon">🛟</div>
-            <h3>Need Help?</h3>
-            <p>Get support for using AtlasPi and understanding its main features.</p>
+            <div class="feature-icon">👤</div>
+            <h3>Account Guidance</h3>
+            <p>Understand profile access, account presence, and general user guidance.</p>
           </article>
 
           <article class="feature-card">
-            <div class="feature-icon">💬</div>
-            <h3>Questions & Guidance</h3>
-            <p>Learn more about accounts, listings, and support-related actions.</p>
+            <div class="feature-icon">💸</div>
+            <h3>Payments Support</h3>
+            <p>Learn how AtlasPi support flows work, especially around transparent testnet payments.</p>
           </article>
 
           <article class="feature-card">
-            <div class="feature-icon">📩</div>
-            <h3>Coming Next</h3>
-            <p>FAQ, contact options, and structured user assistance will be added here.</p>
+            <div class="feature-icon">🏪</div>
+            <h3>Merchant Help</h3>
+            <p>Get guidance related to merchant presence, listings, and future visibility.</p>
+          </article>
+
+          <article class="feature-card">
+            <div class="feature-icon">❓</div>
+            <h3>General Questions</h3>
+            <p>Access basic answers about AtlasPi, purpose, and platform direction.</p>
           </article>
         </div>
+      </div>
+    </section>
 
-        <div class="section-actions">
-          <a href="index.html" class="btn btn-primary">Back to Home</a>
+    <section class="section" id="support-faq">
+      <div class="container">
+        <div class="section-heading">
+          <span class="eyebrow">FAQ</span>
+          <h2>Frequently Asked Questions</h2>
         </div>
+
+        <div class="support-faq-grid">
+          <article class="support-faq-item">
+            <h3>What is AtlasPi?</h3>
+            <p>
+              AtlasPi is a platform designed to improve merchant discovery,
+              profile visibility, and useful Pi-oriented ecosystem growth.
+            </p>
+          </article>
+
+          <article class="support-faq-item">
+            <h3>Is AtlasPi an official Pi Core Team product?</h3>
+            <p>
+              No. AtlasPi is an independent project built to support practical
+              discovery and trust inside the Pi ecosystem.
+            </p>
+          </article>
+
+          <article class="support-faq-item">
+            <h3>Does AtlasPi use real mainnet payments on support pages?</h3>
+            <p>
+              No. Support-related payment flows are clearly presented as testnet-only where applicable.
+            </p>
+          </article>
+
+          <article class="support-faq-item">
+            <h3>Who can use AtlasPi?</h3>
+            <p>
+              AtlasPi is being built for pioneers, merchants, and users who want
+              stronger discovery and clearer ecosystem participation.
+            </p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="support-contact">
+      <div class="container">
+        <div class="support-main-grid">
+          <article class="support-section-card">
+            <div class="section-heading" style="text-align:left; margin-bottom:18px;">
+              <span class="eyebrow">Help</span>
+              <h2>Need direct help?</h2>
+            </div>
+
+            <p>
+              If you need assistance, want to report an issue, or want to share feedback,
+              AtlasPi Support is here to guide future improvements and a better user experience.
+            </p>
+
+            <div class="support-highlight-list">
+              <div class="support-highlight-item">Support Type: General Help</div>
+              <div class="support-highlight-item">Status: Open to feedback</div>
+              <div class="support-highlight-item">Response Mode: Future-ready support flow</div>
+              <div class="support-highlight-item">Issue Type: Account, Discovery, Merchant, Payment</div>
+            </div>
+          </article>
+
+          <aside class="support-side-card">
+            <div class="section-heading" style="text-align:left; margin-bottom:18px;">
+              <span class="eyebrow">Snapshot</span>
+              <h2>Support Snapshot</h2>
+            </div>
+
+            <p><strong>Audience:</strong> Pioneers and merchants</p>
+            <p><strong>Goal:</strong> Reduce confusion</p>
+            <p><strong>Approach:</strong> Clear guidance</p>
+            <p><strong>Direction:</strong> Trusted support growth</p>
+          </aside>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="support-trust">
+      <div class="container">
+        <div class="section-heading">
+          <span class="eyebrow">Trust</span>
+          <h2>Clear support, transparent direction</h2>
+          <p>
+            AtlasPi Support is built to reduce confusion, improve trust,
+            and make platform use easier for pioneers and merchants.
+          </p>
+        </div>
+
+        <div class="support-trust-grid">
+          <article class="feature-card">
+            <div class="feature-icon">📘</div>
+            <h3>Clear guidance</h3>
+            <p>Support should help users understand what AtlasPi is and how it works.</p>
+          </article>
+
+          <article class="feature-card">
+            <div class="feature-icon">🧭</div>
+            <h3>Transparent communication</h3>
+            <p>Platform direction, support flows, and payment context should remain clear and honest.</p>
+          </article>
+
+          <article class="feature-card">
+            <div class="feature-icon">🛡️</div>
+            <h3>User confidence</h3>
+            <p>Better support leads to stronger trust and more useful ecosystem participation.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="support-future">
+      <div class="container">
+        <div class="section-heading">
+          <span class="eyebrow">Future</span>
+          <h2>Future Support Features</h2>
+          <p>
+            AtlasPi Support will continue to grow with more helpful tools
+            and clearer assistance.
+          </p>
+        </div>
+
+        <div class="support-future-grid">
+          <article class="feature-card">
+            <div class="feature-icon">🗂️</div>
+            <h3>Structured Help Categories</h3>
+            <p>Support will grow into clearer sections for different user needs.</p>
+          </article>
+
+          <article class="feature-card">
+            <div class="feature-icon">❓</div>
+            <h3>Richer FAQ</h3>
+            <p>More answers will help users understand AtlasPi faster and more easily.</p>
+          </article>
+
+          <article class="feature-card">
+            <div class="feature-icon">🚨</div>
+            <h3>Issue Reporting Flow</h3>
+            <p>Future tools will help users report problems in a more structured way.</p>
+          </article>
+
+          <article class="feature-card">
+            <div class="feature-icon">🤝</div>
+            <h3>Better User Assistance</h3>
+            <p>AtlasPi aims to offer stronger help for profiles, merchants, and platform use.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="support-cta">
+      <div class="container">
+        <article class="feature-card" style="text-align:center; max-width:780px; margin:0 auto;">
+          <div class="feature-icon">📣</div>
+          <h2>Need help exploring AtlasPi?</h2>
+          <p>
+            Support is part of building a stronger platform. AtlasPi aims to make
+            every step clearer, more trusted, and easier to navigate.
+          </p>
+
+          <div class="support-actions" style="justify-content:center;">
+            <a href="index.html" class="btn btn-primary">Back to Home</a>
+            <a href="discover.html" class="btn btn-secondary">Discover Merchants</a>
+          </div>
+        </article>
       </div>
     </section>
   </main>
@@ -78,7 +416,7 @@
           and real-world Pi utility.
         </p>
       </div>
-  
+
       <div>
         <a href="index.html">Home</a><br />
         <a href="discover.html">Discover</a><br />
