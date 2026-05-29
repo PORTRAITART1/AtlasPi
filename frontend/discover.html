@@ -6,6 +6,135 @@
   <title>AtlasPi - Discover</title>
   <link rel="stylesheet" href="style.css" />
   <link rel="stylesheet" href="shared-theme.css" />
+  <style>
+    #merchant-grid .feature-grid {
+      gap: 22px;
+    }
+  
+    .merchant-card {
+      position: relative;
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      background: linear-gradient(180deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.03) 100%);
+      border-radius: 24px;
+      padding: 28px;
+      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.18);
+      transition: transform 0.28s ease, box-shadow 0.28s ease, border-color 0.28s ease;
+      backdrop-filter: blur(12px);
+    }
+  
+    .merchant-card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(circle at top right, rgba(124, 58, 237, 0.18), transparent 34%),
+        radial-gradient(circle at bottom left, rgba(59, 130, 246, 0.12), transparent 30%);
+      pointer-events: none;
+    }
+  
+    .merchant-card > * {
+      position: relative;
+      z-index: 1;
+    }
+  
+    .merchant-card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 24px 52px rgba(0, 0, 0, 0.24);
+      border-color: rgba(124, 58, 237, 0.34);
+    }
+  
+    .merchant-card .feature-icon {
+      width: 64px;
+      height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 18px;
+      font-size: 28px;
+      background: linear-gradient(135deg, rgba(124, 58, 237, 0.26), rgba(59, 130, 246, 0.18));
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.10),
+        0 10px 24px rgba(0,0,0,0.14);
+      margin-bottom: 16px;
+    }
+  
+    .merchant-card h3 {
+      font-size: 1.22rem;
+      line-height: 1.3;
+      margin-bottom: 12px;
+    }
+  
+    .merchant-card p {
+      margin: 0 0 10px 0;
+      line-height: 1.65;
+      opacity: 0.94;
+    }
+  
+    .merchant-card strong {
+      color: #ffffff;
+    }
+  
+    .merchant-card .profile-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 10px;
+      padding: 8px 13px;
+      border-radius: 999px;
+      background: rgba(124, 58, 237, 0.16);
+      border: 1px solid rgba(124, 58, 237, 0.26);
+      color: #dccbff;
+      font-size: 0.84rem;
+      font-weight: 700;
+      letter-spacing: 0.01em;
+    }
+  
+    .merchant-card .btn {
+      width: 100%;
+      justify-content: center;
+      border-radius: 14px;
+      font-weight: 700;
+      padding: 13px 18px;
+      box-shadow: 0 10px 22px rgba(0,0,0,0.14);
+    }
+  
+    .merchant-card .btn.btn-secondary {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+  
+    .merchant-card .btn.btn-secondary:hover {
+      transform: translateY(-2px);
+      border-color: rgba(124, 58, 237, 0.24);
+    }
+  
+    #merchant-grid .section-heading p {
+      max-width: 760px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+  
+    #noResultsMessage {
+      padding: 18px 20px;
+      border-radius: 18px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+  
+    @media (max-width: 768px) {
+      .merchant-card {
+        padding: 22px;
+        border-radius: 20px;
+      }
+  
+      .merchant-card .feature-icon {
+        width: 58px;
+        height: 58px;
+        font-size: 25px;
+      }
+    }
+  </style>
 </head>
 <body>
   <header class="site-header">
