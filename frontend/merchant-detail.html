@@ -386,223 +386,49 @@
     </div>
   </footer>
 
-  <script>
-    const merchantData = {
-      "sunrise-cafe": {
-        name: "Sunrise Café",
-        accent: "Café",
-        subtitle: "A trusted local merchant presence inside the AtlasPi ecosystem.",
-        description: "Discover a merchant profile designed to make local business visibility clearer, more trusted, and more useful for pioneers exploring real Pi-oriented commerce.",
-        badge: "✅ Verified",
-        categoryPill: "☕ Food & Drinks",
-        locationPill: "📍 Casablanca, Morocco",
-        icon: "☕",
-        category: "Food & Drinks",
-        location: "Casablanca, Morocco",
-        status: "Verified",
-        discoveryLevel: "AtlasPi Ready",
-        about: "Sunrise Café is a welcoming local business profile built to reflect clarity, trust, and better discoverability inside the AtlasPi ecosystem.",
-        highlights: [
-          "Friendly local business presence",
-          "Clear public merchant profile",
-          "Discovery-ready presentation",
-          "Future-ready visibility inside AtlasPi"
-        ],
-        visibility: "Public Profile",
-        role: "Pi-Oriented Merchant",
-        profileType: "Local Discovery Business",
-        mapStatus: "Coming soon",
-        city: "Casablanca",
-        country: "Morocco",
-        contact: "contact@sunrisecafe.example",
-        availability: "Public merchant profile"
-      },
-      "atlas-tech-store": {
-        name: "Atlas Tech Store",
-        accent: "Tech Store",
-        subtitle: "A modern electronics merchant built for visibility and trust.",
-        description: "Explore a merchant profile designed to improve clarity, recognition, and stronger discovery across AtlasPi.",
-        badge: "🛡️ Trusted",
-        categoryPill: "💻 Electronics",
-        locationPill: "📍 Accra, Ghana",
-        icon: "💻",
-        category: "Electronics",
-        location: "Accra, Ghana",
-        status: "Trusted",
-        discoveryLevel: "AtlasPi Ready",
-        about: "Atlas Tech Store represents a cleaner and more modern merchant identity focused on stronger ecosystem discoverability.",
-        highlights: [
-          "Modern electronics merchant",
-          "Structured public identity",
-          "Clear discovery-focused presentation",
-          "Prepared for future premium visibility"
-        ],
-        visibility: "Public Profile",
-        role: "Pi-Oriented Merchant",
-        profileType: "Technology Business",
-        mapStatus: "Coming soon",
-        city: "Accra",
-        country: "Ghana",
-        contact: "contact@atlastechstore.example",
-        availability: "Public merchant profile"
-      },
-      "global-craft-house": {
-        name: "Global Craft House",
-        accent: "Craft House",
-        subtitle: "A creative merchant presence with premium visibility potential.",
-        description: "Discover a merchant profile designed to highlight handmade identity, stronger visibility, and trusted presentation.",
-        badge: "💎 VIP",
-        categoryPill: "🧵 Handmade Goods",
-        locationPill: "📍 Nairobi, Kenya",
-        icon: "🧵",
-        category: "Handmade Goods",
-        location: "Nairobi, Kenya",
-        status: "VIP",
-        discoveryLevel: "Premium Ready",
-        about: "Global Craft House is built to represent a creative business with stronger presentation and memorable ecosystem presence.",
-        highlights: [
-          "Creative merchant identity",
-          "Premium-oriented visibility",
-          "Stronger visual recognition",
-          "Future-ready discovery profile"
-        ],
-        visibility: "Premium Profile",
-        role: "Pi-Oriented Merchant",
-        profileType: "Creative Business",
-        mapStatus: "Coming soon",
-        city: "Nairobi",
-        country: "Kenya",
-        contact: "contact@globalcrafthouse.example",
-        availability: "Public merchant profile"
-      },
-      "pi-market-hub": {
-        name: "Pi Market Hub",
-        accent: "Market Hub",
-        subtitle: "A local shop profile focused on clear and useful merchant discovery.",
-        description: "Explore a merchant designed to make local commerce visibility more structured and easier to understand.",
-        badge: "✅ Verified",
-        categoryPill: "🏪 Local Shops",
-        locationPill: "📍 Lagos, Nigeria",
-        icon: "🏪",
-        category: "Local Shops",
-        location: "Lagos, Nigeria",
-        status: "Verified",
-        discoveryLevel: "AtlasPi Ready",
-        about: "Pi Market Hub reflects how local businesses can be presented more clearly for better trust and discoverability.",
-        highlights: [
-          "Local shop visibility",
-          "Structured merchant details",
-          "Better community discoverability",
-          "Future-ready AtlasPi presence"
-        ],
-        visibility: "Public Profile",
-        role: "Pi-Oriented Merchant",
-        profileType: "Local Commerce Business",
-        mapStatus: "Coming soon",
-        city: "Lagos",
-        country: "Nigeria",
-        contact: "contact@pimarkethub.example",
-        availability: "Public merchant profile"
-      },
-      "sahara-mobile-shop": {
-        name: "Sahara Mobile Shop",
-        accent: "Mobile Shop",
-        subtitle: "A trusted electronics listing prepared for stronger map visibility.",
-        description: "This merchant profile is designed to support trust, clarity, and stronger positioning across future AtlasPi discovery.",
-        badge: "🛡️ Trusted",
-        categoryPill: "📱 Electronics",
-        locationPill: "📍 Marrakech, Morocco",
-        icon: "📱",
-        category: "Electronics",
-        location: "Marrakech, Morocco",
-        status: "Trusted",
-        discoveryLevel: "AtlasPi Ready",
-        about: "Sahara Mobile Shop reflects a merchant prepared for clearer trust signals and stronger future ecosystem visibility.",
-        highlights: [
-          "Electronics-focused merchant",
-          "Trust-oriented profile",
-          "Prepared for map visibility",
-          "Stronger future discovery positioning"
-        ],
-        visibility: "Public Profile",
-        role: "Pi-Oriented Merchant",
-        profileType: "Technology Business",
-        mapStatus: "Coming soon",
-        city: "Marrakech",
-        country: "Morocco",
-        contact: "contact@saharamobile.example",
-        availability: "Public merchant profile"
-      },
-      "community-food-point": {
-        name: "Community Food Point",
-        accent: "Food Point",
-        subtitle: "A food-focused merchant profile with premium discovery value.",
-        description: "Explore a merchant card designed to support useful local discovery and a stronger food-oriented business presence.",
-        badge: "💎 VIP",
-        categoryPill: "🍽️ Food & Drinks",
-        locationPill: "📍 Dakar, Senegal",
-        icon: "🍽️",
-        category: "Food & Drinks",
-        location: "Dakar, Senegal",
-        status: "VIP",
-        discoveryLevel: "Premium Ready",
-        about: "Community Food Point represents a merchant designed for useful local discovery, better food visibility, and stronger ecosystem presence.",
-        highlights: [
-          "Food-oriented business identity",
-          "Premium-ready merchant presence",
-          "Stronger local recognition",
-          "Useful ecosystem participation"
-        ],
-        visibility: "Premium Profile",
-        role: "Pi-Oriented Merchant",
-        profileType: "Food Business",
-        mapStatus: "Coming soon",
-        city: "Dakar",
-        country: "Senegal",
-        contact: "contact@communityfoodpoint.example",
-        availability: "Public merchant profile"
-      }
-    };
+  <script src="merchant-data.js"></script>
+<script>
+  const merchantData = window.ATLASPI_MERCHANT_DATA || {};
 
-    const params = new URLSearchParams(window.location.search);
-    const merchantKey = params.get("merchant") || "sunrise-cafe";
-    const merchant = merchantData[merchantKey] || merchantData["sunrise-cafe"];
+  const params = new URLSearchParams(window.location.search);
+  const merchantKey = params.get("merchant") || "sunrise-cafe";
+  const merchant = merchantData[merchantKey] || merchantData["sunrise-cafe"];
 
-    document.title = `AtlasPi - ${merchant.name}`;
+  document.title = `AtlasPi - ${merchant.name}`;
 
-    document.getElementById("merchantName").innerHTML =
-      merchant.name.split(" ")[0] + ' <span class="gradient-text" id="merchantNameAccent">' +
-      merchant.accent + "</span>";
+  document.getElementById("merchantName").innerHTML =
+    merchant.name.split(" ")[0] + ' <span class="gradient-text" id="merchantNameAccent">' +
+    merchant.accent + "</span>";
 
-    document.getElementById("merchantSubtitle").textContent = merchant.subtitle;
-    document.getElementById("merchantDescription").textContent = merchant.description;
-    document.getElementById("merchantBadge").textContent = merchant.badge;
-    document.getElementById("merchantCategoryPill").textContent = merchant.categoryPill;
-    document.getElementById("merchantLocationPill").textContent = merchant.locationPill;
-    document.getElementById("merchantIcon").textContent = merchant.icon;
-    document.getElementById("merchantCategory").textContent = merchant.category;
-    document.getElementById("merchantLocation").textContent = merchant.location;
-    document.getElementById("merchantStatus").textContent = merchant.status;
-    document.getElementById("merchantDiscoveryLevel").textContent = merchant.discoveryLevel;
-    document.getElementById("merchantAbout").textContent = merchant.about;
-    document.getElementById("highlight1").textContent = merchant.highlights[0];
-    document.getElementById("highlight2").textContent = merchant.highlights[1];
-    document.getElementById("highlight3").textContent = merchant.highlights[2];
-    document.getElementById("highlight4").textContent = merchant.highlights[3];
-    document.getElementById("highlightText1").textContent = merchant.highlights[0];
-    document.getElementById("highlightText2").textContent = merchant.highlights[1];
-    document.getElementById("highlightText3").textContent = merchant.highlights[2];
-    document.getElementById("highlightText4").textContent = merchant.highlights[3];
-    document.getElementById("merchantVisibility").textContent = merchant.visibility;
-    document.getElementById("merchantRole").textContent = merchant.role;
-    document.getElementById("merchantProfileType").textContent = merchant.profileType;
-    document.getElementById("merchantMapStatus").textContent = merchant.mapStatus;
-    document.getElementById("merchantCity").textContent = merchant.city;
-    document.getElementById("merchantCountry").textContent = merchant.country;
-    document.getElementById("merchantContact").textContent = merchant.contact;
-    document.getElementById("merchantAvailability").textContent = merchant.availability;
-    document.getElementById("merchantStatusContact").textContent = merchant.status;
-    document.getElementById("merchantMapStatusContact").textContent = merchant.mapStatus;
-  </script>
+  document.getElementById("merchantSubtitle").textContent = merchant.subtitle;
+  document.getElementById("merchantDescription").textContent = merchant.description;
+  document.getElementById("merchantBadge").textContent = merchant.badge;
+  document.getElementById("merchantCategoryPill").textContent = merchant.categoryPill;
+  document.getElementById("merchantLocationPill").textContent = merchant.locationPill;
+  document.getElementById("merchantIcon").textContent = merchant.icon;
+  document.getElementById("merchantCategory").textContent = merchant.category;
+  document.getElementById("merchantLocation").textContent = merchant.location;
+  document.getElementById("merchantStatus").textContent = merchant.status;
+  document.getElementById("merchantDiscoveryLevel").textContent = merchant.discoveryLevel;
+  document.getElementById("merchantAbout").textContent = merchant.about;
+  document.getElementById("highlight1").textContent = merchant.highlights[0];
+  document.getElementById("highlight2").textContent = merchant.highlights[1];
+  document.getElementById("highlight3").textContent = merchant.highlights[2];
+  document.getElementById("highlight4").textContent = merchant.highlights[3];
+  document.getElementById("highlightText1").textContent = merchant.highlights[0];
+  document.getElementById("highlightText2").textContent = merchant.highlights[1];
+  document.getElementById("highlightText3").textContent = merchant.highlights[2];
+  document.getElementById("highlightText4").textContent = merchant.highlights[3];
+  document.getElementById("merchantVisibility").textContent = merchant.visibility;
+  document.getElementById("merchantRole").textContent = merchant.role;
+  document.getElementById("merchantProfileType").textContent = merchant.profileType;
+  document.getElementById("merchantMapStatus").textContent = merchant.mapStatus;
+  document.getElementById("merchantCity").textContent = merchant.city;
+  document.getElementById("merchantCountry").textContent = merchant.country;
+  document.getElementById("merchantContact").textContent = merchant.contact;
+  document.getElementById("merchantAvailability").textContent = merchant.availability;
+  document.getElementById("merchantStatusContact").textContent = merchant.status;
+  document.getElementById("merchantMapStatusContact").textContent = merchant.mapStatus;
+</script>
 </body>
 </html>
