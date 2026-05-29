@@ -159,7 +159,7 @@
           </div>
 
           <div class="hero-actions">
-            <a href="#" class="btn btn-primary">Update Profile</a>
+            <a href="#profile-update-form" class="btn btn-primary">Update Profile</a>
             <a href="index.html" class="btn btn-secondary">Back to Home</a>
           </div>
         </div>
@@ -352,6 +352,81 @@
         </div>
       </div>
     </section>
+    <section class="section" id="profile-update-form">
+      <div class="container">
+        <div class="section-heading">
+          <span class="eyebrow">Update</span>
+          <h2>Update Your Profile</h2>
+          <p>
+            Edit your basic AtlasPi profile information to prepare for stronger identity,
+            trust, and future discovery.
+          </p>
+        </div>
+    
+        <article class="profile-section-card" style="max-width: 820px; margin: 0 auto;">
+          <div style="display:grid; gap:16px;">
+            <div>
+              <label for="profileUsername"><strong>Username</strong></label><br />
+              <input
+                id="profileUsername"
+                type="text"
+                value="@pioneer"
+                style="width:100%; margin-top:8px; padding:14px; border-radius:12px; border:1px solid rgba(255,255,255,0.12); background:rgba(255,255,255,0.04); color:inherit;"
+              />
+            </div>
+    
+            <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap:16px;">
+              <div>
+                <label for="profileCountry"><strong>Country</strong></label><br />
+                <input
+                  id="profileCountry"
+                  type="text"
+                  value="Morocco"
+                  style="width:100%; margin-top:8px; padding:14px; border-radius:12px; border:1px solid rgba(255,255,255,0.12); background:rgba(255,255,255,0.04); color:inherit;"
+                />
+              </div>
+    
+              <div>
+                <label for="profileCity"><strong>City</strong></label><br />
+                <input
+                  id="profileCity"
+                  type="text"
+                  value="Casablanca"
+                  style="width:100%; margin-top:8px; padding:14px; border-radius:12px; border:1px solid rgba(255,255,255,0.12); background:rgba(255,255,255,0.04); color:inherit;"
+                />
+              </div>
+            </div>
+    
+            <div>
+              <label for="profileRole"><strong>Role</strong></label><br />
+              <input
+                id="profileRole"
+                type="text"
+                value="Pioneer"
+                style="width:100%; margin-top:8px; padding:14px; border-radius:12px; border:1px solid rgba(255,255,255,0.12); background:rgba(255,255,255,0.04); color:inherit;"
+              />
+            </div>
+    
+            <div>
+              <label for="profileBio"><strong>Bio</strong></label><br />
+              <textarea
+                id="profileBio"
+                rows="4"
+                style="width:100%; margin-top:8px; padding:14px; border-radius:12px; border:1px solid rgba(255,255,255,0.12); background:rgba(255,255,255,0.04); color:inherit;"
+              >AtlasPi pioneer building a stronger ecosystem presence.</textarea>
+            </div>
+    
+            <div class="profile-actions">
+              <button type="button" class="btn btn-primary" id="saveProfileBtn">Save Changes</button>
+            </div>
+    
+            <div id="profileSaveStatus" class="profile-highlight-item" style="display:none;">
+              Profile changes saved locally for this preview.
+            </div>
+          </div>
+        </article>
+      </div>
+    </section>
 
     <section class="section" id="profile-cta">
       <div class="container">
@@ -392,5 +467,16 @@
       </div>
     </div>
   </footer>
+  <script>
+    const saveProfileBtn = document.getElementById("saveProfileBtn");
+    const profileSaveStatus = document.getElementById("profileSaveStatus");
+  
+    if (saveProfileBtn && profileSaveStatus) {
+      saveProfileBtn.addEventListener("click", () => {
+        profileSaveStatus.style.display = "block";
+        profileSaveStatus.textContent = "Profile changes saved locally for this preview.";
+      });
+    }
+  </script>
 </body>
 </html>
