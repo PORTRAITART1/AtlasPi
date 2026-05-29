@@ -143,22 +143,22 @@
       <div class="container hero-grid">
         <div class="hero-copy">
           <span class="eyebrow">Merchant Profile</span>
-          <h1>
+          <h1 id="merchantName">
             Sunrise
-            <span class="gradient-text">Café</span>
+            <span class="gradient-text" id="merchantNameAccent">Café</span>
           </h1>
-          <p class="hero-lead">
+          <p class="hero-lead" id="merchantSubtitle">
             A trusted local merchant presence inside the AtlasPi ecosystem.
           </p>
-          <p>
+          <p id="merchantDescription">
             Discover a merchant profile designed to make local business visibility clearer,
             more trusted, and more useful for pioneers exploring real Pi-oriented commerce.
           </p>
 
           <div class="merchant-top-meta">
-            <span class="merchant-pill">✅ Verified</span>
-            <span class="merchant-pill">☕ Food & Drinks</span>
-            <span class="merchant-pill">📍 Casablanca, Morocco</span>
+            <span class="merchant-pill" id="merchantBadge">✅ Verified</span>
+            <span class="merchant-pill" id="merchantCategoryPill">☕ Food & Drinks</span>
+            <span class="merchant-pill" id="merchantLocationPill">📍 Casablanca, Morocco</span>
           </div>
 
           <div class="hero-actions">
@@ -169,24 +169,24 @@
 
         <div class="hero-visual">
           <article class="merchant-detail-card">
-            <div class="feature-icon">🏪</div>
+            <div class="feature-icon" id="merchantIcon">🏪</div>
             <h3>Merchant Overview</h3>
             <div class="merchant-overview-grid">
               <div class="info-card">
                 <strong>Category</strong>
-                <span>Food & Drinks</span>
+                <span id="merchantCategory">Food & Drinks</span>
               </div>
               <div class="info-card">
                 <strong>Location</strong>
-                <span>Casablanca, Morocco</span>
+                <span id="merchantLocation">Casablanca, Morocco</span>
               </div>
               <div class="info-card">
                 <strong>Status</strong>
-                <span>Verified</span>
+                <span id="merchantStatus">Verified</span>
               </div>
               <div class="info-card">
                 <strong>Discovery Level</strong>
-                <span>AtlasPi Ready</span>
+                <span id="merchantDiscoveryLevel">AtlasPi Ready</span>
               </div>
             </div>
           </article>
@@ -203,18 +203,16 @@
               <h2>About this merchant</h2>
             </div>
 
-            <p>
+            <p id="merchantAbout">
               Sunrise Café is presented as a welcoming local business profile built to reflect
-              clarity, trust, and better discoverability inside the AtlasPi ecosystem. Its presence
-              illustrates how merchants can become easier to find and more credible for pioneers
-              seeking useful local options.
+              clarity, trust, and better discoverability inside the AtlasPi ecosystem.
             </p>
 
             <div class="merchant-highlight-list">
-              <div class="merchant-highlight-item">Friendly local business presence</div>
-              <div class="merchant-highlight-item">Clear public merchant profile</div>
-              <div class="merchant-highlight-item">Discovery-ready presentation</div>
-              <div class="merchant-highlight-item">Future-ready visibility inside AtlasPi</div>
+              <div class="merchant-highlight-item" id="highlight1">Friendly local business presence</div>
+              <div class="merchant-highlight-item" id="highlight2">Clear public merchant profile</div>
+              <div class="merchant-highlight-item" id="highlight3">Discovery-ready presentation</div>
+              <div class="merchant-highlight-item" id="highlight4">Future-ready visibility inside AtlasPi</div>
             </div>
           </article>
 
@@ -224,10 +222,10 @@
               <h2>Merchant Snapshot</h2>
             </div>
 
-            <p><strong>Visibility:</strong> Public Profile</p>
-            <p><strong>Ecosystem Role:</strong> Pi-Oriented Merchant</p>
-            <p><strong>Profile Type:</strong> Local Discovery Business</p>
-            <p><strong>Map Status:</strong> Coming soon</p>
+            <p><strong>Visibility:</strong> <span id="merchantVisibility">Public Profile</span></p>
+            <p><strong>Ecosystem Role:</strong> <span id="merchantRole">Pi-Oriented Merchant</span></p>
+            <p><strong>Profile Type:</strong> <span id="merchantProfileType">Local Discovery Business</span></p>
+            <p><strong>Map Status:</strong> <span id="merchantMapStatus">Coming soon</span></p>
           </aside>
         </div>
       </div>
@@ -248,25 +246,25 @@
           <article class="feature-card">
             <div class="feature-icon">🤝</div>
             <h3>Friendly Presence</h3>
-            <p>A welcoming local business identity that feels easier to explore.</p>
+            <p id="highlightText1">A welcoming local business identity that feels easier to explore.</p>
           </article>
 
           <article class="feature-card">
             <div class="feature-icon">📋</div>
             <h3>Clear Profile</h3>
-            <p>Structured information helps improve merchant visibility and understanding.</p>
+            <p id="highlightText2">Structured information helps improve merchant visibility and understanding.</p>
           </article>
 
           <article class="feature-card">
             <div class="feature-icon">🚀</div>
             <h3>Discovery-Ready</h3>
-            <p>Built to support future AtlasPi discovery and stronger local exposure.</p>
+            <p id="highlightText3">Built to support future AtlasPi discovery and stronger local exposure.</p>
           </article>
 
           <article class="feature-card">
             <div class="feature-icon">🌍</div>
             <h3>Ecosystem Utility</h3>
-            <p>Represents the kind of merchant presence AtlasPi aims to make more useful.</p>
+            <p id="highlightText4">Represents the kind of merchant presence AtlasPi aims to make more useful.</p>
           </article>
         </div>
       </div>
@@ -318,32 +316,32 @@
         <div class="contact-grid">
           <article class="info-card">
             <strong>City</strong>
-            <span>Casablanca</span>
+            <span id="merchantCity">Casablanca</span>
           </article>
 
           <article class="info-card">
             <strong>Country</strong>
-            <span>Morocco</span>
+            <span id="merchantCountry">Morocco</span>
           </article>
 
           <article class="info-card">
             <strong>Contact</strong>
-            <span>contact@sunrisecafe.example</span>
+            <span id="merchantContact">contact@sunrisecafe.example</span>
           </article>
 
           <article class="info-card">
             <strong>Availability</strong>
-            <span>Public merchant profile</span>
+            <span id="merchantAvailability">Public merchant profile</span>
           </article>
 
           <article class="info-card">
             <strong>Status</strong>
-            <span>Verified</span>
+            <span id="merchantStatusContact">Verified</span>
           </article>
 
           <article class="info-card">
             <strong>Map Status</strong>
-            <span>Coming soon</span>
+            <span id="merchantMapStatusContact">Coming soon</span>
           </article>
         </div>
       </div>
@@ -387,5 +385,224 @@
       </div>
     </div>
   </footer>
+
+  <script>
+    const merchantData = {
+      "sunrise-cafe": {
+        name: "Sunrise Café",
+        accent: "Café",
+        subtitle: "A trusted local merchant presence inside the AtlasPi ecosystem.",
+        description: "Discover a merchant profile designed to make local business visibility clearer, more trusted, and more useful for pioneers exploring real Pi-oriented commerce.",
+        badge: "✅ Verified",
+        categoryPill: "☕ Food & Drinks",
+        locationPill: "📍 Casablanca, Morocco",
+        icon: "☕",
+        category: "Food & Drinks",
+        location: "Casablanca, Morocco",
+        status: "Verified",
+        discoveryLevel: "AtlasPi Ready",
+        about: "Sunrise Café is a welcoming local business profile built to reflect clarity, trust, and better discoverability inside the AtlasPi ecosystem.",
+        highlights: [
+          "Friendly local business presence",
+          "Clear public merchant profile",
+          "Discovery-ready presentation",
+          "Future-ready visibility inside AtlasPi"
+        ],
+        visibility: "Public Profile",
+        role: "Pi-Oriented Merchant",
+        profileType: "Local Discovery Business",
+        mapStatus: "Coming soon",
+        city: "Casablanca",
+        country: "Morocco",
+        contact: "contact@sunrisecafe.example",
+        availability: "Public merchant profile"
+      },
+      "atlas-tech-store": {
+        name: "Atlas Tech Store",
+        accent: "Tech Store",
+        subtitle: "A modern electronics merchant built for visibility and trust.",
+        description: "Explore a merchant profile designed to improve clarity, recognition, and stronger discovery across AtlasPi.",
+        badge: "🛡️ Trusted",
+        categoryPill: "💻 Electronics",
+        locationPill: "📍 Accra, Ghana",
+        icon: "💻",
+        category: "Electronics",
+        location: "Accra, Ghana",
+        status: "Trusted",
+        discoveryLevel: "AtlasPi Ready",
+        about: "Atlas Tech Store represents a cleaner and more modern merchant identity focused on stronger ecosystem discoverability.",
+        highlights: [
+          "Modern electronics merchant",
+          "Structured public identity",
+          "Clear discovery-focused presentation",
+          "Prepared for future premium visibility"
+        ],
+        visibility: "Public Profile",
+        role: "Pi-Oriented Merchant",
+        profileType: "Technology Business",
+        mapStatus: "Coming soon",
+        city: "Accra",
+        country: "Ghana",
+        contact: "contact@atlastechstore.example",
+        availability: "Public merchant profile"
+      },
+      "global-craft-house": {
+        name: "Global Craft House",
+        accent: "Craft House",
+        subtitle: "A creative merchant presence with premium visibility potential.",
+        description: "Discover a merchant profile designed to highlight handmade identity, stronger visibility, and trusted presentation.",
+        badge: "💎 VIP",
+        categoryPill: "🧵 Handmade Goods",
+        locationPill: "📍 Nairobi, Kenya",
+        icon: "🧵",
+        category: "Handmade Goods",
+        location: "Nairobi, Kenya",
+        status: "VIP",
+        discoveryLevel: "Premium Ready",
+        about: "Global Craft House is built to represent a creative business with stronger presentation and memorable ecosystem presence.",
+        highlights: [
+          "Creative merchant identity",
+          "Premium-oriented visibility",
+          "Stronger visual recognition",
+          "Future-ready discovery profile"
+        ],
+        visibility: "Premium Profile",
+        role: "Pi-Oriented Merchant",
+        profileType: "Creative Business",
+        mapStatus: "Coming soon",
+        city: "Nairobi",
+        country: "Kenya",
+        contact: "contact@globalcrafthouse.example",
+        availability: "Public merchant profile"
+      },
+      "pi-market-hub": {
+        name: "Pi Market Hub",
+        accent: "Market Hub",
+        subtitle: "A local shop profile focused on clear and useful merchant discovery.",
+        description: "Explore a merchant designed to make local commerce visibility more structured and easier to understand.",
+        badge: "✅ Verified",
+        categoryPill: "🏪 Local Shops",
+        locationPill: "📍 Lagos, Nigeria",
+        icon: "🏪",
+        category: "Local Shops",
+        location: "Lagos, Nigeria",
+        status: "Verified",
+        discoveryLevel: "AtlasPi Ready",
+        about: "Pi Market Hub reflects how local businesses can be presented more clearly for better trust and discoverability.",
+        highlights: [
+          "Local shop visibility",
+          "Structured merchant details",
+          "Better community discoverability",
+          "Future-ready AtlasPi presence"
+        ],
+        visibility: "Public Profile",
+        role: "Pi-Oriented Merchant",
+        profileType: "Local Commerce Business",
+        mapStatus: "Coming soon",
+        city: "Lagos",
+        country: "Nigeria",
+        contact: "contact@pimarkethub.example",
+        availability: "Public merchant profile"
+      },
+      "sahara-mobile-shop": {
+        name: "Sahara Mobile Shop",
+        accent: "Mobile Shop",
+        subtitle: "A trusted electronics listing prepared for stronger map visibility.",
+        description: "This merchant profile is designed to support trust, clarity, and stronger positioning across future AtlasPi discovery.",
+        badge: "🛡️ Trusted",
+        categoryPill: "📱 Electronics",
+        locationPill: "📍 Marrakech, Morocco",
+        icon: "📱",
+        category: "Electronics",
+        location: "Marrakech, Morocco",
+        status: "Trusted",
+        discoveryLevel: "AtlasPi Ready",
+        about: "Sahara Mobile Shop reflects a merchant prepared for clearer trust signals and stronger future ecosystem visibility.",
+        highlights: [
+          "Electronics-focused merchant",
+          "Trust-oriented profile",
+          "Prepared for map visibility",
+          "Stronger future discovery positioning"
+        ],
+        visibility: "Public Profile",
+        role: "Pi-Oriented Merchant",
+        profileType: "Technology Business",
+        mapStatus: "Coming soon",
+        city: "Marrakech",
+        country: "Morocco",
+        contact: "contact@saharamobile.example",
+        availability: "Public merchant profile"
+      },
+      "community-food-point": {
+        name: "Community Food Point",
+        accent: "Food Point",
+        subtitle: "A food-focused merchant profile with premium discovery value.",
+        description: "Explore a merchant card designed to support useful local discovery and a stronger food-oriented business presence.",
+        badge: "💎 VIP",
+        categoryPill: "🍽️ Food & Drinks",
+        locationPill: "📍 Dakar, Senegal",
+        icon: "🍽️",
+        category: "Food & Drinks",
+        location: "Dakar, Senegal",
+        status: "VIP",
+        discoveryLevel: "Premium Ready",
+        about: "Community Food Point represents a merchant designed for useful local discovery, better food visibility, and stronger ecosystem presence.",
+        highlights: [
+          "Food-oriented business identity",
+          "Premium-ready merchant presence",
+          "Stronger local recognition",
+          "Useful ecosystem participation"
+        ],
+        visibility: "Premium Profile",
+        role: "Pi-Oriented Merchant",
+        profileType: "Food Business",
+        mapStatus: "Coming soon",
+        city: "Dakar",
+        country: "Senegal",
+        contact: "contact@communityfoodpoint.example",
+        availability: "Public merchant profile"
+      }
+    };
+
+    const params = new URLSearchParams(window.location.search);
+    const merchantKey = params.get("merchant") || "sunrise-cafe";
+    const merchant = merchantData[merchantKey] || merchantData["sunrise-cafe"];
+
+    document.title = `AtlasPi - ${merchant.name}`;
+
+    document.getElementById("merchantName").innerHTML =
+      merchant.name.split(" ")[0] + ' <span class="gradient-text" id="merchantNameAccent">' +
+      merchant.accent + "</span>";
+
+    document.getElementById("merchantSubtitle").textContent = merchant.subtitle;
+    document.getElementById("merchantDescription").textContent = merchant.description;
+    document.getElementById("merchantBadge").textContent = merchant.badge;
+    document.getElementById("merchantCategoryPill").textContent = merchant.categoryPill;
+    document.getElementById("merchantLocationPill").textContent = merchant.locationPill;
+    document.getElementById("merchantIcon").textContent = merchant.icon;
+    document.getElementById("merchantCategory").textContent = merchant.category;
+    document.getElementById("merchantLocation").textContent = merchant.location;
+    document.getElementById("merchantStatus").textContent = merchant.status;
+    document.getElementById("merchantDiscoveryLevel").textContent = merchant.discoveryLevel;
+    document.getElementById("merchantAbout").textContent = merchant.about;
+    document.getElementById("highlight1").textContent = merchant.highlights[0];
+    document.getElementById("highlight2").textContent = merchant.highlights[1];
+    document.getElementById("highlight3").textContent = merchant.highlights[2];
+    document.getElementById("highlight4").textContent = merchant.highlights[3];
+    document.getElementById("highlightText1").textContent = merchant.highlights[0];
+    document.getElementById("highlightText2").textContent = merchant.highlights[1];
+    document.getElementById("highlightText3").textContent = merchant.highlights[2];
+    document.getElementById("highlightText4").textContent = merchant.highlights[3];
+    document.getElementById("merchantVisibility").textContent = merchant.visibility;
+    document.getElementById("merchantRole").textContent = merchant.role;
+    document.getElementById("merchantProfileType").textContent = merchant.profileType;
+    document.getElementById("merchantMapStatus").textContent = merchant.mapStatus;
+    document.getElementById("merchantCity").textContent = merchant.city;
+    document.getElementById("merchantCountry").textContent = merchant.country;
+    document.getElementById("merchantContact").textContent = merchant.contact;
+    document.getElementById("merchantAvailability").textContent = merchant.availability;
+    document.getElementById("merchantStatusContact").textContent = merchant.status;
+    document.getElementById("merchantMapStatusContact").textContent = merchant.mapStatus;
+  </script>
 </body>
 </html>
