@@ -386,6 +386,76 @@
         </div>
       </div>
     </section>
+    <section class="section" id="support-form">
+      <div class="container">
+        <div class="section-heading">
+          <span class="eyebrow">Contact</span>
+          <h2>Send a Support Request</h2>
+          <p>
+            Share a question, report an issue, or send feedback to help improve AtlasPi.
+          </p>
+        </div>
+    
+        <article class="support-section-card" style="max-width: 860px; margin: 0 auto;">
+          <div style="display:grid; gap:16px;">
+            <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap:16px;">
+              <div>
+                <label for="supportName"><strong>Name</strong></label><br />
+                <input
+                  id="supportName"
+                  type="text"
+                  placeholder="Your name"
+                  style="width:100%; margin-top:8px; padding:14px; border-radius:12px; border:1px solid rgba(255,255,255,0.12); background:rgba(255,255,255,0.04); color:inherit;"
+                />
+              </div>
+    
+              <div>
+                <label for="supportEmail"><strong>Email</strong></label><br />
+                <input
+                  id="supportEmail"
+                  type="email"
+                  placeholder="you@example.com"
+                  style="width:100%; margin-top:8px; padding:14px; border-radius:12px; border:1px solid rgba(255,255,255,0.12); background:rgba(255,255,255,0.04); color:inherit;"
+                />
+              </div>
+            </div>
+    
+            <div>
+              <label for="supportType"><strong>Support Type</strong></label><br />
+              <select
+                id="supportType"
+                style="width:100%; margin-top:8px; padding:14px; border-radius:12px; border:1px solid rgba(255,255,255,0.12); background:rgba(255,255,255,0.04); color:inherit;"
+              >
+                <option>General Help</option>
+                <option>Account</option>
+                <option>Discovery</option>
+                <option>Merchant</option>
+                <option>Payment</option>
+                <option>Feedback</option>
+              </select>
+            </div>
+    
+            <div>
+              <label for="supportMessage"><strong>Message</strong></label><br />
+              <textarea
+                id="supportMessage"
+                rows="5"
+                placeholder="Describe your question, issue, or feedback..."
+                style="width:100%; margin-top:8px; padding:14px; border-radius:12px; border:1px solid rgba(255,255,255,0.12); background:rgba(255,255,255,0.04); color:inherit;"
+              ></textarea>
+            </div>
+    
+            <div class="support-actions">
+              <button type="button" class="btn btn-primary" id="sendSupportBtn">Send Request</button>
+            </div>
+    
+            <div id="supportFormStatus" class="support-highlight-item" style="display:none;">
+              Your support request has been saved locally for this preview.
+            </div>
+          </div>
+        </article>
+      </div>
+    </section>
 
     <section class="section" id="support-cta">
       <div class="container">
@@ -426,5 +496,16 @@
       </div>
     </div>
   </footer>
+  <script>
+    const sendSupportBtn = document.getElementById("sendSupportBtn");
+    const supportFormStatus = document.getElementById("supportFormStatus");
+  
+    if (sendSupportBtn && supportFormStatus) {
+      sendSupportBtn.addEventListener("click", () => {
+        supportFormStatus.style.display = "block";
+        supportFormStatus.textContent = "Your support request has been saved locally for this preview.";
+      });
+    }
+  </script>
 </body>
 </html>
