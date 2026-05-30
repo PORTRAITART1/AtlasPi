@@ -666,16 +666,73 @@
     const merchantCards = document.querySelectorAll(".merchant-card");
     const noResultsMessage = document.getElementById("noResultsMessage");
   
+    function getMatchingCities(country, category) {
+      let cities = [];
+  
+      if (country && country !== "All Countries" && cityData[country]) {
+        cities = [...cityData[country]];
+      }
+  
+      if (category && category !== "All Categories") {
+        const categoryCities = Array.from(merchantCards)
+          .filter((card) => {
+            const cardCategory = card.dataset.category || "";
+            const cardCountry = card.dataset.country || "";
+            return (
+              cardCategory === category &&
+              (!country || country === "All Countries" || cardCountry === country)
+            );
+          })
+          .map((card) => card.dataset.city || "")
+          .filter(Boolean);
+  
+        if (country && country !== "All Countries") {
+          if (categoryCities.length > 0) {
+            cities = cities.filter((city) => categoryCities.includes(city));
+          }
+        } else {
+          cities = [...new Set(categoryCities)];
+        }
+      }
+  
+      return [...new Set(cities)];
+    }
+  
     function updateCities() {
       const selectedCountry = countryFilter.value;
-      const cities = cityData[selectedCountry] || [];
+      const selectedCategory = categoryFilter.value;
+      const selectedCity = cityFilter.value;
+  
+      const cities = getMatchingCities(selectedCountry, selectedCategory);
   
       cityFilter.innerHTML = "";
   
       if (!selectedCountry || selectedCountry === "All Countries") {
+        if (selectedCategory && selectedCategory !== "All Categories" && cities.length > 0) {
+          const defaultOption = document.createElement("option");
+          defaultOption.value = "";
+          defaultOption.textContent = "All Cities";
+          cityFilter.appendChild(defaultOption);
+  
+          cities.forEach((city) => {
+            const option = document.createElement("option");
+            option.value = city;
+            option.textContent = city;
+            cityFilter.appendChild(option);
+          });
+        } else {
+          const option = document.createElement("option");
+          option.value = "";
+          option.textContent = "Select a country first";
+          cityFilter.appendChild(option);
+        }
+        return;
+      }
+  
+      if (cities.length === 0) {
         const option = document.createElement("option");
         option.value = "";
-        option.textContent = "Select a country first";
+        option.textContent = "No cities available yet";
         cityFilter.appendChild(option);
         return;
       }
@@ -692,11 +749,12 @@
         cityFilter.appendChild(option);
       });
   
-      if (cities.length === 0) {
-        const option = document.createElement("option");
-        option.value = "";
-        option.textContent = "No cities available yet";
-        cityFilter.appendChild(option);
+      const cityStillExists = Array.from(cityFilter.options).some(
+        (option) => option.value === selectedCity
+      );
+  
+      if (cityStillExists) {
+        cityFilter.value = selectedCity;
       }
     }
   
@@ -752,19 +810,21 @@
       }
     }
   
+    function refreshFiltersAndResults() {
+      updateCities();
+      filterMerchants();
+    }
+  
     if (countryFilter && cityFilter) {
-      countryFilter.addEventListener("change", () => {
-        updateCities();
-        filterMerchants();
-      });
+      countryFilter.addEventListener("change", refreshFiltersAndResults);
+    }
+  
+    if (categoryFilter) {
+      categoryFilter.addEventListener("change", refreshFiltersAndResults);
     }
   
     if (cityFilter) {
       cityFilter.addEventListener("change", filterMerchants);
-    }
-  
-    if (categoryFilter) {
-      categoryFilter.addEventListener("change", filterMerchants);
     }
   
     if (merchantSearch) {
