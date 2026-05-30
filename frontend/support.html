@@ -499,11 +499,76 @@
   <script>
     const sendSupportBtn = document.getElementById("sendSupportBtn");
     const supportFormStatus = document.getElementById("supportFormStatus");
+    const supportName = document.getElementById("supportName");
+    const supportEmail = document.getElementById("supportEmail");
+    const supportType = document.getElementById("supportType");
+    const supportMessage = document.getElementById("supportMessage");
   
-    if (sendSupportBtn && supportFormStatus) {
+    function showSupportStatus(message, type) {
+      if (!supportFormStatus) return;
+  
+      supportFormStatus.style.display = "block";
+      supportFormStatus.textContent = message;
+  
+      if (type === "error") {
+        supportFormStatus.style.background = "rgba(220, 38, 38, 0.12)";
+        supportFormStatus.style.border = "1px solid rgba(220, 38, 38, 0.25)";
+        supportFormStatus.style.color = "#fecaca";
+      } else {
+        supportFormStatus.style.background = "rgba(34, 197, 94, 0.12)";
+        supportFormStatus.style.border = "1px solid rgba(34, 197, 94, 0.25)";
+        supportFormStatus.style.color = "#bbf7d0";
+      }
+    }
+  
+    function isValidEmail(email) {
+      return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    }
+  
+    if (sendSupportBtn && supportFormStatus && supportName && supportEmail && supportType && supportMessage) {
       sendSupportBtn.addEventListener("click", () => {
-        supportFormStatus.style.display = "block";
-        supportFormStatus.textContent = "Your support request has been saved locally for this preview.";
+        const name = supportName.value.trim();
+        const email = supportEmail.value.trim();
+        const type = supportType.value.trim();
+        const message = supportMessage.value.trim();
+  
+        if (!name) {
+          showSupportStatus("Please enter your name.", "error");
+          supportName.focus();
+          return;
+        }
+  
+        if (!email) {
+          showSupportStatus("Please enter your email address.", "error");
+          supportEmail.focus();
+          return;
+        }
+  
+        if (!isValidEmail(email)) {
+          showSupportStatus("Please enter a valid email address.", "error");
+          supportEmail.focus();
+          return;
+        }
+  
+        if (!message) {
+          showSupportStatus("Please enter your support message.", "error");
+          supportMessage.focus();
+          return;
+        }
+  
+        const supportRequest = {
+          name,
+          email,
+          type,
+          message,
+          savedAt: new Date().toISOString()
+        };
+  
+        localStorage.setItem("atlaspi_support_request_preview", JSON.stringify(supportRequest));
+  
+        showSupportStatus("Your support request has been saved locally for this preview.", "success");
+  
+        supportMessage.value = "";
       });
     }
   </script>
