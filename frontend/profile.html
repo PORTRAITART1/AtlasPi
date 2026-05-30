@@ -467,16 +467,82 @@
       </div>
     </div>
   </footer>
-  <script>
-    const saveProfileBtn = document.getElementById("saveProfileBtn");
-    const profileSaveStatus = document.getElementById("profileSaveStatus");
-  
-    if (saveProfileBtn && profileSaveStatus) {
-      saveProfileBtn.addEventListener("click", () => {
-        profileSaveStatus.style.display = "block";
-        profileSaveStatus.textContent = "Profile changes saved locally for this preview.";
-      });
+  <script src="profile-data.js"></script>
+<script>
+  const profileData = window.ATLASPI_PROFILE_DATA || {};
+
+  const saveProfileBtn = document.getElementById("saveProfileBtn");
+  const profileSaveStatus = document.getElementById("profileSaveStatus");
+
+  function setText(id, value) {
+    const el = document.getElementById(id);
+    if (el && value !== undefined) {
+      el.textContent = value;
     }
-  </script>
+  }
+
+  function setHTML(id, value) {
+    const el = document.getElementById(id);
+    if (el && value !== undefined) {
+      el.innerHTML = value;
+    }
+  }
+
+  setText("profileSubtitle", profileData.subtitle);
+  setText("profileDescription", profileData.description);
+
+  if (profileData.pills && profileData.pills[0]) setText("profilePill1", profileData.pills[0]);
+  if (profileData.pills && profileData.pills[1]) setText("profilePill2", profileData.pills[1]);
+  if (profileData.pills && profileData.pills[2]) setText("profilePill3", profileData.pills[2]);
+
+  setText("profileUsernameValue", profileData.username);
+  setText("profileWalletStatusValue", profileData.walletStatus);
+  setText("profileCountryValue", profileData.country);
+  setText("profileCityValue", profileData.city);
+  setText("profileRoleValue", profileData.role);
+  setText("profileStatusValue", profileData.profileStatus);
+
+  setText("profileIdentityText", profileData.identityText);
+
+  if (profileData.identityHighlights) {
+    setText("identityHighlight1", profileData.identityHighlights[0]);
+    setText("identityHighlight2", profileData.identityHighlights[1]);
+    setText("identityHighlight3", profileData.identityHighlights[2]);
+    setText("identityHighlight4", profileData.identityHighlights[3]);
+  }
+
+  if (profileData.snapshot) {
+    setText("snapshotAccountType", profileData.snapshot.accountType);
+    setText("snapshotPresence", profileData.snapshot.presence);
+    setText("snapshotReadiness", profileData.snapshot.readiness);
+    setText("snapshotDirection", profileData.snapshot.direction);
+  }
+
+  if (profileData.readiness) {
+    setText("readinessPresenceLevel", profileData.readiness.presenceLevel);
+    setText("readinessDiscoveryStatus", profileData.readiness.discoveryStatus);
+    setText("readinessTrustLevel", profileData.readiness.trustLevel);
+    setText("readinessActivityDirection", profileData.readiness.activityDirection);
+  }
+
+  const profileUsername = document.getElementById("profileUsername");
+  const profileCountry = document.getElementById("profileCountry");
+  const profileCity = document.getElementById("profileCity");
+  const profileRole = document.getElementById("profileRole");
+  const profileBio = document.getElementById("profileBio");
+
+  if (profileUsername) profileUsername.value = profileData.username || "@pioneer";
+  if (profileCountry) profileCountry.value = profileData.country || "";
+  if (profileCity) profileCity.value = profileData.city || "";
+  if (profileRole) profileRole.value = profileData.role || "Pioneer";
+  if (profileBio) profileBio.value = (profileData.updateForm && profileData.updateForm.bio) || "";
+
+  if (saveProfileBtn && profileSaveStatus) {
+    saveProfileBtn.addEventListener("click", () => {
+      profileSaveStatus.style.display = "block";
+      profileSaveStatus.textContent = "Profile changes saved locally for this preview.";
+    });
+  }
+</script>
 </body>
 </html>
