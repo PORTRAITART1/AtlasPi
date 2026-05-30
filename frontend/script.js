@@ -44,6 +44,34 @@ document.addEventListener("DOMContentLoaded", () => {
   
   const approveBtn = document.getElementById("approvePaymentBtn");
   const completeBtn = document.getElementById("completePaymentBtn");
+  const merchantAcceptsPiCheckbox = document.getElementById("merchantAcceptsPi");
+  const merchantPiPaymentsEnabledCheckbox = document.getElementById("merchantPiPaymentsEnabled");
+  const consentTermsCheckbox = document.getElementById("consentTerms");
+  const consentPrivacyCheckbox = document.getElementById("consentPrivacy");
+  const consentPublicDisplayCheckbox = document.getElementById("consentPublicDisplay");
+
+  function showMerchantFormStatus(message, type = "info") {
+    if (!merchantFormStatus) return;
+
+    merchantFormStatus.textContent = message;
+    merchantFormStatus.style.padding = "14px 16px";
+    merchantFormStatus.style.borderRadius = "14px";
+    merchantFormStatus.style.border = "1px solid rgba(255,255,255,0.08)";
+
+    if (type === "error") {
+      merchantFormStatus.style.background = "rgba(220, 38, 38, 0.12)";
+      merchantFormStatus.style.borderColor = "rgba(220, 38, 38, 0.24)";
+      merchantFormStatus.style.color = "#fecaca";
+    } else if (type === "success") {
+      merchantFormStatus.style.background = "rgba(34, 197, 94, 0.12)";
+      merchantFormStatus.style.borderColor = "rgba(34, 197, 94, 0.24)";
+      merchantFormStatus.style.color = "#bbf7d0";
+    } else {
+      merchantFormStatus.style.background = "rgba(59, 130, 246, 0.10)";
+      merchantFormStatus.style.borderColor = "rgba(59, 130, 246, 0.24)";
+      merchantFormStatus.style.color = "#bfdbfe";
+    }
+  }
   async function createMerchantListing(event) {
     event.preventDefault();
 
@@ -62,24 +90,43 @@ document.addEventListener("DOMContentLoaded", () => {
     const phone_business = merchantPhone ? merchantPhone.value.trim() : "";
     const merchant_pi_wallet = merchantPiWallet ? merchantPiWallet.value.trim() : "";
 
-    if (
-      !owner_user_id ||
-      !listing_public_name ||
-      !profile_type ||
-      !business_name ||
-      !public_description_short ||
-      !domain ||
-      !category ||
-      !products_services_summary ||
-      !country ||
-      !city ||
-      !phone_business
-    ) {
-      merchantFormStatus.textContent = "❌ Please fill in all required merchant fields.";
+    const requiredFields = [
+      { value: owner_user_id, label: "Owner User ID" },
+      { value: listing_public_name, label: "Public Listing Name" },
+      { value: profile_type, label: "Profile Type" },
+      { value: business_name, label: "Business Name" },
+      { value: public_description_short, label: "Short Public Description" },
+      { value: domain, label: "Domain" },
+      { value: category, label: "Category" },
+      { value: products_services_summary, label: "Products / Services Summary" },
+      { value: country, label: "Country" },
+      { value: city, label: "City" },
+      { value: phone_business, label: "Business Phone" }
+    ];
+
+    const missingField = requiredFields.find((field) => !field.value);
+
+    if (missingField) {
+      showMerchantFormStatus(`❌ Please fill in: ${missingField.label}.`, "error");
       return;
     }
 
-    merchantFormStatus.textContent = "⏳ Creating merchant listing...";
+    if (!consentTermsCheckbox?.checked) {
+      showMerchantFormStatus("❌ Please accept the Terms of Use.", "error");
+      return;
+    }
+
+    if (!consentPrivacyCheckbox?.checked) {
+      showMerchantFormStatus("❌ Please accept the Privacy Policy.", "error");
+      return;
+    }
+
+    if (!consentPublicDisplayCheckbox?.checked) {
+      showMerchantFormStatus("❌ Please authorize public display settings.", "error");
+      return;
+    }
+
+    showMerchantFormStatus("⏳ Creating merchant listing...", "info");
 
     try {
       const response = await fetch(`${API_BASE_URL}/api/merchant-listings/create`, {
@@ -100,11 +147,11 @@ document.addEventListener("DOMContentLoaded", () => {
           city,
           phone_business,
           merchant_pi_wallet,
-          merchant_pi_payments_enabled: false,
-          accepts_pi: true,
-          consent_terms: true,
-          consent_privacy: true,
-          consent_public_display: true,
+          merchant_pi_payments_enabled: !!merchantPiPaymentsEnabledCheckbox?.checked,
+          accepts_pi: !!merchantAcceptsPiCheckbox?.checked,
+          consent_terms: !!consentTermsCheckbox?.checked,
+          consent_privacy: !!consentPrivacyCheckbox?.checked,
+          consent_public_display: !!consentPublicDisplayCheckbox?.checked,
           terms_version_accepted: "v1",
           privacy_version_accepted: "v1",
           listing_policy_version_accepted: "v1"
@@ -114,11 +161,11 @@ document.addEventListener("DOMContentLoaded", () => {
       const data = await response.json();
 
       if (!data.ok) {
-        merchantFormStatus.textContent = `❌ ${data.error || "Failed to create merchant listing."}`;
+        showMerchantFormStatus(`❌ ${data.error || "Failed to create merchant listing."}`, "error");
         return;
       }
 
-      merchantFormStatus.textContent = "✅ Merchant listing created successfully.";
+      showMerchantFormStatus("✅ Merchant listing created successfully.", "success");
 
       if (merchantListingForm) {
         merchantListingForm.reset();
@@ -128,7 +175,7 @@ document.addEventListener("DOMContentLoaded", () => {
         merchantOwnerUserId.value = currentUser.uid;
       }
     } catch (error) {
-      merchantFormStatus.textContent = "❌ Failed to contact backend for merchant listing creation.";
+      showMerchantFormStatus("❌ Failed to contact backend for merchant listing creation.", "error");
     }
   }
 
