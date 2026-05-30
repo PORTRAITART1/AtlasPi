@@ -458,6 +458,82 @@
       font-size: 0.95rem;
     }
   </style>
+  <style>
+    #merchant-moderation-section .cta-card {
+      border: 1px solid rgba(220, 38, 38, 0.20) !important;
+      background: linear-gradient(180deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.03) 100%);
+      border-radius: 24px;
+      padding: 28px;
+      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.18);
+      backdrop-filter: blur(10px);
+    }
+  
+    #merchant-moderation-section h3 {
+      margin-bottom: 18px;
+    }
+  
+    #merchant-moderation-section label {
+      font-weight: 600;
+      color: #ffffff;
+    }
+  
+    #merchant-moderation-section input[type="password"],
+    #merchant-moderation-section input[type="text"] {
+      width: 100% !important;
+      padding: 14px 16px !important;
+      margin-top: 8px !important;
+      border-radius: 14px !important;
+      border: 1px solid rgba(255,255,255,0.10) !important;
+      background: rgba(255,255,255,0.04) !important;
+      color: inherit !important;
+      box-sizing: border-box;
+    }
+  
+    #merchant-moderation-section input[type="checkbox"] {
+      transform: scale(1.08);
+      accent-color: #dc2626;
+    }
+  
+    #merchant-moderation-section #loadPendingListingsBtn {
+      border-radius: 14px;
+      font-weight: 700;
+      padding: 14px 20px;
+      background: linear-gradient(135deg, #dc2626 0%, #7c3aed 100%);
+      border: none;
+      box-shadow: 0 12px 28px rgba(220, 38, 38, 0.20);
+    }
+  
+    #merchant-moderation-section #loadPendingListingsBtn:hover {
+      transform: translateY(-2px);
+    }
+  
+    #merchant-moderation-section #moderationStatus {
+      padding: 16px !important;
+      border-radius: 14px !important;
+      background: rgba(255,255,255,0.04) !important;
+      border: 1px solid rgba(255,255,255,0.08) !important;
+      border-left: 3px solid #7c3aed !important;
+    }
+  
+    #merchant-moderation-section #adminCountersContainer,
+    #merchant-moderation-section #pendingListingsList {
+      display: grid;
+      gap: 14px;
+    }
+  
+    #merchant-moderation-section .section-heading .eyebrow {
+      background: rgba(220, 38, 38, 0.10);
+      border: 1px solid rgba(220, 38, 38, 0.22);
+      color: #fecaca;
+    }
+  
+    @media (max-width: 768px) {
+      #merchant-moderation-section .cta-card {
+        padding: 20px;
+        border-radius: 20px;
+      }
+    }
+  </style>
 </head>
 <body id="top"></body>
   <div class="bg-grid"></div>
