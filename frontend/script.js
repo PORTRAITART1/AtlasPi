@@ -303,10 +303,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const API_BASE_URL = window.ATLASPI_CONFIG?.API_BASE_URL || 
                          'https://atlaspi-backend.onrender.com';
     
-    fetch(API_BASE_URL)
+                         fetch(`${API_BASE_URL}/api/health`)
       .then(res => res.json())
       .then(data => {
-        if (data.ok && data.status === 'running') {
+        if (data.ok) {
           apiStatusEl.textContent = "Ready in Pi Browser.";
           apiStatusEl.style.color = '#10b981';
         } else {

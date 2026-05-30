@@ -80,7 +80,7 @@ class PiIntegrationManager {
   async fetchBackendMode() {
     const apiBase = window.ATLASPI_CONFIG?.API_BASE_URL || 'http://localhost:3000';
     try {
-      const response = await fetch(apiBase);
+      const response = await fetch(`${apiBase}/api/health`);
       if (!response.ok) {
         throw new Error(`HTTP ${response.status}`);
       }
