@@ -438,6 +438,26 @@
       }
     }
   </style>
+  <style>
+    #merchant-form-section .merchant-form-block-title {
+      margin-top: 10px;
+      margin-bottom: 14px;
+      padding: 10px 14px;
+      border-radius: 14px;
+      background: rgba(124, 58, 237, 0.10);
+      border: 1px solid rgba(124, 58, 237, 0.20);
+      color: #e9ddff;
+      font-weight: 700;
+      letter-spacing: 0.01em;
+    }
+  
+    #merchant-form-section .merchant-form-block-note {
+      margin-top: -6px;
+      margin-bottom: 14px;
+      opacity: 0.8;
+      font-size: 0.95rem;
+    }
+  </style>
 </head>
 <body id="top"></body>
   <div class="bg-grid"></div>
@@ -952,6 +972,8 @@
 
         <div class="cta-card">
           <form id="merchantListingForm">
+            <div class="merchant-form-block-title">1. Basic Listing Identity</div>
+            <p class="merchant-form-block-note">Start with the main identity of the merchant listing.</p>
             <div style="margin-bottom: 14px;">
               <label for="merchantOwnerUserId"><strong>Owner User ID</strong></label><br />
               <input
@@ -1054,6 +1076,8 @@
                 style="width: 100%; padding: 10px; margin-top: 6px;"
               />
             </div>
+            <div class="merchant-form-block-title">2. Contact & Visibility</div>
+            <p class="merchant-form-block-note">Add the public contact channels and choose how visible they should be.</p>
 
 <div style="margin-bottom: 14px;">
   <label for="merchantPhone"><strong>Business Phone</strong></label><br />
@@ -1180,6 +1204,8 @@
 </div>
 
 
+<div class="merchant-form-block-title">3. Agreements & Permissions</div>
+<p class="merchant-form-block-note">These confirmations are required before submitting the listing.</p>
 <div style="margin-bottom: 18px;">
   <h4>Required Agreements</h4>
 
@@ -1243,8 +1269,10 @@
             <p id="merchantFormStatus" style="margin-top: 16px;">
               No merchant listing submitted yet.
             </p>
+            <div class="merchant-form-block-title">4. Saved Merchant Listings</div>
+            <p class="merchant-form-block-note">Search, load, and review merchant listings already saved in the system.</p>
             <div style="margin-top: 20px;">
-  <h4 style="margin-bottom: 10px;">Saved Merchant Listings</h4>
+             <h4 style="margin-bottom: 10px;">Saved Merchant Listings</h4>
 
   <div style="margin-bottom: 16px; display: grid; gap: 12px;">
   <div>
