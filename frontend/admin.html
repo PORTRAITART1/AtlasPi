@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AtlasPi - Admin Dashboard</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="shared-theme.css" />
+
+  <style>
+    .admin-hero {
+      padding-top: 40px;
+    }
+
+    .admin-main-card,
+    .admin-panel-card,
+    .admin-stats-card {
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      background: linear-gradient(180deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.03) 100%);
+      border-radius: 22px;
+      padding: 24px;
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.18);
+    }
+
+    .admin-top-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin: 14px 0 18px;
+    }
+
+    .admin-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(220, 38, 38, 0.12);
+      border: 1px solid rgba(220, 38, 38, 0.24);
+      color: #fecaca;
+      font-size: 0.85rem;
+      font-weight: 700;
+    }
+
+    .admin-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 20px;
+    }
+
+    .admin-actions .btn {
+      min-width: 180px;
+      justify-content: center;
+    }
+
+    .admin-grid {
+      display: grid;
+      gap: 18px;
+    }
+
+    .admin-stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 16px;
+    }
+
+    .admin-stats-card p {
+      margin: 0 0 8px 0;
+      opacity: 0.78;
+    }
+
+    .admin-stats-card h3 {
+      margin: 0;
+      font-size: 1.6rem;
+    }
+
+    .admin-form-grid {
+      display: grid;
+      gap: 16px;
+    }
+
+    .admin-form-grid input,
+    .admin-form-grid select,
+    .admin-form-grid textarea {
+      width: 100%;
+      margin-top: 8px;
+      padding: 14px;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,0.12);
+      background: rgba(255,255,255,0.04);
+      color: inherit;
+      box-sizing: border-box;
+    }
+
+    .admin-listing-card {
+      margin-top: 12px;
+      padding: 16px;
+      border-radius: 14px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .admin-listing-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 16px;
+    }
+
+    #moderationStatus,
+    #adminCountersContainer {
+      margin-top: 16px;
+    }
+
+    @media (max-width: 768px) {
+      .admin-main-card,
+      .admin-panel-card,
+      .admin-stats-card {
+        padding: 20px;
+        border-radius: 18px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <div class="container nav">
+      <a href="index.html" class="brand">
+        <img src="logo-atlaspi.png" alt="AtlasPi logo" class="brand-logo" />
+        <div class="brand-text">
+          <strong>AtlasPi</strong>
+          <span>The Trusted Map of Pi Commerce</span>
+        </div>
+      </a>
+
+      <div class="menu-shell">
+        <nav class="menu-panel" style="display:flex; gap:16px; align-items:center;">
+          <a href="index.html">Home</a>
+          <a href="discover.html">Discover</a>
+          <a href="vip.html">VIP</a>
+          <a href="support.html">Support</a>
+          <a href="profile.html">Profile</a>
+          <a href="admin.html" class="btn btn-nav">Admin</a>
+        </nav>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero admin-hero" id="admin-hero">
+      <div class="container hero-grid">
+        <div class="hero-copy">
+          <span class="eyebrow">Admin</span>
+          <h1>
+            AtlasPi
+            <span class="gradient-text">Admin Dashboard</span>
+          </h1>
+          <p class="hero-lead">
+            Review listings, monitor moderation activity, and manage merchant approval.
+          </p>
+          <p>
+            This dedicated admin space is built for controlled merchant review,
+            listing validation, and clearer moderation oversight.
+          </p>
+
+          <div class="admin-top-meta">
+            <span class="admin-pill">🔐 Protected Access</span>
+            <span class="admin-pill">📋 Review Queue</span>
+            <span class="admin-pill">📊 Real Stats</span>
+          </div>
+
+          <div class="admin-actions">
+            <a href="#admin-panel" class="btn btn-primary">Open Review Tools</a>
+            <a href="index.html" class="btn btn-secondary">Back to Home</a>
+          </div>
+        </div>
+
+        <div class="hero-visual">
+          <article class="admin-main-card">
+            <div class="feature-icon">🧱</div>
+            <h3>Admin Overview</h3>
+            <p>
+              Review pending listings, approve trusted merchants, reject invalid submissions,
+              and monitor platform moderation status from one place.
+            </p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="admin-panel">
+      <div class="container">
+        <div class="section-heading">
+          <span class="eyebrow">Dashboard</span>
+          <h2>Merchant Review Center</h2>
+          <p>
+            Use your admin secret to load moderation stats and manage merchant listings.
+          </p>
+        </div>
+
+        <div id="adminCountersContainer"></div>
+
+        <article class="admin-panel-card">
+          <div class="admin-form-grid">
+            <div>
+              <label for="adminSecret"><strong>Owner Access Key</strong></label><br />
+              <input
+                type="password"
+                id="adminSecret"
+                placeholder="Enter admin secret"
+              />
+              <p style="margin-top:8px; opacity:0.78;">
+                This secure key is required to access moderation tools.
+              </p>
+            </div>
+
+            <div style="padding:14px 16px; border-radius:14px; background:rgba(59,130,246,0.10); border:1px solid rgba(59,130,246,0.18);">
+              <label style="display:flex; align-items:center; gap:10px; margin:0;">
+                <input type="checkbox" id="togglePendingListings" />
+                <span><strong>Show listings waiting for review</strong></span>
+              </label>
+            </div>
+
+            <div class="admin-actions">
+              <button type="button" class="btn btn-primary" id="loadPendingListingsBtn">Load Review Queue</button>
+            </div>
+
+            <div id="moderationStatus" class="admin-panel-card" style="padding:16px;">
+              <p style="margin:0;">No review action started yet. Load the review queue to begin.</p>
+            </div>
+
+            <div id="pendingListingsList"></div>
+          </div>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-grid">
+      <div>
+        <strong>AtlasPi</strong>
+        <p>The Trusted Map of Pi Commerce</p>
+        <p>
+          Helping pioneers and merchants move toward stronger discovery, trust,
+          and real-world Pi utility.
+        </p>
+      </div>
+
+      <div>
+        <a href="index.html">Home</a><br />
+        <a href="discover.html">Discover</a><br />
+        <a href="support.html">Support</a><br />
+        <a href="privacy.html">Privacy</a><br />
+        <a href="terms.html">Terms</a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="config.js?v=11"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const loadPendingListingsBtn = document.getElementById("loadPendingListingsBtn");
+      const adminSecretInput = document.getElementById("adminSecret");
+      const moderationStatus = document.getElementById("moderationStatus");
+      const pendingListingsList = document.getElementById("pendingListingsList");
+      const adminCountersContainer = document.getElementById("adminCountersContainer");
+      const apiBase = window.ATLASPI_CONFIG?.API_BASE_URL || "https://atlaspi-backend.onrender.com";
+
+      async function loadAdminStats(secret) {
+        if (!adminCountersContainer) return;
+
+        adminCountersContainer.innerHTML = '<p style="margin:0;">⏳ Loading admin stats...</p>';
+
+        try {
+          const response = await fetch(`${apiBase}/api/merchant-listings/admin-stats`, {
+            headers: {
+              "x-admin-secret": secret
+            }
+          });
+
+          const data = await response.json();
+
+          if (!data.ok) {
+            adminCountersContainer.innerHTML = `<p style="margin:0;color:#dc2626;">❌ ${data.error || "Failed to load admin stats."}</p>`;
+            return;
+          }
+
+          const stats = data.stats || {};
+
+          adminCountersContainer.innerHTML = `
+            <div class="admin-stats-grid">
+              <div class="admin-stats-card">
+                <p>Total</p>
+                <h3>${stats.total || 0}</h3>
+              </div>
+              <div class="admin-stats-card">
+                <p>Pending Review</p>
+                <h3>${stats.pending_review || 0}</h3>
+              </div>
+              <div class="admin-stats-card">
+                <p>Approved</p>
+                <h3>${stats.approved || 0}</h3>
+              </div>
+              <div class="admin-stats-card">
+                <p>Rejected</p>
+                <h3>${stats.rejected || 0}</h3>
+              </div>
+              <div class="admin-stats-card">
+                <p>Suspended</p>
+                <h3>${stats.suspended || 0}</h3>
+              </div>
+            </div>
+          `;
+        } catch (error) {
+          adminCountersContainer.innerHTML = '<p style="margin:0;color:#dc2626;">❌ Failed to contact backend for admin stats.</p>';
+        }
+      }
+
+      function renderListingCard(listing, secret) {
+        const item = document.createElement("div");
+        item.className = "admin-listing-card";
+
+        item.innerHTML = `
+          <p><strong>${listing.listing_public_name || "-"}</strong></p>
+          <p><strong>Business:</strong> ${listing.business_name || "-"}</p>
+          <p><strong>Profile Type:</strong> ${listing.profile_type || "-"}</p>
+          <p><strong>Domain:</strong> ${listing.domain || "-"}</p>
+          <p><strong>Category:</strong> ${listing.category || "-"}</p>
+          <p><strong>Status:</strong> ${listing.listing_status || "-"}</p>
+          <p><strong>Verification:</strong> ${listing.verification_status || "-"}</p>
+          <p><strong>City:</strong> ${listing.city || "-"}</p>
+          <p><strong>Country:</strong> ${listing.country || "-"}</p>
+          <p><strong>Accepts Pi:</strong> ${listing.accepts_pi ? "Yes" : "No"}</p>
+          <p><strong>Pi Payments Enabled:</strong> ${listing.merchant_pi_payments_enabled ? "Yes" : "No"}</p>
+          <p><strong>Merchant Pi Wallet:</strong> ${listing.merchant_pi_wallet || "-"}</p>
+          <p><strong>Created:</strong> ${listing.created_at || "-"}</p>
+
+          <div class="admin-listing-actions">
+            <button type="button" class="btn btn-primary approve-listing-btn">Approve</button>
+            <button type="button" class="btn btn-secondary reject-listing-btn">Reject</button>
+            <button type="button" class="btn btn-secondary suspend-listing-btn">Suspend</button>
+          </div>
+        `;
+
+        const approveBtn = item.querySelector(".approve-listing-btn");
+        const rejectBtn = item.querySelector(".reject-listing-btn");
+        const suspendBtn = item.querySelector(".suspend-listing-btn");
+
+        async function moderateListing(nextStatus, reason = "") {
+          try {
+            moderationStatus.innerHTML = `<p style="margin:0;">⏳ Updating listing #${listing.id}...</p>`;
+
+            const response = await fetch(`${apiBase}/api/merchant-listings/moderate/${listing.id}`, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                "x-admin-secret": secret
+              },
+              body: JSON.stringify({
+                listing_status: nextStatus,
+                moderation_reason: reason
+              })
+            });
+
+            const result = await response.json();
+
+            if (!result.ok) {
+              moderationStatus.innerHTML = `<p style="margin:0;color:#dc2626;">❌ ${result.error || "Moderation failed."}</p>`;
+              return;
+            }
+
+            moderationStatus.innerHTML = `<p style="margin:0;color:#10b981;">✅ ${result.message}</p>`;
+            loadPendingListingsBtn.click();
+          } catch (error) {
+            moderationStatus.innerHTML = `<p style="margin:0;color:#dc2626;">❌ Failed to update listing.</p>`;
+          }
+        }
+
+        approveBtn?.addEventListener("click", () => moderateListing("approved"));
+        rejectBtn?.addEventListener("click", () => {
+          const reason = window.prompt("Optional rejection reason:", "") || "";
+          moderateListing("rejected", reason);
+        });
+        suspendBtn?.addEventListener("click", () => {
+          const reason = window.prompt("Optional suspension reason:", "") || "";
+          moderateListing("suspended", reason);
+        });
+
+        return item;
+      }
+
+      if (loadPendingListingsBtn) {
+        loadPendingListingsBtn.addEventListener("click", async () => {
+          const secret = adminSecretInput ? adminSecretInput.value.trim() : "";
+
+          if (!secret) {
+            moderationStatus.innerHTML = '<p style="margin:0;color:#dc2626;">❌ Please enter your admin secret.</p>';
+            return;
+          }
+
+          moderationStatus.innerHTML = '<p style="margin:0;">⏳ Loading pending listings...</p>';
+          pendingListingsList.innerHTML = "";
+
+          await loadAdminStats(secret);
+
+          try {
+            const response = await fetch(`${apiBase}/api/merchant-listings/pending`, {
+              headers: {
+                "x-admin-secret": secret
+              }
+            });
+
+            const data = await response.json();
+
+            if (!data.ok) {
+              moderationStatus.innerHTML = `<p style="margin:0;color:#dc2626;">❌ ${data.error || "Failed to load pending listings."}</p>`;
+              return;
+            }
+
+            const listings = data.listings || [];
+
+            if (!listings.length) {
+              moderationStatus.innerHTML = '<p style="margin:0;color:#3b82f6;">ℹ️ No pending listings to review.</p>';
+              return;
+            }
+
+            moderationStatus.innerHTML = `<p style="margin:0;color:#10b981;">✅ ${listings.length} pending listing(s) loaded.</p>`;
+
+            listings.forEach((listing) => {
+              pendingListingsList.appendChild(renderListingCard(listing, secret));
+            });
+          } catch (error) {
+            moderationStatus.innerHTML = '<p style="margin:0;color:#dc2626;">❌ Failed to contact backend.</p>';
+          }
+        });
+      }
+    });
+  </script>
+</body>
+</html>
