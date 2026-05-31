@@ -546,11 +546,13 @@
     </div>
   </footer>
 
+  <script src="config.js?v=11"></script>
   <script src="merchant-data.js"></script>
   <script src="city-data.js"></script>
   <script>
     const merchantData = window.ATLASPI_MERCHANT_DATA || {};
     const cityData = window.ATLASPI_CITY_DATA || {};
+    const API_BASE_URL = window.ATLASPI_CONFIG?.API_BASE_URL || "https://atlaspi-backend.onrender.com";
   
     const merchantSearch = document.getElementById("merchantSearch");
     const categoryFilter = document.getElementById("categoryFilter");
@@ -564,30 +566,161 @@
       return Array.from(document.querySelectorAll(".merchant-card"));
     }
   
-    function renderMerchants() {
+    function escapeHtml(value) {
+      return String(value ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+    }
+  
+    function titleCase(value) {
+      return String(value || "")
+        .toLowerCase()
+        .split(/[\s_-]+/)
+        .filter(Boolean)
+        .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(" ");
+    }
+  
+    function mapBackendCategory(listing) {
+      const raw = `${listing.category || ""} ${listing.domain || ""}`.toLowerCase();
+  
+      if (
+        raw.includes("cafe") ||
+        raw.includes("food") ||
+        raw.includes("drink") ||
+        raw.includes("restaurant")
+      ) {
+        return "Food & Drinks";
+      }
+  
+      if (
+        raw.includes("electronic") ||
+        raw.includes("tech") ||
+        raw.includes("mobile") ||
+        raw.includes("computer")
+      ) {
+        return "Electronics";
+      }
+  
+      if (
+        raw.includes("craft") ||
+        raw.includes("handmade") ||
+        raw.includes("artisan")
+      ) {
+        return "Handmade Goods";
+      }
+  
+      if (raw.includes("fashion") || raw.includes("clothing")) {
+        return "Fashion";
+      }
+  
+      if (raw.includes("service") || raw.includes("provider")) {
+        return "Services";
+      }
+  
+      return "Local Shops";
+    }
+  
+    function mapBackendIcon(categoryLabel) {
+      const raw = categoryLabel.toLowerCase();
+  
+      if (raw.includes("food")) return "☕";
+      if (raw.includes("electronic")) return "💻";
+      if (raw.includes("handmade")) return "🧵";
+      if (raw.includes("fashion")) return "👕";
+      if (raw.includes("service")) return "🛠️";
+      return "🏪";
+    }
+  
+    function normalizeBackendMerchant(listing) {
+      const category = mapBackendCategory(listing);
+      const status =
+        listing.verification_status === "verified"
+          ? "Verified"
+          : listing.merchant_pi_payments_enabled
+          ? "Trusted"
+          : "Approved";
+  
+      const description =
+        listing.public_description_short ||
+        listing.products_services_summary ||
+        "Backend merchant listing loaded from AtlasPi.";
+  
+      return {
+        key: `backend-${listing.id}`,
+        detailHref: `merchant-detail.html?id=${listing.id}`,
+        name: listing.listing_public_name || listing.business_name || "Merchant",
+        category,
+        country: listing.country || "",
+        city: listing.city || "",
+        location: `${listing.city || "-"}, ${listing.country || "-"}`,
+        status,
+        icon: mapBackendIcon(category),
+        about: description
+      };
+    }
+  
+    function normalizeLocalMerchant(key, merchant) {
+      return {
+        key,
+        detailHref: `merchant-detail.html?merchant=${key}`,
+        name: merchant.name || "Merchant",
+        category: merchant.category || "Local Shops",
+        country: merchant.country || "",
+        city: merchant.city || "",
+        location: merchant.location || `${merchant.city || "-"}, ${merchant.country || "-"}`,
+        status: merchant.status || "Trusted",
+        icon: merchant.icon || "🏪",
+        about: merchant.about || merchant.description || "Local merchant listing."
+      };
+    }
+  
+    async function loadMerchants() {
+      try {
+        const response = await fetch(`${API_BASE_URL}/api/merchant-listings/list`);
+        const data = await response.json();
+  
+        if (data.ok && Array.isArray(data.listings) && data.listings.length > 0) {
+          return data.listings.map(normalizeBackendMerchant);
+        }
+      } catch (error) {
+        console.warn("Backend merchant list unavailable, using local fallback.", error);
+      }
+  
+      return Object.entries(merchantData).map(([key, merchant]) =>
+        normalizeLocalMerchant(key, merchant)
+      );
+    }
+  
+    function renderMerchants(merchants) {
       if (!merchantCardsGrid) return;
   
-      const merchants = Object.entries(merchantData);
-  
-      merchantCardsGrid.innerHTML = merchants.map(([key, merchant]) => `
+      merchantCardsGrid.innerHTML = merchants
+        .map(
+          (merchant) => `
         <article
           class="feature-card merchant-card"
-          data-name="${merchant.name}"
-          data-category="${merchant.category}"
-          data-country="${merchant.country}"
-          data-city="${merchant.city}"
+          data-name="${escapeHtml(merchant.name)}"
+          data-category="${escapeHtml(merchant.category)}"
+          data-country="${escapeHtml(merchant.country)}"
+          data-city="${escapeHtml(merchant.city)}"
         >
-          <div class="feature-icon">${merchant.icon}</div>
-          <h3>${merchant.name}</h3>
-          <p><strong>Category:</strong> ${merchant.category}</p>
-          <p><strong>Location:</strong> ${merchant.location}</p>
-          <p>${merchant.about}</p>
-          <span class="profile-badge">${merchant.status}</span>
+          <div class="feature-icon">${escapeHtml(merchant.icon)}</div>
+          <h3>${escapeHtml(merchant.name)}</h3>
+          <p><strong>Category:</strong> ${escapeHtml(merchant.category)}</p>
+          <p><strong>Location:</strong> ${escapeHtml(merchant.location)}</p>
+          <p>${escapeHtml(merchant.about)}</p>
+          <span class="profile-badge">${escapeHtml(merchant.status)}</span>
           <div style="margin-top:16px;">
-            <a href="merchant-detail.html?merchant=${key}" class="btn btn-secondary">View Details</a>
+            <a href="${escapeHtml(merchant.detailHref)}" class="btn btn-secondary">View Details</a>
           </div>
         </article>
-      `).join("");
+      `
+        )
+        .join("");
     }
   
     function getMatchingCities(country, category) {
@@ -739,29 +872,34 @@
       filterMerchants();
     }
   
-    renderMerchants();
-    updateCities();
-    filterMerchants();
+    async function initDiscover() {
+      const merchants = await loadMerchants();
+      renderMerchants(merchants);
+      updateCities();
+      filterMerchants();
   
-    if (countryFilter && cityFilter) {
-      countryFilter.addEventListener("change", refreshFiltersAndResults);
+      if (countryFilter && cityFilter) {
+        countryFilter.addEventListener("change", refreshFiltersAndResults);
+      }
+  
+      if (categoryFilter) {
+        categoryFilter.addEventListener("change", refreshFiltersAndResults);
+      }
+  
+      if (cityFilter) {
+        cityFilter.addEventListener("change", filterMerchants);
+      }
+  
+      if (merchantSearch) {
+        merchantSearch.addEventListener("input", filterMerchants);
+      }
+  
+      if (searchBtn) {
+        searchBtn.addEventListener("click", filterMerchants);
+      }
     }
   
-    if (categoryFilter) {
-      categoryFilter.addEventListener("change", refreshFiltersAndResults);
-    }
-  
-    if (cityFilter) {
-      cityFilter.addEventListener("change", filterMerchants);
-    }
-  
-    if (merchantSearch) {
-      merchantSearch.addEventListener("input", filterMerchants);
-    }
-  
-    if (searchBtn) {
-      searchBtn.addEventListener("click", filterMerchants);
-    }
+    initDiscover();
   </script>
 </body>
 </html>
