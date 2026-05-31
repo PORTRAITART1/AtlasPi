@@ -385,50 +385,138 @@
       </div>
     </div>
   </footer>
+  <script src="config.js?v=11"></script>
 
   <script src="merchant-data.js"></script>
-<script>
-  const merchantData = window.ATLASPI_MERCHANT_DATA || {};
-
-  const params = new URLSearchParams(window.location.search);
-  const merchantKey = params.get("merchant") || "sunrise-cafe";
-  const merchant = merchantData[merchantKey] || merchantData["sunrise-cafe"];
-
-  document.title = `AtlasPi - ${merchant.name}`;
-
-  document.getElementById("merchantName").innerHTML =
-    merchant.name.split(" ")[0] + ' <span class="gradient-text" id="merchantNameAccent">' +
-    merchant.accent + "</span>";
-
-  document.getElementById("merchantSubtitle").textContent = merchant.subtitle;
-  document.getElementById("merchantDescription").textContent = merchant.description;
-  document.getElementById("merchantBadge").textContent = merchant.badge;
-  document.getElementById("merchantCategoryPill").textContent = merchant.categoryPill;
-  document.getElementById("merchantLocationPill").textContent = merchant.locationPill;
-  document.getElementById("merchantIcon").textContent = merchant.icon;
-  document.getElementById("merchantCategory").textContent = merchant.category;
-  document.getElementById("merchantLocation").textContent = merchant.location;
-  document.getElementById("merchantStatus").textContent = merchant.status;
-  document.getElementById("merchantDiscoveryLevel").textContent = merchant.discoveryLevel;
-  document.getElementById("merchantAbout").textContent = merchant.about;
-  document.getElementById("highlight1").textContent = merchant.highlights[0];
-  document.getElementById("highlight2").textContent = merchant.highlights[1];
-  document.getElementById("highlight3").textContent = merchant.highlights[2];
-  document.getElementById("highlight4").textContent = merchant.highlights[3];
-  document.getElementById("highlightText1").textContent = merchant.highlights[0];
-  document.getElementById("highlightText2").textContent = merchant.highlights[1];
-  document.getElementById("highlightText3").textContent = merchant.highlights[2];
-  document.getElementById("highlightText4").textContent = merchant.highlights[3];
-  document.getElementById("merchantVisibility").textContent = merchant.visibility;
-  document.getElementById("merchantRole").textContent = merchant.role;
-  document.getElementById("merchantProfileType").textContent = merchant.profileType;
-  document.getElementById("merchantMapStatus").textContent = merchant.mapStatus;
-  document.getElementById("merchantCity").textContent = merchant.city;
-  document.getElementById("merchantCountry").textContent = merchant.country;
-  document.getElementById("merchantContact").textContent = merchant.contact;
-  document.getElementById("merchantAvailability").textContent = merchant.availability;
-  document.getElementById("merchantStatusContact").textContent = merchant.status;
-  document.getElementById("merchantMapStatusContact").textContent = merchant.mapStatus;
-</script>
+  <script>
+    const merchantData = window.ATLASPI_MERCHANT_DATA || {};
+    const API_BASE_URL = window.ATLASPI_CONFIG?.API_BASE_URL || "https://atlaspi-backend.onrender.com";
+  
+    function renderMerchant(merchant) {
+      document.title = `AtlasPi - ${merchant.name}`;
+  
+      document.getElementById("merchantName").innerHTML =
+        merchant.name.split(" ")[0] +
+        ' <span class="gradient-text" id="merchantNameAccent">' +
+        merchant.accent +
+        "</span>";
+  
+      document.getElementById("merchantSubtitle").textContent = merchant.subtitle;
+      document.getElementById("merchantDescription").textContent = merchant.description;
+      document.getElementById("merchantBadge").textContent = merchant.badge;
+      document.getElementById("merchantCategoryPill").textContent = merchant.categoryPill;
+      document.getElementById("merchantLocationPill").textContent = merchant.locationPill;
+      document.getElementById("merchantIcon").textContent = merchant.icon;
+      document.getElementById("merchantCategory").textContent = merchant.category;
+      document.getElementById("merchantLocation").textContent = merchant.location;
+      document.getElementById("merchantStatus").textContent = merchant.status;
+      document.getElementById("merchantDiscoveryLevel").textContent = merchant.discoveryLevel;
+      document.getElementById("merchantAbout").textContent = merchant.about;
+      document.getElementById("highlight1").textContent = merchant.highlights[0];
+      document.getElementById("highlight2").textContent = merchant.highlights[1];
+      document.getElementById("highlight3").textContent = merchant.highlights[2];
+      document.getElementById("highlight4").textContent = merchant.highlights[3];
+      document.getElementById("highlightText1").textContent = merchant.highlights[0];
+      document.getElementById("highlightText2").textContent = merchant.highlights[1];
+      document.getElementById("highlightText3").textContent = merchant.highlights[2];
+      document.getElementById("highlightText4").textContent = merchant.highlights[3];
+      document.getElementById("merchantVisibility").textContent = merchant.visibility;
+      document.getElementById("merchantRole").textContent = merchant.role;
+      document.getElementById("merchantProfileType").textContent = merchant.profileType;
+      document.getElementById("merchantMapStatus").textContent = merchant.mapStatus;
+      document.getElementById("merchantCity").textContent = merchant.city;
+      document.getElementById("merchantCountry").textContent = merchant.country;
+      document.getElementById("merchantContact").textContent = merchant.contact;
+      document.getElementById("merchantAvailability").textContent = merchant.availability;
+      document.getElementById("merchantStatusContact").textContent = merchant.status;
+      document.getElementById("merchantMapStatusContact").textContent = merchant.mapStatus;
+    }
+  
+    function normalizeBackendMerchant(listing) {
+      const statusLabel =
+        listing.verification_status === "verified"
+          ? "✅ Verified"
+          : listing.listing_status === "approved"
+          ? "🛡️ Approved"
+          : "🛡️ Trusted";
+  
+      const categoryLabel = listing.category || listing.domain || "Merchant";
+      const icon =
+        categoryLabel.toLowerCase().includes("cafe") || categoryLabel.toLowerCase().includes("food")
+          ? "☕"
+          : categoryLabel.toLowerCase().includes("electronic")
+          ? "💻"
+          : categoryLabel.toLowerCase().includes("shop")
+          ? "🏪"
+          : "🏪";
+  
+      return {
+        name: listing.listing_public_name || listing.business_name || "Merchant",
+        accent: (listing.listing_public_name || listing.business_name || "Merchant").split(" ").slice(1).join(" ") || "Merchant",
+        subtitle: "A real merchant listing powered by the AtlasPi backend.",
+        description:
+          listing.public_description_full ||
+          listing.public_description_short ||
+          "This merchant profile is loaded from the AtlasPi backend and reflects real listing data.",
+        badge: statusLabel,
+        categoryPill: `${icon} ${categoryLabel}`,
+        locationPill: `📍 ${listing.city || "-"}, ${listing.country || "-"}`,
+        icon,
+        category: categoryLabel,
+        location: `${listing.city || "-"}, ${listing.country || "-"}`,
+        status: listing.verification_status || listing.listing_status || "approved",
+        discoveryLevel: listing.listing_status === "approved" ? "Backend Approved" : "AtlasPi Ready",
+        about:
+          listing.public_description_full ||
+          listing.public_description_short ||
+          "This merchant is presented through AtlasPi backend data for real ecosystem discovery.",
+        highlights: [
+          listing.products_services_summary || "Structured merchant summary",
+          listing.accepts_pi ? "Accepts Pi" : "Pi acceptance not specified",
+          listing.merchant_pi_payments_enabled ? "Pi payments enabled" : "Pi payments not enabled",
+          "Loaded from AtlasPi backend"
+        ],
+        visibility: "Public Profile",
+        role: "Pi-Oriented Merchant",
+        profileType: listing.profile_type || "Merchant",
+        mapStatus: "Coming soon",
+        city: listing.city || "-",
+        country: listing.country || "-",
+        contact:
+          listing.email_business ||
+          listing.phone_business ||
+          listing.whatsapp_business ||
+          listing.website_url ||
+          "Not provided",
+        availability: "Public merchant profile"
+      };
+    }
+  
+    async function initMerchantDetail() {
+      const params = new URLSearchParams(window.location.search);
+      const merchantId = params.get("id");
+      const merchantKey = params.get("merchant");
+  
+      if (merchantId) {
+        try {
+          const response = await fetch(`${API_BASE_URL}/api/merchant-listings/detail/${merchantId}`);
+          const data = await response.json();
+  
+          if (data.ok && data.listing) {
+            renderMerchant(normalizeBackendMerchant(data.listing));
+            return;
+          }
+        } catch (error) {
+          console.error("Failed to load backend merchant detail:", error);
+        }
+      }
+  
+      const fallbackKey = merchantKey || "sunrise-cafe";
+      const merchant = merchantData[fallbackKey] || merchantData["sunrise-cafe"];
+      renderMerchant(merchant);
+    }
+  
+    initMerchantDetail();
+  </script>
 </body>
 </html>
