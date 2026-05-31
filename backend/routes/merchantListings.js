@@ -815,6 +815,49 @@ router.get("/pending", (req, res) => {
   );
 });
 
+router.get("/admin-stats", (req, res) => {
+  const adminSecret = process.env.ADMIN_SECRET || "atlaspi-dev-secret-change-in-prod";
+  const headerSecret = req.headers["x-admin-secret"];
+
+  if (!headerSecret || headerSecret !== adminSecret) {
+    logger.warn("Admin stats access rejected: invalid or missing secret");
+    return res.status(403).json({
+      ok: false,
+      error: "Unauthorized. Invalid or missing admin secret."
+    });
+  }
+
+  db.get(
+    `SELECT
+      COUNT(*) AS total,
+      SUM(CASE WHEN listing_status = 'pending_review' THEN 1 ELSE 0 END) AS pending_review,
+      SUM(CASE WHEN listing_status = 'approved' THEN 1 ELSE 0 END) AS approved,
+      SUM(CASE WHEN listing_status = 'rejected' THEN 1 ELSE 0 END) AS rejected,
+      SUM(CASE WHEN listing_status = 'suspended' THEN 1 ELSE 0 END) AS suspended
+     FROM merchant_listings`,
+    [],
+    (err, row) => {
+      if (err) {
+        logger.error("Admin stats DB error: " + err.message);
+        return res.status(500).json({
+          ok: false,
+          error: "Database error while loading admin stats"
+        });
+      }
+
+      return res.json({
+        ok: true,
+        stats: {
+          total: row?.total || 0,
+          pending_review: row?.pending_review || 0,
+          approved: row?.approved || 0,
+          rejected: row?.rejected || 0,
+          suspended: row?.suspended || 0
+        }
+      });
+    }
+  );
+});
 router.post("/moderate/:id", (req, res) => {
   const { id } = req.params;
   const { listing_status, moderation_reason } = req.body;

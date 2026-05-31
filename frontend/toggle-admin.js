@@ -59,7 +59,58 @@ document.addEventListener("DOMContentLoaded", () => {
   const adminSecretInput = document.getElementById("adminSecret");
   const moderationStatus = document.getElementById("moderationStatus");
   const pendingListingsList = document.getElementById("pendingListingsList");
+  const adminCountersContainer = document.getElementById("adminCountersContainer");
+  const apiBase = window.ATLASPI_CONFIG?.API_BASE_URL || "https://atlaspi-backend.onrender.com";
 
+  async function loadAdminStats(secret) {
+    if (!adminCountersContainer) return;
+
+    adminCountersContainer.innerHTML = '<p style="margin:0;">⏳ Loading admin stats...</p>';
+
+    try {
+      const response = await fetch(`${apiBase}/api/merchant-listings/admin-stats`, {
+        headers: {
+          "x-admin-secret": secret
+        }
+      });
+
+      const data = await response.json();
+
+      if (!data.ok) {
+        adminCountersContainer.innerHTML = `<p style="margin:0;color:#dc2626;">❌ ${data.error || "Failed to load admin stats."}</p>`;
+        return;
+      }
+
+      const stats = data.stats || {};
+
+      adminCountersContainer.innerHTML = `
+        <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:14px;">
+          <div class="feature-card" style="padding:16px;">
+            <p style="margin:0 0 6px 0; opacity:0.75;">Total</p>
+            <h3 style="margin:0;">${stats.total || 0}</h3>
+          </div>
+          <div class="feature-card" style="padding:16px;">
+            <p style="margin:0 0 6px 0; opacity:0.75;">Pending Review</p>
+            <h3 style="margin:0;">${stats.pending_review || 0}</h3>
+          </div>
+          <div class="feature-card" style="padding:16px;">
+            <p style="margin:0 0 6px 0; opacity:0.75;">Approved</p>
+            <h3 style="margin:0;">${stats.approved || 0}</h3>
+          </div>
+          <div class="feature-card" style="padding:16px;">
+            <p style="margin:0 0 6px 0; opacity:0.75;">Rejected</p>
+            <h3 style="margin:0;">${stats.rejected || 0}</h3>
+          </div>
+          <div class="feature-card" style="padding:16px;">
+            <p style="margin:0 0 6px 0; opacity:0.75;">Suspended</p>
+            <h3 style="margin:0;">${stats.suspended || 0}</h3>
+          </div>
+        </div>
+      `;
+    } catch (error) {
+      adminCountersContainer.innerHTML = '<p style="margin:0;color:#dc2626;">❌ Failed to contact backend for admin stats.</p>';
+    }
+  }
   if (loadPendingListingsBtn) {
     loadPendingListingsBtn.addEventListener("click", async () => {
       const secret = adminSecretInput ? adminSecretInput.value.trim() : "";
@@ -71,16 +122,17 @@ document.addEventListener("DOMContentLoaded", () => {
         return;
       }
 
-      if (moderationStatus) {
+        if (moderationStatus) {
         moderationStatus.innerHTML = '<p style="margin:0;">⏳ Loading pending listings...</p>';
       }
+      await loadAdminStats(secret);
 
       if (pendingListingsList) {
         pendingListingsList.innerHTML = "";
       }
 
       try {
-        const apiBase = window.ATLASPI_CONFIG?.API_BASE_URL || "https://atlaspi-backend.onrender.com";
+
         const response = await fetch(`${apiBase}/api/merchant-listings/pending`, {
           headers: {
             "x-admin-secret": secret
@@ -90,7 +142,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const data = await response.json();
 
         if (!data.ok) {
-          if (moderationStatus) {
+        if (moderationStatus) {
             moderationStatus.innerHTML = `<p style="margin:0;color:#dc2626;">❌ ${data.error || "Failed to load pending listings."}</p>`;
           }
           return;
@@ -99,7 +151,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const listings = data.listings || [];
 
         if (!listings.length) {
-          if (moderationStatus) {
+        if (moderationStatus) {
             moderationStatus.innerHTML = '<p style="margin:0;color:#3b82f6;">ℹ️ No pending listings to review.</p>';
           }
           return;
