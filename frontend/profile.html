@@ -467,82 +467,145 @@
       </div>
     </div>
   </footer>
+  <script src="config.js?v=11"></script>
   <script src="profile-data.js"></script>
-<script>
-  const profileData = window.ATLASPI_PROFILE_DATA || {};
-
-  const saveProfileBtn = document.getElementById("saveProfileBtn");
-  const profileSaveStatus = document.getElementById("profileSaveStatus");
-
-  function setText(id, value) {
-    const el = document.getElementById(id);
-    if (el && value !== undefined) {
-      el.textContent = value;
+  <script>
+    const profileData = window.ATLASPI_PROFILE_DATA || {};
+    const API_BASE_URL = window.ATLASPI_CONFIG?.API_BASE_URL || "https://atlaspi-backend.onrender.com";
+  
+    const saveProfileBtn = document.getElementById("saveProfileBtn");
+    const profileSaveStatus = document.getElementById("profileSaveStatus");
+  
+    function setText(id, value) {
+      const el = document.getElementById(id);
+      if (el && value !== undefined) {
+        el.textContent = value;
+      }
     }
-  }
-
-  function setHTML(id, value) {
-    const el = document.getElementById(id);
-    if (el && value !== undefined) {
-      el.innerHTML = value;
+  
+    function applyProfileData(data) {
+      setText("profileSubtitle", data.subtitle);
+      setText("profileDescription", data.description);
+  
+      if (data.pills && data.pills[0]) setText("profilePill1", data.pills[0]);
+      if (data.pills && data.pills[1]) setText("profilePill2", data.pills[1]);
+      if (data.pills && data.pills[2]) setText("profilePill3", data.pills[2]);
+  
+      setText("profileUsernameValue", data.username);
+      setText("profileWalletStatusValue", data.walletStatus);
+      setText("profileCountryValue", data.country);
+      setText("profileCityValue", data.city);
+      setText("profileRoleValue", data.role);
+      setText("profileStatusValue", data.profileStatus);
+  
+      setText("profileIdentityText", data.identityText);
+  
+      if (data.identityHighlights) {
+        setText("identityHighlight1", data.identityHighlights[0]);
+        setText("identityHighlight2", data.identityHighlights[1]);
+        setText("identityHighlight3", data.identityHighlights[2]);
+        setText("identityHighlight4", data.identityHighlights[3]);
+      }
+  
+      if (data.snapshot) {
+        setText("snapshotAccountType", data.snapshot.accountType);
+        setText("snapshotPresence", data.snapshot.presence);
+        setText("snapshotReadiness", data.snapshot.readiness);
+        setText("snapshotDirection", data.snapshot.direction);
+      }
+  
+      if (data.readiness) {
+        setText("readinessPresenceLevel", data.readiness.presenceLevel);
+        setText("readinessDiscoveryStatus", data.readiness.discoveryStatus);
+        setText("readinessTrustLevel", data.readiness.trustLevel);
+        setText("readinessActivityDirection", data.readiness.activityDirection);
+      }
+  
+      const profileUsername = document.getElementById("profileUsername");
+      const profileCountry = document.getElementById("profileCountry");
+      const profileCity = document.getElementById("profileCity");
+      const profileRole = document.getElementById("profileRole");
+      const profileBio = document.getElementById("profileBio");
+  
+      if (profileUsername) profileUsername.value = data.username || "@pioneer";
+      if (profileCountry) profileCountry.value = data.country || "";
+      if (profileCity) profileCity.value = data.city || "";
+      if (profileRole) profileRole.value = data.role || "Pioneer";
+      if (profileBio) profileBio.value = (data.updateForm && data.updateForm.bio) || "";
     }
-  }
-
-  setText("profileSubtitle", profileData.subtitle);
-  setText("profileDescription", profileData.description);
-
-  if (profileData.pills && profileData.pills[0]) setText("profilePill1", profileData.pills[0]);
-  if (profileData.pills && profileData.pills[1]) setText("profilePill2", profileData.pills[1]);
-  if (profileData.pills && profileData.pills[2]) setText("profilePill3", profileData.pills[2]);
-
-  setText("profileUsernameValue", profileData.username);
-  setText("profileWalletStatusValue", profileData.walletStatus);
-  setText("profileCountryValue", profileData.country);
-  setText("profileCityValue", profileData.city);
-  setText("profileRoleValue", profileData.role);
-  setText("profileStatusValue", profileData.profileStatus);
-
-  setText("profileIdentityText", profileData.identityText);
-
-  if (profileData.identityHighlights) {
-    setText("identityHighlight1", profileData.identityHighlights[0]);
-    setText("identityHighlight2", profileData.identityHighlights[1]);
-    setText("identityHighlight3", profileData.identityHighlights[2]);
-    setText("identityHighlight4", profileData.identityHighlights[3]);
-  }
-
-  if (profileData.snapshot) {
-    setText("snapshotAccountType", profileData.snapshot.accountType);
-    setText("snapshotPresence", profileData.snapshot.presence);
-    setText("snapshotReadiness", profileData.snapshot.readiness);
-    setText("snapshotDirection", profileData.snapshot.direction);
-  }
-
-  if (profileData.readiness) {
-    setText("readinessPresenceLevel", profileData.readiness.presenceLevel);
-    setText("readinessDiscoveryStatus", profileData.readiness.discoveryStatus);
-    setText("readinessTrustLevel", profileData.readiness.trustLevel);
-    setText("readinessActivityDirection", profileData.readiness.activityDirection);
-  }
-
-  const profileUsername = document.getElementById("profileUsername");
-  const profileCountry = document.getElementById("profileCountry");
-  const profileCity = document.getElementById("profileCity");
-  const profileRole = document.getElementById("profileRole");
-  const profileBio = document.getElementById("profileBio");
-
-  if (profileUsername) profileUsername.value = profileData.username || "@pioneer";
-  if (profileCountry) profileCountry.value = profileData.country || "";
-  if (profileCity) profileCity.value = profileData.city || "";
-  if (profileRole) profileRole.value = profileData.role || "Pioneer";
-  if (profileBio) profileBio.value = (profileData.updateForm && profileData.updateForm.bio) || "";
-
-  if (saveProfileBtn && profileSaveStatus) {
-    saveProfileBtn.addEventListener("click", () => {
-      profileSaveStatus.style.display = "block";
-      profileSaveStatus.textContent = "Profile changes saved locally for this preview.";
-    });
-  }
-</script>
+  
+    function normalizeBackendProfile(profile) {
+      const city = "Casablanca";
+      const country = "Morocco";
+  
+      return {
+        username: profile.username || "@pioneer",
+        walletStatus: profile.wallet_address ? "Connected" : "Not connected",
+        country,
+        city,
+        role: "Pioneer",
+        profileStatus: "Active",
+        subtitle: "Build a stronger identity inside the AtlasPi ecosystem.",
+        description: "Your AtlasPi profile is now connected to backend identity data and can grow into a more useful AtlasPi presence.",
+        pills: [
+          `👤 ${profile.username || "@pioneer"}`,
+          profile.wallet_address ? "🔗 Wallet Connected" : "🔗 Wallet Not Connected",
+          `📍 ${city}, ${country}`
+        ],
+        identityText: "A clear backend-linked profile helps pioneers appear more credible, easier to recognize, and better prepared for future discovery across AtlasPi.",
+        identityHighlights: [
+          "Visible profile identity",
+          "Cleaner ecosystem presence",
+          "Stronger recognition",
+          "Future-ready positioning"
+        ],
+        snapshot: {
+          accountType: "Pioneer",
+          presence: "Backend-linked profile",
+          readiness: "Discovery-oriented",
+          direction: "Future-ready"
+        },
+        readiness: {
+          presenceLevel: "Ready",
+          discoveryStatus: "Enabled",
+          trustLevel: "Growing",
+          activityDirection: "Backend-connected"
+        },
+        updateForm: {
+          bio: "AtlasPi pioneer building a stronger ecosystem presence."
+        }
+      };
+    }
+  
+    async function initProfile() {
+      const params = new URLSearchParams(window.location.search);
+      const uid = params.get("uid");
+  
+      if (uid) {
+        try {
+          const response = await fetch(`${API_BASE_URL}/api/auth/profile/${uid}`);
+          const data = await response.json();
+  
+          if (data.ok && data.profile) {
+            applyProfileData(normalizeBackendProfile(data.profile));
+            return;
+          }
+        } catch (error) {
+          console.error("Failed to load backend profile:", error);
+        }
+      }
+  
+      applyProfileData(profileData);
+    }
+  
+    if (saveProfileBtn && profileSaveStatus) {
+      saveProfileBtn.addEventListener("click", () => {
+        profileSaveStatus.style.display = "block";
+        profileSaveStatus.textContent = "Profile changes saved locally for this preview.";
+      });
+    }
+  
+    initProfile();
+  </script>
 </body>
 </html>
