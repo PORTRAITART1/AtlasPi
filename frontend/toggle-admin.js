@@ -113,8 +113,8 @@ document.addEventListener("DOMContentLoaded", () => {
           listings.forEach((listing) => {
             const item = document.createElement("div");
             item.style.marginTop = "12px";
-            item.style.padding = "12px";
-            item.style.borderRadius = "10px";
+            item.style.padding = "16px";
+            item.style.borderRadius = "14px";
             item.style.background = "rgba(255,255,255,0.05)";
             item.style.border = "1px solid rgba(255,255,255,0.08)";
 
@@ -124,7 +124,6 @@ document.addEventListener("DOMContentLoaded", () => {
   <p><strong>Profile Type:</strong> ${listing.profile_type || "-"}</p>
   <p><strong>Domain:</strong> ${listing.domain || "-"}</p>
   <p><strong>Category:</strong> ${listing.category || "-"}</p>
-  <p><strong>Short Description:</strong> ${listing.public_description_short || "-"}</p>
   <p><strong>Status:</strong> ${listing.listing_status || "-"}</p>
   <p><strong>Verification:</strong> ${listing.verification_status || "-"}</p>
   <p><strong>City:</strong> ${listing.city || "-"}</p>
@@ -133,7 +132,78 @@ document.addEventListener("DOMContentLoaded", () => {
   <p><strong>Pi Payments Enabled:</strong> ${listing.merchant_pi_payments_enabled ? "Yes" : "No"}</p>
   <p><strong>Merchant Pi Wallet:</strong> ${listing.merchant_pi_wallet || "-"}</p>
   <p><strong>Created:</strong> ${listing.created_at || "-"}</p>
+
+  <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:16px;">
+    <button type="button" class="btn btn-primary approve-listing-btn">Approve</button>
+    <button type="button" class="btn btn-secondary reject-listing-btn">Reject</button>
+    <button type="button" class="btn btn-secondary suspend-listing-btn">Suspend</button>
+  </div>
 `;
+
+            const approveBtn = item.querySelector(".approve-listing-btn");
+            const rejectBtn = item.querySelector(".reject-listing-btn");
+            const suspendBtn = item.querySelector(".suspend-listing-btn");
+
+            async function moderateListing(nextStatus, reason = "") {
+              try {
+                if (moderationStatus) {
+                  moderationStatus.innerHTML = `<p style="margin:0;">⏳ Updating listing #${listing.id}...</p>`;
+                }
+
+                const response = await fetch(`${apiBase}/api/merchant-listings/moderate/${listing.id}`, {
+                  method: "POST",
+                  headers: {
+                    "Content-Type": "application/json",
+                    "x-admin-secret": secret
+                  },
+                  body: JSON.stringify({
+                    listing_status: nextStatus,
+                    moderation_reason: reason
+                  })
+                });
+
+                const result = await response.json();
+
+                if (!result.ok) {
+                  if (moderationStatus) {
+                    moderationStatus.innerHTML = `<p style="margin:0;color:#dc2626;">❌ ${result.error || "Moderation failed."}</p>`;
+                  }
+                  return;
+                }
+
+                if (moderationStatus) {
+                  moderationStatus.innerHTML = `<p style="margin:0;color:#10b981;">✅ ${result.message}</p>`;
+                }
+
+                if (loadPendingListingsBtn) {
+                  loadPendingListingsBtn.click();
+                }
+              } catch (error) {
+                if (moderationStatus) {
+                  moderationStatus.innerHTML = `<p style="margin:0;color:#dc2626;">❌ Failed to update listing.</p>`;
+                }
+              }
+            }
+
+            if (approveBtn) {
+              approveBtn.addEventListener("click", () => {
+                moderateListing("approved");
+              });
+            }
+
+            if (rejectBtn) {
+              rejectBtn.addEventListener("click", () => {
+                const reason = window.prompt("Optional rejection reason:", "") || "";
+                moderateListing("rejected", reason);
+              });
+            }
+
+            if (suspendBtn) {
+              suspendBtn.addEventListener("click", () => {
+                const reason = window.prompt("Optional suspension reason:", "") || "";
+                moderateListing("suspended", reason);
+              });
+            }
 
             pendingListingsList.appendChild(item);
           });
