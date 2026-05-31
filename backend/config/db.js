@@ -6,12 +6,16 @@ import fs from "fs";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const dataDir = path.join(__dirname, "../data");
-if (!fs.existsSync(dataDir)) {
-  fs.mkdirSync(dataDir, { recursive: true });
+const persistentDataDir =
+  process.env.SQLITE_DATA_DIR ||
+  (fs.existsSync("/var/data") ? "/var/data" : path.join(__dirname, "../data"));
+
+if (!fs.existsSync(persistentDataDir)) {
+  fs.mkdirSync(persistentDataDir, { recursive: true });
 }
 
-const dbPath = path.join(dataDir, "atlaspi.db");
+const dbPath = path.join(persistentDataDir, "atlaspi.db");
+console.log("📦 SQLite DB path:", dbPath);
 
 const db = new sqlite3.Database(dbPath, (err) => {
   if (err) {
