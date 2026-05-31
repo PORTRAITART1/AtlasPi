@@ -252,6 +252,21 @@ db.serialize(() => {
       FOREIGN KEY(merchant_listing_id) REFERENCES merchant_listings(id)
     )
   `);
+    // Support Requests Table
+    db.run(`
+    CREATE TABLE IF NOT EXISTS support_requests (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      request_uuid TEXT NOT NULL UNIQUE,
+      name TEXT NOT NULL,
+      email TEXT NOT NULL,
+      support_type TEXT NOT NULL,
+      message TEXT NOT NULL,
+      status TEXT NOT NULL DEFAULT 'open',
+      source TEXT NOT NULL DEFAULT 'frontend',
+      created_at TEXT NOT NULL,
+      updated_at TEXT NOT NULL
+    )
+  `);
 });
 
 export default db;
