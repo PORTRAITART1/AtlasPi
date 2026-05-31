@@ -376,6 +376,29 @@
         </article>
       </div>
     </section>
+    <section class="section" id="admin-payments">
+        <div class="container">
+          <div class="section-heading">
+            <span class="eyebrow">Payments</span>
+            <h2>Payment Logs</h2>
+            <p>
+              Review recent payment records captured by the AtlasPi backend.
+            </p>
+          </div>
+      
+          <article class="admin-panel-card">
+            <div class="admin-actions" style="margin-bottom: 18px;">
+              <button type="button" class="btn btn-secondary" id="loadPaymentLogsBtn">Load Payment Logs</button>
+            </div>
+      
+            <div id="paymentLogsStatus" class="admin-panel-card" style="padding:16px; margin-bottom:16px;">
+              <p style="margin:0;">No payment logs loaded yet.</p>
+            </div>
+      
+            <div id="paymentLogsContainer"></div>
+          </article>
+        </div>
+      </section>
   </main>
 
   <footer class="site-footer">
@@ -407,6 +430,9 @@
       const moderationStatus = document.getElementById("moderationStatus");
       const pendingListingsList = document.getElementById("pendingListingsList");
       const adminCountersContainer = document.getElementById("adminCountersContainer");
+      const loadPaymentLogsBtn = document.getElementById("loadPaymentLogsBtn");
+      const paymentLogsStatus = document.getElementById("paymentLogsStatus");
+      const paymentLogsContainer = document.getElementById("paymentLogsContainer");
       const apiBase = window.ATLASPI_CONFIG?.API_BASE_URL || "https://atlaspi-backend.onrender.com";
 
       async function loadAdminStats(secret) {
@@ -458,7 +484,52 @@
           adminCountersContainer.innerHTML = '<p style="margin:0;color:#dc2626;">❌ Failed to contact backend for admin stats.</p>';
         }
       }
+      async function loadPaymentLogs() {
+        if (!paymentLogsContainer || !paymentLogsStatus) return;
 
+        paymentLogsStatus.innerHTML = '<p style="margin:0;">⏳ Loading payment logs...</p>';
+        paymentLogsContainer.innerHTML = "";
+
+        try {
+          const response = await fetch(`${apiBase}/api/payments/list`);
+          const data = await response.json();
+
+          if (!data.ok) {
+            paymentLogsStatus.innerHTML = `<p style="margin:0;color:#dc2626;">❌ ${data.error || "Failed to load payment logs."}</p>`;
+            return;
+          }
+
+          const payments = data.payments || [];
+
+          if (!payments.length) {
+            paymentLogsStatus.innerHTML = '<p style="margin:0;color:#3b82f6;">ℹ️ No payment logs found.</p>';
+            return;
+          }
+
+          paymentLogsStatus.innerHTML = `<p style="margin:0;color:#10b981;">✅ ${payments.length} payment log(s) loaded.</p>`;
+
+          payments.forEach((payment) => {
+            const item = document.createElement("div");
+            item.className = "admin-listing-card";
+
+            item.innerHTML = `
+              <p><strong>Local Payment ID:</strong> ${payment.local_payment_id || "-"}</p>
+              <p><strong>Pi Payment ID:</strong> ${payment.pi_payment_id || "-"}</p>
+              <p><strong>TXID:</strong> ${payment.txid || "-"}</p>
+              <p><strong>Username:</strong> ${payment.username || "-"}</p>
+              <p><strong>Amount:</strong> ${payment.amount ?? "-"}</p>
+              <p><strong>Memo:</strong> ${payment.memo || "-"}</p>
+              <p><strong>Status:</strong> ${payment.status || "-"}</p>
+              <p><strong>Created:</strong> ${payment.created_at || "-"}</p>
+              <p><strong>Updated:</strong> ${payment.updated_at || "-"}</p>
+            `;
+
+            paymentLogsContainer.appendChild(item);
+          });
+        } catch (error) {
+          paymentLogsStatus.innerHTML = '<p style="margin:0;color:#dc2626;">❌ Failed to contact backend for payment logs.</p>';
+        }
+      }
       function renderListingCard(listing, secret) {
         const item = document.createElement("div");
         item.className = "admin-listing-card";
@@ -532,6 +603,9 @@
         return item;
       }
 
+      if (loadPaymentLogsBtn) {
+        loadPaymentLogsBtn.addEventListener("click", loadPaymentLogs);
+      }
       if (loadPendingListingsBtn) {
         loadPendingListingsBtn.addEventListener("click", async () => {
           const secret = adminSecretInput ? adminSecretInput.value.trim() : "";
