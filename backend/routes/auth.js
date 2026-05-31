@@ -54,4 +54,52 @@ router.post("/pi", (req, res) => {
   }
 });
 
+router.get("/profile/:uid", (req, res) => {
+  try {
+    const { uid } = req.params;
+
+    if (!uid) {
+      return res.status(400).json({
+        ok: false,
+        error: "uid is required"
+      });
+    }
+
+    db.get(
+      `SELECT uid, username, wallet_address, created_at
+       FROM auth_logs
+       WHERE uid = ?
+       ORDER BY created_at DESC
+       LIMIT 1`,
+      [uid],
+      (err, row) => {
+        if (err) {
+          logger.error("Profile fetch DB error: " + err.message);
+          return res.status(500).json({
+            ok: false,
+            error: "Database error while loading profile"
+          });
+        }
+
+        if (!row) {
+          return res.status(404).json({
+            ok: false,
+            error: "Profile not found"
+          });
+        }
+
+        return res.json({
+          ok: true,
+          profile: row
+        });
+      }
+    );
+  } catch (error) {
+    logger.error("Profile route error: " + error.message);
+    return res.status(500).json({
+      ok: false,
+      error: error.message
+    });
+  }
+});
 export default router;
