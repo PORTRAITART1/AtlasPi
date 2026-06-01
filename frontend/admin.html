@@ -478,6 +478,22 @@
                 />
               </div>
             
+              <div style="min-width: 220px;">
+                <label for="adminMerchantSort"><strong>Sort By</strong></label><br />
+                <select
+                  id="adminMerchantSort"
+                  style="width:100%; margin-top:8px; padding:14px; border-radius:12px; border:1px solid rgba(255,255,255,0.12); background:rgba(255,255,255,0.04); color:inherit;"
+                >
+                  <option value="created_desc">Newest first</option>
+                  <option value="created_asc">Oldest first</option>
+                  <option value="name_asc">Name A → Z</option>
+                  <option value="name_desc">Name Z → A</option>
+                  <option value="status_asc">Status A → Z</option>
+                  <option value="status_desc">Status Z → A</option>
+                  <option value="country_asc">Country A → Z</option>
+                  <option value="country_desc">Country Z → A</option>
+                </select>
+              </div>
               <button type="button" class="btn btn-secondary" id="loadAdminMerchantsBtn">Load All Merchants</button>
               <button type="button" class="btn btn-secondary" id="clearAdminMerchantFiltersBtn">Clear Filters</button>
             </div>
@@ -563,6 +579,7 @@
       const adminMerchantCountryFilter = document.getElementById("adminMerchantCountryFilter");
       const adminMerchantCategoryFilter = document.getElementById("adminMerchantCategoryFilter");
       const clearAdminMerchantFiltersBtn = document.getElementById("clearAdminMerchantFiltersBtn");
+      const adminMerchantSort = document.getElementById("adminMerchantSort");
       const apiBase = window.ATLASPI_CONFIG?.API_BASE_URL || "https://atlaspi-backend.onrender.com";
 
       async function loadAdminStats(secret) {
@@ -828,8 +845,9 @@
           const statusValue = (adminMerchantStatusFilter?.value || "").trim();
           const countryValue = (adminMerchantCountryFilter?.value || "").toLowerCase().trim();
           const categoryValue = (adminMerchantCategoryFilter?.value || "").toLowerCase().trim();
+          const sortValue = (adminMerchantSort?.value || "created_desc").trim();
 
-          const filteredListings = listings.filter((listing) => {
+          let filteredListings = listings.filter((listing) => {
             const listingName = (listing.listing_public_name || "").toLowerCase();
             const businessName = (listing.business_name || "").toLowerCase();
             const country = (listing.country || "").toLowerCase();
@@ -851,6 +869,38 @@
               !categoryValue || category.includes(categoryValue);
 
             return matchesSearch && matchesStatus && matchesCountry && matchesCategory;
+          });
+
+          filteredListings.sort((a, b) => {
+            const nameA = (a.listing_public_name || "").toLowerCase();
+            const nameB = (b.listing_public_name || "").toLowerCase();
+            const statusA = (a.listing_status || "").toLowerCase();
+            const statusB = (b.listing_status || "").toLowerCase();
+            const countryA = (a.country || "").toLowerCase();
+            const countryB = (b.country || "").toLowerCase();
+            const createdA = new Date(a.created_at || 0).getTime();
+            const createdB = new Date(b.created_at || 0).getTime();
+
+            switch (sortValue) {
+              case "created_asc":
+                return createdA - createdB;
+              case "created_desc":
+                return createdB - createdA;
+              case "name_asc":
+                return nameA.localeCompare(nameB);
+              case "name_desc":
+                return nameB.localeCompare(nameA);
+              case "status_asc":
+                return statusA.localeCompare(statusB);
+              case "status_desc":
+                return statusB.localeCompare(statusA);
+              case "country_asc":
+                return countryA.localeCompare(countryB);
+              case "country_desc":
+                return countryB.localeCompare(countryA);
+              default:
+                return createdB - createdA;
+            }
           });
 
           if (!listings.length) {
@@ -1095,6 +1145,7 @@
           if (adminMerchantStatusFilter) adminMerchantStatusFilter.value = "";
           if (adminMerchantCountryFilter) adminMerchantCountryFilter.value = "";
           if (adminMerchantCategoryFilter) adminMerchantCategoryFilter.value = "";
+          if (adminMerchantSort) adminMerchantSort.value = "created_desc";
         });
       }
       if (loadPendingListingsBtn) {
