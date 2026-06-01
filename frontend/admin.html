@@ -428,7 +428,7 @@
             <span class="eyebrow">Merchants</span>
             <h2>All Merchant Listings</h2>
             <p>
-              Review all merchant listings across statuses from one admin view.
+              Review all merchant listings in a compact admin view built for speed and clarity.
             </p>
           </div>
       
@@ -441,7 +441,35 @@
               <p style="margin:0;">No merchant listings loaded yet.</p>
             </div>
       
-            <div id="adminMerchantsContainer"></div>
+            <div style="overflow-x:auto;">
+              <div id="adminMerchantTable" style="min-width: 980px;">
+                <div
+                  style="
+                    display:grid;
+                    grid-template-columns: 1.5fr 1.2fr 1fr 1fr 1fr 1fr 0.9fr 1.1fr 1.1fr;
+                    gap:12px;
+                    padding:14px 16px;
+                    border-radius:14px;
+                    background: rgba(255,255,255,0.06);
+                    border: 1px solid rgba(255,255,255,0.08);
+                    font-weight:700;
+                    margin-bottom:12px;
+                  "
+                >
+                  <div>Listing</div>
+                  <div>Business</div>
+                  <div>Type</div>
+                  <div>Category</div>
+                  <div>City</div>
+                  <div>Country</div>
+                  <div>Status</div>
+                  <div>Verification</div>
+                  <div>Actions</div>
+                </div>
+      
+                <div id="adminMerchantsContainer"></div>
+              </div>
+            </div>
           </article>
         </div>
       </section>
@@ -666,25 +694,44 @@
 
           listings.forEach((listing) => {
             const item = document.createElement("div");
-            item.className = "admin-listing-card";
+            item.style.display = "grid";
+            item.style.gridTemplateColumns = "1.5fr 1.2fr 1fr 1fr 1fr 1fr 0.9fr 1.1fr 1.1fr";
+            item.style.gap = "12px";
+            item.style.padding = "14px 16px";
+            item.style.borderRadius = "14px";
+            item.style.background = "rgba(255,255,255,0.04)";
+            item.style.border = "1px solid rgba(255,255,255,0.08)";
+            item.style.marginBottom = "10px";
+            item.style.alignItems = "center";
+
+            const statusColor =
+              listing.listing_status === "approved"
+                ? "#86efac"
+                : listing.listing_status === "rejected"
+                ? "#fca5a5"
+                : listing.listing_status === "suspended"
+                ? "#fdba74"
+                : "#fde68a";
 
             item.innerHTML = `
-              <p><strong>Listing Name:</strong> ${listing.listing_public_name || "-"}</p>
-              <p><strong>Business:</strong> ${listing.business_name || "-"}</p>
-              <p><strong>Owner User ID:</strong> ${listing.owner_user_id || "-"}</p>
-              <p><strong>Profile Type:</strong> ${listing.profile_type || "-"}</p>
-              <p><strong>Domain:</strong> ${listing.domain || "-"}</p>
-              <p><strong>Category:</strong> ${listing.category || "-"}</p>
-              <p><strong>City:</strong> ${listing.city || "-"}</p>
-              <p><strong>Country:</strong> ${listing.country || "-"}</p>
-              <p><strong>Status:</strong> ${listing.listing_status || "-"}</p>
-              <p><strong>Verification:</strong> ${listing.verification_status || "-"}</p>
-              <p><strong>Moderation Reason:</strong> ${listing.moderation_reason || "-"}</p>
-              <p><strong>Accepts Pi:</strong> ${listing.accepts_pi ? "Yes" : "No"}</p>
-              <p><strong>Pi Payments Enabled:</strong> ${listing.merchant_pi_payments_enabled ? "Yes" : "No"}</p>
-              <p><strong>Merchant Pi Wallet:</strong> ${listing.merchant_pi_wallet || "-"}</p>
-              <p><strong>Created:</strong> ${listing.created_at || "-"}</p>
-              <p><strong>Updated:</strong> ${listing.updated_at || "-"}</p>
+              <div>
+                <strong>${listing.listing_public_name || "-"}</strong><br />
+                <span style="opacity:0.72; font-size:0.9rem;">${listing.owner_user_id || "-"}</span>
+              </div>
+              <div>${listing.business_name || "-"}</div>
+              <div>${listing.profile_type || "-"}</div>
+              <div>${listing.category || "-"}</div>
+              <div>${listing.city || "-"}</div>
+              <div>${listing.country || "-"}</div>
+              <div>
+                <span style="color:${statusColor}; font-weight:700;">
+                  ${listing.listing_status || "-"}
+                </span>
+              </div>
+              <div>${listing.verification_status || "-"}</div>
+              <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                <button type="button" class="btn btn-primary" style="padding:8px 12px; min-width:auto;">View</button>
+              </div>
             `;
 
             adminMerchantsContainer.appendChild(item);
