@@ -433,8 +433,53 @@
           </div>
       
           <article class="admin-panel-card">
-            <div class="admin-actions" style="margin-bottom: 18px;">
+            <div class="admin-actions" style="margin-bottom: 18px; align-items: flex-end; flex-wrap: wrap;">
+              <div style="min-width: 220px; flex: 1;">
+                <label for="adminMerchantSearch"><strong>Search</strong></label><br />
+                <input
+                  type="text"
+                  id="adminMerchantSearch"
+                  placeholder="Search by listing or business name"
+                  style="width:100%; margin-top:8px; padding:14px; border-radius:12px; border:1px solid rgba(255,255,255,0.12); background:rgba(255,255,255,0.04); color:inherit;"
+                />
+              </div>
+            
+              <div style="min-width: 180px;">
+                <label for="adminMerchantStatusFilter"><strong>Status</strong></label><br />
+                <select
+                  id="adminMerchantStatusFilter"
+                  style="width:100%; margin-top:8px; padding:14px; border-radius:12px; border:1px solid rgba(255,255,255,0.12); background:rgba(255,255,255,0.04); color:inherit;"
+                >
+                  <option value="">All Statuses</option>
+                  <option value="pending_review">pending_review</option>
+                  <option value="approved">approved</option>
+                  <option value="rejected">rejected</option>
+                  <option value="suspended">suspended</option>
+                </select>
+              </div>
+            
+              <div style="min-width: 180px;">
+                <label for="adminMerchantCountryFilter"><strong>Country</strong></label><br />
+                <input
+                  type="text"
+                  id="adminMerchantCountryFilter"
+                  placeholder="Filter by country"
+                  style="width:100%; margin-top:8px; padding:14px; border-radius:12px; border:1px solid rgba(255,255,255,0.12); background:rgba(255,255,255,0.04); color:inherit;"
+                />
+              </div>
+            
+              <div style="min-width: 180px;">
+                <label for="adminMerchantCategoryFilter"><strong>Category</strong></label><br />
+                <input
+                  type="text"
+                  id="adminMerchantCategoryFilter"
+                  placeholder="Filter by category"
+                  style="width:100%; margin-top:8px; padding:14px; border-radius:12px; border:1px solid rgba(255,255,255,0.12); background:rgba(255,255,255,0.04); color:inherit;"
+                />
+              </div>
+            
               <button type="button" class="btn btn-secondary" id="loadAdminMerchantsBtn">Load All Merchants</button>
+              <button type="button" class="btn btn-secondary" id="clearAdminMerchantFiltersBtn">Clear Filters</button>
             </div>
       
             <div id="adminMerchantsStatus" class="admin-panel-card" style="padding:16px; margin-bottom:16px;">
@@ -513,6 +558,11 @@
       const loadAdminMerchantsBtn = document.getElementById("loadAdminMerchantsBtn");
       const adminMerchantsStatus = document.getElementById("adminMerchantsStatus");
       const adminMerchantsContainer = document.getElementById("adminMerchantsContainer");
+      const adminMerchantSearch = document.getElementById("adminMerchantSearch");
+      const adminMerchantStatusFilter = document.getElementById("adminMerchantStatusFilter");
+      const adminMerchantCountryFilter = document.getElementById("adminMerchantCountryFilter");
+      const adminMerchantCategoryFilter = document.getElementById("adminMerchantCategoryFilter");
+      const clearAdminMerchantFiltersBtn = document.getElementById("clearAdminMerchantFiltersBtn");
       const apiBase = window.ATLASPI_CONFIG?.API_BASE_URL || "https://atlaspi-backend.onrender.com";
 
       async function loadAdminStats(secret) {
@@ -774,15 +824,48 @@
           }
 
           const listings = data.listings || [];
+          const searchValue = (adminMerchantSearch?.value || "").toLowerCase().trim();
+          const statusValue = (adminMerchantStatusFilter?.value || "").trim();
+          const countryValue = (adminMerchantCountryFilter?.value || "").toLowerCase().trim();
+          const categoryValue = (adminMerchantCategoryFilter?.value || "").toLowerCase().trim();
+
+          const filteredListings = listings.filter((listing) => {
+            const listingName = (listing.listing_public_name || "").toLowerCase();
+            const businessName = (listing.business_name || "").toLowerCase();
+            const country = (listing.country || "").toLowerCase();
+            const category = (listing.category || "").toLowerCase();
+            const status = (listing.listing_status || "").trim();
+
+            const matchesSearch =
+              !searchValue ||
+              listingName.includes(searchValue) ||
+              businessName.includes(searchValue);
+
+            const matchesStatus =
+              !statusValue || status === statusValue;
+
+            const matchesCountry =
+              !countryValue || country.includes(countryValue);
+
+            const matchesCategory =
+              !categoryValue || category.includes(categoryValue);
+
+            return matchesSearch && matchesStatus && matchesCountry && matchesCategory;
+          });
 
           if (!listings.length) {
             adminMerchantsStatus.innerHTML = '<p style="margin:0;color:#3b82f6;">ℹ️ No merchant listings found.</p>';
             return;
           }
 
-          adminMerchantsStatus.innerHTML = `<p style="margin:0;color:#10b981;">✅ ${listings.length} merchant listing(s) loaded.</p>`;
+          if (!filteredListings.length) {
+            adminMerchantsStatus.innerHTML = '<p style="margin:0;color:#f59e0b;">⚠️ No merchant listings match your filters.</p>';
+            return;
+          }
 
-          listings.forEach((listing) => {
+          adminMerchantsStatus.innerHTML = `<p style="margin:0;color:#10b981;">✅ ${filteredListings.length} merchant listing(s) loaded.</p>`;
+
+          filteredListings.forEach((listing) => {
             const item = document.createElement("div");
             item.style.marginBottom = "12px";
 
@@ -1005,6 +1088,14 @@
       }
       if (loadAdminMerchantsBtn) {
         loadAdminMerchantsBtn.addEventListener("click", loadAdminMerchants);
+      }
+      if (clearAdminMerchantFiltersBtn) {
+        clearAdminMerchantFiltersBtn.addEventListener("click", () => {
+          if (adminMerchantSearch) adminMerchantSearch.value = "";
+          if (adminMerchantStatusFilter) adminMerchantStatusFilter.value = "";
+          if (adminMerchantCountryFilter) adminMerchantCountryFilter.value = "";
+          if (adminMerchantCategoryFilter) adminMerchantCategoryFilter.value = "";
+        });
       }
       if (loadPendingListingsBtn) {
         loadPendingListingsBtn.addEventListener("click", async () => {
