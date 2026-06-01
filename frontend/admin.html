@@ -399,6 +399,29 @@
           </article>
         </div>
       </section>
+      <section class="section" id="admin-support-requests">
+        <div class="container">
+          <div class="section-heading">
+            <span class="eyebrow">Support</span>
+            <h2>Support Requests</h2>
+            <p>
+              Review support requests submitted through the AtlasPi support page.
+            </p>
+          </div>
+      
+          <article class="admin-panel-card">
+            <div class="admin-actions" style="margin-bottom: 18px;">
+              <button type="button" class="btn btn-secondary" id="loadSupportRequestsBtn">Load Support Requests</button>
+            </div>
+      
+            <div id="supportRequestsStatus" class="admin-panel-card" style="padding:16px; margin-bottom:16px;">
+              <p style="margin:0;">No support requests loaded yet.</p>
+            </div>
+      
+            <div id="supportRequestsContainer"></div>
+          </article>
+        </div>
+      </section>
   </main>
 
   <footer class="site-footer">
@@ -433,6 +456,9 @@
       const loadPaymentLogsBtn = document.getElementById("loadPaymentLogsBtn");
       const paymentLogsStatus = document.getElementById("paymentLogsStatus");
       const paymentLogsContainer = document.getElementById("paymentLogsContainer");
+      const loadSupportRequestsBtn = document.getElementById("loadSupportRequestsBtn");
+      const supportRequestsStatus = document.getElementById("supportRequestsStatus");
+      const supportRequestsContainer = document.getElementById("supportRequestsContainer");
       const apiBase = window.ATLASPI_CONFIG?.API_BASE_URL || "https://atlaspi-backend.onrender.com";
 
       async function loadAdminStats(secret) {
@@ -530,6 +556,52 @@
           paymentLogsStatus.innerHTML = '<p style="margin:0;color:#dc2626;">❌ Failed to contact backend for payment logs.</p>';
         }
       }
+      async function loadSupportRequests() {
+        if (!supportRequestsContainer || !supportRequestsStatus) return;
+
+        supportRequestsStatus.innerHTML = '<p style="margin:0;">⏳ Loading support requests...</p>';
+        supportRequestsContainer.innerHTML = "";
+
+        try {
+          const response = await fetch(`${apiBase}/api/support/list`);
+          const data = await response.json();
+
+          if (!data.ok) {
+            supportRequestsStatus.innerHTML = `<p style="margin:0;color:#dc2626;">❌ ${data.error || "Failed to load support requests."}</p>`;
+            return;
+          }
+
+          const requests = data.requests || [];
+
+          if (!requests.length) {
+            supportRequestsStatus.innerHTML = '<p style="margin:0;color:#3b82f6;">ℹ️ No support requests found.</p>';
+            return;
+          }
+
+          supportRequestsStatus.innerHTML = `<p style="margin:0;color:#10b981;">✅ ${requests.length} support request(s) loaded.</p>`;
+
+          requests.forEach((request) => {
+            const item = document.createElement("div");
+            item.className = "admin-listing-card";
+
+            item.innerHTML = `
+              <p><strong>Request UUID:</strong> ${request.request_uuid || "-"}</p>
+              <p><strong>Name:</strong> ${request.name || "-"}</p>
+              <p><strong>Email:</strong> ${request.email || "-"}</p>
+              <p><strong>Support Type:</strong> ${request.support_type || "-"}</p>
+              <p><strong>Message:</strong> ${request.message || "-"}</p>
+              <p><strong>Status:</strong> ${request.status || "-"}</p>
+              <p><strong>Source:</strong> ${request.source || "-"}</p>
+              <p><strong>Created:</strong> ${request.created_at || "-"}</p>
+              <p><strong>Updated:</strong> ${request.updated_at || "-"}</p>
+            `;
+
+            supportRequestsContainer.appendChild(item);
+          });
+        } catch (error) {
+          supportRequestsStatus.innerHTML = '<p style="margin:0;color:#dc2626;">❌ Failed to contact backend for support requests.</p>';
+        }
+      }
       function renderListingCard(listing, secret) {
         const item = document.createElement("div");
         item.className = "admin-listing-card";
@@ -605,6 +677,9 @@
 
       if (loadPaymentLogsBtn) {
         loadPaymentLogsBtn.addEventListener("click", loadPaymentLogs);
+      }
+      if (loadSupportRequestsBtn) {
+        loadSupportRequestsBtn.addEventListener("click", loadSupportRequests);
       }
       if (loadPendingListingsBtn) {
         loadPendingListingsBtn.addEventListener("click", async () => {
