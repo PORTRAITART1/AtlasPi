@@ -10,6 +10,7 @@ import subscriptionRoutes from "./routes/subscriptions.js";
 import piPaymentRoutes from "./routes/payments-pi-day3.js";
 import logger from "./utils/logger.js";
 import merchantListingRoutes from "./routes/merchantListings.js";
+import supportRoutes from "./routes/support.js";
 import envManager from "./config/envManager.js";
 
 const app = express();
@@ -97,6 +98,7 @@ app.use("/api/payments", paymentRoutes);
 app.use("/api/pi-payments", piPaymentRoutes);
 app.use("/api/subscriptions", subscriptionRoutes);
 app.use("/api/merchant-listings", merchantListingRoutes);
+app.use("/api/support", supportRoutes);
 
 app.use((err, req, res, next) => {
   logger.error("Unhandled server error: " + err.message);
