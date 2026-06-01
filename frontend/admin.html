@@ -590,9 +590,44 @@
 
           payments.forEach((payment) => {
             const item = document.createElement("div");
-            item.className = "admin-listing-card";
+            item.style.marginBottom = "12px";
 
-            item.innerHTML = `
+            const row = document.createElement("div");
+            row.style.display = "grid";
+            row.style.gridTemplateColumns = "1.6fr 1.3fr 0.9fr 0.9fr 1.2fr 1fr";
+            row.style.gap = "12px";
+            row.style.padding = "14px 16px";
+            row.style.borderRadius = "14px";
+            row.style.background = "rgba(255,255,255,0.04)";
+            row.style.border = "1px solid rgba(255,255,255,0.08)";
+            row.style.alignItems = "center";
+
+            const statusColor =
+              payment.status === "completed"
+                ? "#86efac"
+                : payment.status === "approved"
+                ? "#93c5fd"
+                : payment.status === "cancelled"
+                ? "#fca5a5"
+                : "#fde68a";
+
+            row.innerHTML = `
+              <div><strong>${payment.local_payment_id || "-"}</strong></div>
+              <div>${payment.pi_payment_id || "-"}</div>
+              <div>${payment.amount ?? "-"}</div>
+              <div><span style="color:${statusColor}; font-weight:700;">${payment.status || "-"}</span></div>
+              <div>${payment.created_at || "-"}</div>
+              <div>
+                <button type="button" class="btn btn-primary payment-view-btn" style="padding:8px 12px; min-width:auto;">View</button>
+              </div>
+            `;
+
+            const details = document.createElement("div");
+            details.className = "admin-listing-card";
+            details.style.display = "none";
+            details.style.marginTop = "8px";
+
+            details.innerHTML = `
               <p><strong>Local Payment ID:</strong> ${payment.local_payment_id || "-"}</p>
               <p><strong>Pi Payment ID:</strong> ${payment.pi_payment_id || "-"}</p>
               <p><strong>TXID:</strong> ${payment.txid || "-"}</p>
@@ -604,6 +639,17 @@
               <p><strong>Updated:</strong> ${payment.updated_at || "-"}</p>
             `;
 
+            const viewBtn = row.querySelector(".payment-view-btn");
+            if (viewBtn) {
+              viewBtn.addEventListener("click", () => {
+                const isHidden = details.style.display === "none";
+                details.style.display = isHidden ? "block" : "none";
+                viewBtn.textContent = isHidden ? "Hide" : "View";
+              });
+            }
+
+            item.appendChild(row);
+            item.appendChild(details);
             paymentLogsContainer.appendChild(item);
           });
         } catch (error) {
@@ -636,9 +682,42 @@
 
           requests.forEach((request) => {
             const item = document.createElement("div");
-            item.className = "admin-listing-card";
+            item.style.marginBottom = "12px";
 
-            item.innerHTML = `
+            const row = document.createElement("div");
+            row.style.display = "grid";
+            row.style.gridTemplateColumns = "1.2fr 1.4fr 1fr 0.9fr 1.2fr 1fr";
+            row.style.gap = "12px";
+            row.style.padding = "14px 16px";
+            row.style.borderRadius = "14px";
+            row.style.background = "rgba(255,255,255,0.04)";
+            row.style.border = "1px solid rgba(255,255,255,0.08)";
+            row.style.alignItems = "center";
+
+            const statusColor =
+              request.status === "open"
+                ? "#86efac"
+                : request.status === "closed"
+                ? "#93c5fd"
+                : "#fde68a";
+
+            row.innerHTML = `
+              <div><strong>${request.name || "-"}</strong></div>
+              <div>${request.email || "-"}</div>
+              <div>${request.support_type || "-"}</div>
+              <div><span style="color:${statusColor}; font-weight:700;">${request.status || "-"}</span></div>
+              <div>${request.created_at || "-"}</div>
+              <div>
+                <button type="button" class="btn btn-primary support-view-btn" style="padding:8px 12px; min-width:auto;">View</button>
+              </div>
+            `;
+
+            const details = document.createElement("div");
+            details.className = "admin-listing-card";
+            details.style.display = "none";
+            details.style.marginTop = "8px";
+
+            details.innerHTML = `
               <p><strong>Request UUID:</strong> ${request.request_uuid || "-"}</p>
               <p><strong>Name:</strong> ${request.name || "-"}</p>
               <p><strong>Email:</strong> ${request.email || "-"}</p>
@@ -650,6 +729,17 @@
               <p><strong>Updated:</strong> ${request.updated_at || "-"}</p>
             `;
 
+            const viewBtn = row.querySelector(".support-view-btn");
+            if (viewBtn) {
+              viewBtn.addEventListener("click", () => {
+                const isHidden = details.style.display === "none";
+                details.style.display = isHidden ? "block" : "none";
+                viewBtn.textContent = isHidden ? "Hide" : "View";
+              });
+            }
+
+            item.appendChild(row);
+            item.appendChild(details);
             supportRequestsContainer.appendChild(item);
           });
         } catch (error) {
@@ -780,10 +870,55 @@
       }
       function renderListingCard(listing, secret) {
         const item = document.createElement("div");
-        item.className = "admin-listing-card";
+        item.style.marginBottom = "12px";
 
-        item.innerHTML = `
-          <p><strong>${listing.listing_public_name || "-"}</strong></p>
+        const row = document.createElement("div");
+        row.style.display = "grid";
+        row.style.gridTemplateColumns = "1.5fr 1.2fr 1fr 1fr 1fr 1fr 0.9fr 1.1fr 1.1fr";
+        row.style.gap = "12px";
+        row.style.padding = "14px 16px";
+        row.style.borderRadius = "14px";
+        row.style.background = "rgba(255,255,255,0.04)";
+        row.style.border = "1px solid rgba(255,255,255,0.08)";
+        row.style.alignItems = "center";
+
+        const statusColor =
+          listing.listing_status === "approved"
+            ? "#86efac"
+            : listing.listing_status === "rejected"
+            ? "#fca5a5"
+            : listing.listing_status === "suspended"
+            ? "#fdba74"
+            : "#fde68a";
+
+        row.innerHTML = `
+          <div>
+            <strong>${listing.listing_public_name || "-"}</strong><br />
+            <span style="opacity:0.72; font-size:0.9rem;">${listing.owner_user_id || "-"}</span>
+          </div>
+          <div>${listing.business_name || "-"}</div>
+          <div>${listing.profile_type || "-"}</div>
+          <div>${listing.category || "-"}</div>
+          <div>${listing.city || "-"}</div>
+          <div>${listing.country || "-"}</div>
+          <div>
+            <span style="color:${statusColor}; font-weight:700;">
+              ${listing.listing_status || "-"}
+            </span>
+          </div>
+          <div>${listing.verification_status || "-"}</div>
+          <div style="display:flex; gap:8px; flex-wrap:wrap;">
+            <button type="button" class="btn btn-primary review-view-btn" style="padding:8px 12px; min-width:auto;">View</button>
+          </div>
+        `;
+
+        const details = document.createElement("div");
+        details.className = "admin-listing-card";
+        details.style.display = "none";
+        details.style.marginTop = "8px";
+
+        details.innerHTML = `
+          <p><strong>Listing Name:</strong> ${listing.listing_public_name || "-"}</p>
           <p><strong>Business:</strong> ${listing.business_name || "-"}</p>
           <p><strong>Profile Type:</strong> ${listing.profile_type || "-"}</p>
           <p><strong>Domain:</strong> ${listing.domain || "-"}</p>
@@ -804,9 +939,10 @@
           </div>
         `;
 
-        const approveBtn = item.querySelector(".approve-listing-btn");
-        const rejectBtn = item.querySelector(".reject-listing-btn");
-        const suspendBtn = item.querySelector(".suspend-listing-btn");
+        const viewBtn = row.querySelector(".review-view-btn");
+        const approveBtn = details.querySelector(".approve-listing-btn");
+        const rejectBtn = details.querySelector(".reject-listing-btn");
+        const suspendBtn = details.querySelector(".suspend-listing-btn");
 
         async function moderateListing(nextStatus, reason = "") {
           try {
@@ -838,6 +974,14 @@
           }
         }
 
+        if (viewBtn) {
+          viewBtn.addEventListener("click", () => {
+            const isHidden = details.style.display === "none";
+            details.style.display = isHidden ? "block" : "none";
+            viewBtn.textContent = isHidden ? "Hide" : "View";
+          });
+        }
+
         approveBtn?.addEventListener("click", () => moderateListing("approved"));
         rejectBtn?.addEventListener("click", () => {
           const reason = window.prompt("Optional rejection reason:", "") || "";
@@ -848,6 +992,8 @@
           moderateListing("suspended", reason);
         });
 
+        item.appendChild(row);
+        item.appendChild(details);
         return item;
       }
 
