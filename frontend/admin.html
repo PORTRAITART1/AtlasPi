@@ -694,15 +694,17 @@
 
           listings.forEach((listing) => {
             const item = document.createElement("div");
-            item.style.display = "grid";
-            item.style.gridTemplateColumns = "1.5fr 1.2fr 1fr 1fr 1fr 1fr 0.9fr 1.1fr 1.1fr";
-            item.style.gap = "12px";
-            item.style.padding = "14px 16px";
-            item.style.borderRadius = "14px";
-            item.style.background = "rgba(255,255,255,0.04)";
-            item.style.border = "1px solid rgba(255,255,255,0.08)";
-            item.style.marginBottom = "10px";
-            item.style.alignItems = "center";
+            item.style.marginBottom = "12px";
+
+            const row = document.createElement("div");
+            row.style.display = "grid";
+            row.style.gridTemplateColumns = "1.5fr 1.2fr 1fr 1fr 1fr 1fr 0.9fr 1.1fr 1.1fr";
+            row.style.gap = "12px";
+            row.style.padding = "14px 16px";
+            row.style.borderRadius = "14px";
+            row.style.background = "rgba(255,255,255,0.04)";
+            row.style.border = "1px solid rgba(255,255,255,0.08)";
+            row.style.alignItems = "center";
 
             const statusColor =
               listing.listing_status === "approved"
@@ -713,7 +715,7 @@
                 ? "#fdba74"
                 : "#fde68a";
 
-            item.innerHTML = `
+            row.innerHTML = `
               <div>
                 <strong>${listing.listing_public_name || "-"}</strong><br />
                 <span style="opacity:0.72; font-size:0.9rem;">${listing.owner_user_id || "-"}</span>
@@ -730,10 +732,46 @@
               </div>
               <div>${listing.verification_status || "-"}</div>
               <div style="display:flex; gap:8px; flex-wrap:wrap;">
-                <button type="button" class="btn btn-primary" style="padding:8px 12px; min-width:auto;">View</button>
+                <button type="button" class="btn btn-primary view-merchant-btn" style="padding:8px 12px; min-width:auto;">View</button>
               </div>
             `;
 
+            const details = document.createElement("div");
+            details.className = "admin-listing-card";
+            details.style.display = "none";
+            details.style.marginTop = "8px";
+
+            details.innerHTML = `
+              <p><strong>Listing Name:</strong> ${listing.listing_public_name || "-"}</p>
+              <p><strong>Business:</strong> ${listing.business_name || "-"}</p>
+              <p><strong>Owner User ID:</strong> ${listing.owner_user_id || "-"}</p>
+              <p><strong>Profile Type:</strong> ${listing.profile_type || "-"}</p>
+              <p><strong>Domain:</strong> ${listing.domain || "-"}</p>
+              <p><strong>Category:</strong> ${listing.category || "-"}</p>
+              <p><strong>City:</strong> ${listing.city || "-"}</p>
+              <p><strong>Country:</strong> ${listing.country || "-"}</p>
+              <p><strong>Status:</strong> ${listing.listing_status || "-"}</p>
+              <p><strong>Verification:</strong> ${listing.verification_status || "-"}</p>
+              <p><strong>Moderation Reason:</strong> ${listing.moderation_reason || "-"}</p>
+              <p><strong>Accepts Pi:</strong> ${listing.accepts_pi ? "Yes" : "No"}</p>
+              <p><strong>Pi Payments Enabled:</strong> ${listing.merchant_pi_payments_enabled ? "Yes" : "No"}</p>
+              <p><strong>Merchant Pi Wallet:</strong> ${listing.merchant_pi_wallet || "-"}</p>
+              <p><strong>Created:</strong> ${listing.created_at || "-"}</p>
+              <p><strong>Updated:</strong> ${listing.updated_at || "-"}</p>
+            `;
+
+            const viewBtn = row.querySelector(".view-merchant-btn");
+
+            if (viewBtn) {
+              viewBtn.addEventListener("click", () => {
+                const isHidden = details.style.display === "none";
+                details.style.display = isHidden ? "block" : "none";
+                viewBtn.textContent = isHidden ? "Hide" : "View";
+              });
+            }
+
+            item.appendChild(row);
+            item.appendChild(details);
             adminMerchantsContainer.appendChild(item);
           });
         } catch (error) {
