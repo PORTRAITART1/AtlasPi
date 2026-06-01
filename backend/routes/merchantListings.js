@@ -479,6 +479,58 @@ router.get("/search", (req, res) => {
   });
 });
 
+router.get("/admin-list", (req, res) => {
+  const adminSecret = process.env.ADMIN_SECRET || "atlaspi-dev-secret-change-in-prod";
+  const headerSecret = req.headers["x-admin-secret"];
+
+  if (!headerSecret || headerSecret !== adminSecret) {
+    logger.warn("Admin list access rejected: invalid or missing secret");
+    return res.status(403).json({
+      ok: false,
+      error: "Unauthorized. Invalid or missing admin secret."
+    });
+  }
+
+  db.all(
+    `SELECT
+      id,
+      listing_uuid,
+      owner_user_id,
+      listing_public_name,
+      business_name,
+      profile_type,
+      domain,
+      category,
+      country,
+      city,
+      accepts_pi,
+      merchant_pi_wallet,
+      merchant_pi_payments_enabled,
+      listing_status,
+      verification_status,
+      moderation_reason,
+      created_at,
+      updated_at
+     FROM merchant_listings
+     ORDER BY id DESC`,
+    [],
+    (err, rows) => {
+      if (err) {
+        logger.error("Admin merchant list DB error: " + err.message);
+        return res.status(500).json({
+          ok: false,
+          error: "Database error while loading admin merchant list"
+        });
+      }
+
+      return res.json({
+        ok: true,
+        count: rows ? rows.length : 0,
+        listings: rows || []
+      });
+    }
+  );
+});
 router.put("/update/:id", (req, res) => {
   const { id } = req.params;
 

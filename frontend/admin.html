@@ -422,6 +422,29 @@
           </article>
         </div>
       </section>
+      <section class="section" id="admin-merchants">
+        <div class="container">
+          <div class="section-heading">
+            <span class="eyebrow">Merchants</span>
+            <h2>All Merchant Listings</h2>
+            <p>
+              Review all merchant listings across statuses from one admin view.
+            </p>
+          </div>
+      
+          <article class="admin-panel-card">
+            <div class="admin-actions" style="margin-bottom: 18px;">
+              <button type="button" class="btn btn-secondary" id="loadAdminMerchantsBtn">Load All Merchants</button>
+            </div>
+      
+            <div id="adminMerchantsStatus" class="admin-panel-card" style="padding:16px; margin-bottom:16px;">
+              <p style="margin:0;">No merchant listings loaded yet.</p>
+            </div>
+      
+            <div id="adminMerchantsContainer"></div>
+          </article>
+        </div>
+      </section>
   </main>
 
   <footer class="site-footer">
@@ -459,6 +482,9 @@
       const loadSupportRequestsBtn = document.getElementById("loadSupportRequestsBtn");
       const supportRequestsStatus = document.getElementById("supportRequestsStatus");
       const supportRequestsContainer = document.getElementById("supportRequestsContainer");
+      const loadAdminMerchantsBtn = document.getElementById("loadAdminMerchantsBtn");
+      const adminMerchantsStatus = document.getElementById("adminMerchantsStatus");
+      const adminMerchantsContainer = document.getElementById("adminMerchantsContainer");
       const apiBase = window.ATLASPI_CONFIG?.API_BASE_URL || "https://atlaspi-backend.onrender.com";
 
       async function loadAdminStats(secret) {
@@ -602,6 +628,71 @@
           supportRequestsStatus.innerHTML = '<p style="margin:0;color:#dc2626;">❌ Failed to contact backend for support requests.</p>';
         }
       }
+      async function loadAdminMerchants() {
+        if (!adminMerchantsContainer || !adminMerchantsStatus || !adminSecretInput) return;
+
+        const secret = adminSecretInput.value.trim();
+
+        if (!secret) {
+          adminMerchantsStatus.innerHTML = '<p style="margin:0;color:#dc2626;">❌ Please enter your admin secret.</p>';
+          return;
+        }
+
+        adminMerchantsStatus.innerHTML = '<p style="margin:0;">⏳ Loading merchant listings...</p>';
+        adminMerchantsContainer.innerHTML = "";
+
+        try {
+          const response = await fetch(`${apiBase}/api/merchant-listings/admin-list`, {
+            headers: {
+              "x-admin-secret": secret
+            }
+          });
+
+          const data = await response.json();
+
+          if (!data.ok) {
+            adminMerchantsStatus.innerHTML = `<p style="margin:0;color:#dc2626;">❌ ${data.error || "Failed to load merchant listings."}</p>`;
+            return;
+          }
+
+          const listings = data.listings || [];
+
+          if (!listings.length) {
+            adminMerchantsStatus.innerHTML = '<p style="margin:0;color:#3b82f6;">ℹ️ No merchant listings found.</p>';
+            return;
+          }
+
+          adminMerchantsStatus.innerHTML = `<p style="margin:0;color:#10b981;">✅ ${listings.length} merchant listing(s) loaded.</p>`;
+
+          listings.forEach((listing) => {
+            const item = document.createElement("div");
+            item.className = "admin-listing-card";
+
+            item.innerHTML = `
+              <p><strong>Listing Name:</strong> ${listing.listing_public_name || "-"}</p>
+              <p><strong>Business:</strong> ${listing.business_name || "-"}</p>
+              <p><strong>Owner User ID:</strong> ${listing.owner_user_id || "-"}</p>
+              <p><strong>Profile Type:</strong> ${listing.profile_type || "-"}</p>
+              <p><strong>Domain:</strong> ${listing.domain || "-"}</p>
+              <p><strong>Category:</strong> ${listing.category || "-"}</p>
+              <p><strong>City:</strong> ${listing.city || "-"}</p>
+              <p><strong>Country:</strong> ${listing.country || "-"}</p>
+              <p><strong>Status:</strong> ${listing.listing_status || "-"}</p>
+              <p><strong>Verification:</strong> ${listing.verification_status || "-"}</p>
+              <p><strong>Moderation Reason:</strong> ${listing.moderation_reason || "-"}</p>
+              <p><strong>Accepts Pi:</strong> ${listing.accepts_pi ? "Yes" : "No"}</p>
+              <p><strong>Pi Payments Enabled:</strong> ${listing.merchant_pi_payments_enabled ? "Yes" : "No"}</p>
+              <p><strong>Merchant Pi Wallet:</strong> ${listing.merchant_pi_wallet || "-"}</p>
+              <p><strong>Created:</strong> ${listing.created_at || "-"}</p>
+              <p><strong>Updated:</strong> ${listing.updated_at || "-"}</p>
+            `;
+
+            adminMerchantsContainer.appendChild(item);
+          });
+        } catch (error) {
+          adminMerchantsStatus.innerHTML = '<p style="margin:0;color:#dc2626;">❌ Failed to contact backend for merchant listings.</p>';
+        }
+      }
       function renderListingCard(listing, secret) {
         const item = document.createElement("div");
         item.className = "admin-listing-card";
@@ -680,6 +771,9 @@
       }
       if (loadSupportRequestsBtn) {
         loadSupportRequestsBtn.addEventListener("click", loadSupportRequests);
+      }
+      if (loadAdminMerchantsBtn) {
+        loadAdminMerchantsBtn.addEventListener("click", loadAdminMerchants);
       }
       if (loadPendingListingsBtn) {
         loadPendingListingsBtn.addEventListener("click", async () => {
