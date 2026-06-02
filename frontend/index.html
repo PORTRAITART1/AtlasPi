@@ -534,6 +534,58 @@
       }
     }
   </style>
+  <style>
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
+  
+    .menu-shell {
+      position: relative;
+      z-index: 1100;
+    }
+  
+    #menuPanel {
+      position: absolute;
+      top: calc(100% + 10px);
+      right: 0;
+      width: min(280px, calc(100vw - 32px));
+      padding: 14px;
+      border-radius: 18px;
+      background: rgba(10, 14, 28, 0.97) !important;
+      border: 1px solid rgba(255, 255, 255, 0.10);
+      box-shadow: 0 24px 48px rgba(0, 0, 0, 0.35);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      z-index: 1200;
+    }
+  
+    #menuPanel[hidden] {
+      display: none !important;
+    }
+  
+    #menuPanel a {
+      display: block;
+      padding: 12px 14px;
+      margin-bottom: 6px;
+      border-radius: 12px;
+      text-decoration: none;
+      color: #ffffff !important;
+      background: transparent;
+      transition: background 0.2s ease, transform 0.2s ease;
+    }
+  
+    #menuPanel a:hover {
+      background: rgba(255, 255, 255, 0.06);
+      transform: translateX(2px);
+    }
+  
+    #menuPanel .btn.btn-nav {
+      margin-top: 8px;
+      text-align: center;
+    }
+  </style>
 </head>
 <body id="top"></body>
   <div class="bg-grid"></div>
