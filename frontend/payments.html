@@ -138,9 +138,19 @@
           <span>The Trusted Map of Pi Commerce</span>
         </div>
       </a>
-
+  
       <div class="menu-shell">
-        <nav class="menu-panel" style="display:flex; gap:16px; align-items:center;">
+        <button
+          type="button"
+          class="menu-toggle"
+          id="menuToggle"
+          aria-label="Open menu"
+          aria-expanded="false"
+        >
+          ☰
+        </button>
+  
+        <nav class="menu-panel" id="menuPanel" hidden>
           <a href="index.html">Home</a>
           <a href="discover.html">Discover</a>
           <a href="vip.html">VIP</a>
@@ -446,5 +456,6 @@
   <script src="script.js?v=11"></script>
   <script src="pi-integration-patch.js?v=11"></script>
   <script src="pi-payment-init.js?v=11"></script>
+  <script src="mobile-menu.js"></script>
 </body>
 </html>

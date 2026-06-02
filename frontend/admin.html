@@ -274,15 +274,24 @@
           <span>The Trusted Map of Pi Commerce</span>
         </div>
       </a>
-
+  
       <div class="menu-shell">
-        <nav class="menu-panel" style="display:flex; gap:16px; align-items:center;">
+        <button
+          type="button"
+          class="menu-toggle"
+          id="menuToggle"
+          aria-label="Open menu"
+          aria-expanded="false"
+        >
+          ☰
+        </button>
+  
+        <nav class="menu-panel" id="menuPanel" hidden>
           <a href="index.html">Home</a>
           <a href="discover.html">Discover</a>
           <a href="vip.html">VIP</a>
           <a href="support.html">Support</a>
-          <a href="profile.html">Profile</a>
-          <a href="admin.html" class="btn btn-nav">Admin</a>
+          <a href="profile.html" class="btn btn-nav">Profile</a>
         </nav>
       </div>
     </div>
@@ -1350,5 +1359,6 @@ const adminMerchantPageSize = 10;
       }
     });
   </script>
+  <script src="mobile-menu.js"></script>
 </body>
 </html>
