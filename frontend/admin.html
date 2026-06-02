@@ -501,7 +501,9 @@
             <div id="adminMerchantsStatus" class="admin-panel-card" style="padding:16px; margin-bottom:16px;">
               <p style="margin:0;">No merchant listings loaded yet.</p>
             </div>
-      
+            
+            <div id="adminMerchantsPaginationInfo" style="margin-bottom:12px; opacity:0.82;"></div>
+            
             <div style="overflow-x:auto;">
               <div id="adminMerchantTable" style="min-width: 980px;">
                 <div
@@ -527,9 +529,14 @@
                   <div>Verification</div>
                   <div>Actions</div>
                 </div>
-      
+            
                 <div id="adminMerchantsContainer"></div>
               </div>
+            </div>
+            
+            <div id="adminMerchantsPagination" class="admin-actions" style="margin-top: 18px;">
+              <button type="button" class="btn btn-secondary" id="adminMerchantsPrevBtn">Previous</button>
+              <button type="button" class="btn btn-secondary" id="adminMerchantsNextBtn">Next</button>
             </div>
           </article>
         </div>
@@ -579,6 +586,13 @@
       const adminMerchantCountryFilter = document.getElementById("adminMerchantCountryFilter");
       const adminMerchantCategoryFilter = document.getElementById("adminMerchantCategoryFilter");
       const clearAdminMerchantFiltersBtn = document.getElementById("clearAdminMerchantFiltersBtn");
+      const adminMerchantsPaginationInfo = document.getElementById("adminMerchantsPaginationInfo");
+const adminMerchantsPrevBtn = document.getElementById("adminMerchantsPrevBtn");
+const adminMerchantsNextBtn = document.getElementById("adminMerchantsNextBtn");
+
+let adminMerchantFilteredListings = [];
+let adminMerchantCurrentPage = 1;
+const adminMerchantPageSize = 10;
       const adminMerchantSort = document.getElementById("adminMerchantSort");
       const apiBase = window.ATLASPI_CONFIG?.API_BASE_URL || "https://atlaspi-backend.onrender.com";
 
@@ -813,6 +827,120 @@
           supportRequestsStatus.innerHTML = '<p style="margin:0;color:#dc2626;">❌ Failed to contact backend for support requests.</p>';
         }
       }
+      function renderAdminMerchantPage() {
+  if (!adminMerchantsContainer) return;
+
+  adminMerchantsContainer.innerHTML = "";
+
+  const total = adminMerchantFilteredListings.length;
+  const totalPages = Math.max(1, Math.ceil(total / adminMerchantPageSize));
+  const safePage = Math.min(Math.max(adminMerchantCurrentPage, 1), totalPages);
+  adminMerchantCurrentPage = safePage;
+
+  const startIndex = (safePage - 1) * adminMerchantPageSize;
+  const endIndex = Math.min(startIndex + adminMerchantPageSize, total);
+  const pageItems = adminMerchantFilteredListings.slice(startIndex, endIndex);
+
+  pageItems.forEach((listing) => {
+    const item = document.createElement("div");
+    item.style.marginBottom = "12px";
+
+    const row = document.createElement("div");
+    row.style.display = "grid";
+    row.style.gridTemplateColumns = "1.5fr 1.2fr 1fr 1fr 1fr 1fr 0.9fr 1.1fr 1.1fr";
+    row.style.gap = "12px";
+    row.style.padding = "14px 16px";
+    row.style.borderRadius = "14px";
+    row.style.background = "rgba(255,255,255,0.04)";
+    row.style.border = "1px solid rgba(255,255,255,0.08)";
+    row.style.alignItems = "center";
+
+    const statusColor =
+      listing.listing_status === "approved"
+        ? "#86efac"
+        : listing.listing_status === "rejected"
+        ? "#fca5a5"
+        : listing.listing_status === "suspended"
+        ? "#fdba74"
+        : "#fde68a";
+
+    row.innerHTML = `
+      <div>
+        <strong>${listing.listing_public_name || "-"}</strong><br />
+        <span style="opacity:0.72; font-size:0.9rem;">${listing.owner_user_id || "-"}</span>
+      </div>
+      <div>${listing.business_name || "-"}</div>
+      <div>${listing.profile_type || "-"}</div>
+      <div>${listing.category || "-"}</div>
+      <div>${listing.city || "-"}</div>
+      <div>${listing.country || "-"}</div>
+      <div>
+        <span style="color:${statusColor}; font-weight:700;">
+          ${listing.listing_status || "-"}
+        </span>
+      </div>
+      <div>${listing.verification_status || "-"}</div>
+      <div style="display:flex; gap:8px; flex-wrap:wrap;">
+        <button type="button" class="btn btn-primary view-merchant-btn" style="padding:8px 12px; min-width:auto;">View</button>
+      </div>
+    `;
+
+    const details = document.createElement("div");
+    details.className = "admin-listing-card";
+    details.style.display = "none";
+    details.style.marginTop = "8px";
+
+    details.innerHTML = `
+      <p><strong>Listing Name:</strong> ${listing.listing_public_name || "-"}</p>
+      <p><strong>Business:</strong> ${listing.business_name || "-"}</p>
+      <p><strong>Owner User ID:</strong> ${listing.owner_user_id || "-"}</p>
+      <p><strong>Profile Type:</strong> ${listing.profile_type || "-"}</p>
+      <p><strong>Domain:</strong> ${listing.domain || "-"}</p>
+      <p><strong>Category:</strong> ${listing.category || "-"}</p>
+      <p><strong>City:</strong> ${listing.city || "-"}</p>
+      <p><strong>Country:</strong> ${listing.country || "-"}</p>
+      <p><strong>Status:</strong> ${listing.listing_status || "-"}</p>
+      <p><strong>Verification:</strong> ${listing.verification_status || "-"}</p>
+      <p><strong>Moderation Reason:</strong> ${listing.moderation_reason || "-"}</p>
+      <p><strong>Accepts Pi:</strong> ${listing.accepts_pi ? "Yes" : "No"}</p>
+      <p><strong>Pi Payments Enabled:</strong> ${listing.merchant_pi_payments_enabled ? "Yes" : "No"}</p>
+      <p><strong>Merchant Pi Wallet:</strong> ${listing.merchant_pi_wallet || "-"}</p>
+      <p><strong>Created:</strong> ${listing.created_at || "-"}</p>
+      <p><strong>Updated:</strong> ${listing.updated_at || "-"}</p>
+    `;
+
+    const viewBtn = row.querySelector(".view-merchant-btn");
+    if (viewBtn) {
+      viewBtn.addEventListener("click", () => {
+        const isHidden = details.style.display === "none";
+        details.style.display = isHidden ? "block" : "none";
+        viewBtn.textContent = isHidden ? "Hide" : "View";
+      });
+    }
+
+    item.appendChild(row);
+    item.appendChild(details);
+    adminMerchantsContainer.appendChild(item);
+  });
+
+  if (adminMerchantsPaginationInfo) {
+    if (total === 0) {
+      adminMerchantsPaginationInfo.textContent = "Showing 0 results.";
+    } else {
+      adminMerchantsPaginationInfo.textContent = `Showing ${startIndex + 1}-${endIndex} of ${total} merchant listings (page ${safePage} of ${totalPages}).`;
+    }
+  }
+
+  if (adminMerchantsPrevBtn) {
+    adminMerchantsPrevBtn.disabled = safePage <= 1;
+    adminMerchantsPrevBtn.style.opacity = safePage <= 1 ? "0.5" : "1";
+  }
+
+  if (adminMerchantsNextBtn) {
+    adminMerchantsNextBtn.disabled = safePage >= totalPages;
+    adminMerchantsNextBtn.style.opacity = safePage >= totalPages ? "0.5" : "1";
+  }
+}
       async function loadAdminMerchants() {
         if (!adminMerchantsContainer || !adminMerchantsStatus || !adminSecretInput) return;
 
@@ -909,11 +1037,20 @@
           }
 
           if (!filteredListings.length) {
+            adminMerchantFilteredListings = [];
+            adminMerchantCurrentPage = 1;
             adminMerchantsStatus.innerHTML = '<p style="margin:0;color:#f59e0b;">⚠️ No merchant listings match your filters.</p>';
+            renderAdminMerchantPage();
             return;
           }
 
+          adminMerchantFilteredListings = filteredListings;
+          adminMerchantCurrentPage = 1;
+
           adminMerchantsStatus.innerHTML = `<p style="margin:0;color:#10b981;">✅ ${filteredListings.length} merchant listing(s) loaded.</p>`;
+
+          renderAdminMerchantPage();
+          return;
 
           filteredListings.forEach((listing) => {
             const item = document.createElement("div");
@@ -1146,6 +1283,24 @@
           if (adminMerchantCountryFilter) adminMerchantCountryFilter.value = "";
           if (adminMerchantCategoryFilter) adminMerchantCategoryFilter.value = "";
           if (adminMerchantSort) adminMerchantSort.value = "created_desc";
+        });
+      }
+      if (adminMerchantsPrevBtn) {
+        adminMerchantsPrevBtn.addEventListener("click", () => {
+          if (adminMerchantCurrentPage > 1) {
+            adminMerchantCurrentPage -= 1;
+            renderAdminMerchantPage();
+          }
+        });
+      }
+
+      if (adminMerchantsNextBtn) {
+        adminMerchantsNextBtn.addEventListener("click", () => {
+          const totalPages = Math.max(1, Math.ceil(adminMerchantFilteredListings.length / adminMerchantPageSize));
+          if (adminMerchantCurrentPage < totalPages) {
+            adminMerchantCurrentPage += 1;
+            renderAdminMerchantPage();
+          }
         });
       }
       if (loadPendingListingsBtn) {
