@@ -267,6 +267,85 @@ db.serialize(() => {
       updated_at TEXT NOT NULL
     )
   `);
+    // PiRC2 Subscription Services Table
+    db.run(`
+    CREATE TABLE IF NOT EXISTS subscription_services (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      contract_service_id TEXT UNIQUE,
+      service_code TEXT NOT NULL UNIQUE,
+      name TEXT NOT NULL,
+      description TEXT,
+      price_amount REAL NOT NULL,
+      price_currency TEXT NOT NULL DEFAULT 'PI',
+      period_secs INTEGER NOT NULL,
+      trial_period_secs INTEGER NOT NULL DEFAULT 0,
+      approve_periods INTEGER NOT NULL DEFAULT 1,
+      is_active INTEGER NOT NULL DEFAULT 1,
+      visibility_level TEXT NOT NULL DEFAULT 'basic',
+      feature_flags_json TEXT,
+      created_at TEXT NOT NULL,
+      updated_at TEXT NOT NULL
+    )
+  `);
+
+  // PiRC2 Subscriptions Registry Table
+  db.run(`
+    CREATE TABLE IF NOT EXISTS subscriptions_registry (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      contract_sub_id TEXT UNIQUE,
+      service_id INTEGER NOT NULL,
+      subscriber_uid TEXT,
+      subscriber_username TEXT,
+      subscriber_wallet TEXT,
+      merchant_listing_id INTEGER,
+      status TEXT NOT NULL DEFAULT 'pending',
+      auto_renew INTEGER NOT NULL DEFAULT 0,
+      pay_upfront INTEGER NOT NULL DEFAULT 0,
+      price_amount REAL NOT NULL,
+      price_currency TEXT NOT NULL DEFAULT 'PI',
+      trial_end_ts TEXT,
+      service_end_ts TEXT,
+      next_charge_ts TEXT,
+      last_contract_sync_at TEXT,
+      created_at TEXT NOT NULL,
+      updated_at TEXT NOT NULL,
+      FOREIGN KEY(service_id) REFERENCES subscription_services(id),
+      FOREIGN KEY(merchant_listing_id) REFERENCES merchant_listings(id)
+    )
+  `);
+
+  // PiRC2 Subscription Events Table
+  db.run(`
+    CREATE TABLE IF NOT EXISTS subscription_events (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      subscription_id INTEGER,
+      contract_sub_id TEXT,
+      event_type TEXT NOT NULL,
+      event_source TEXT NOT NULL DEFAULT 'backend',
+      payload_json TEXT,
+      created_at TEXT NOT NULL,
+      FOREIGN KEY(subscription_id) REFERENCES subscriptions_registry(id)
+    )
+  `);
+
+  // PiRC2 Subscription Process Logs Table
+  db.run(`
+    CREATE TABLE IF NOT EXISTS subscription_process_logs (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      service_id INTEGER,
+      contract_service_id TEXT,
+      offset_value INTEGER NOT NULL DEFAULT 0,
+      limit_value INTEGER NOT NULL DEFAULT 0,
+      charged_count INTEGER NOT NULL DEFAULT 0,
+      failed_count INTEGER NOT NULL DEFAULT 0,
+      skipped_count INTEGER NOT NULL DEFAULT 0,
+      total_count INTEGER NOT NULL DEFAULT 0,
+      result_json TEXT,
+      processed_by TEXT NOT NULL DEFAULT 'backend',
+      created_at TEXT NOT NULL,
+      FOREIGN KEY(service_id) REFERENCES subscription_services(id)
+    )
+  `);
 });
 
 export default db;
