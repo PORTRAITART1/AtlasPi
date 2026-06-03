@@ -257,6 +257,72 @@ if (merchantListingForm) {
 
   // Auth handler uses the global piManager
   const authHandler = new AtlasPiAuthHandler(piManager);
+  const pioneerUsername = document.getElementById("pioneerUsername");
+  const pioneerWallet = document.getElementById("pioneerWallet");
+
+  function updatePiAuthUI(result) {
+    const user = result?.user || result?.authResult?.user || null;
+    currentUser = user;
+
+    if (piStatus) {
+      piStatus.textContent = user
+        ? "✅ Connected with Pi successfully."
+        : "❌ Pi connection failed.";
+      piStatus.style.color = user ? "#10b981" : "#ef4444";
+    }
+
+    if (piUsername) {
+      piUsername.textContent = user?.username || "-";
+    }
+
+    if (piWallet) {
+      piWallet.textContent = user?.wallet_address || "Wallet connected";
+    }
+
+    if (pioneerUsername) {
+      pioneerUsername.textContent = user?.username || "@pioneer";
+    }
+
+    if (pioneerWallet) {
+      pioneerWallet.textContent = user?.wallet_address || "Wallet connected";
+    }
+
+    if (piConnectBtn) {
+      piConnectBtn.textContent = user?.username
+        ? `✓ Connected: ${user.username}`
+        : "Connect with Pi";
+    }
+
+    if (merchantOwnerUserId && user?.uid) {
+      merchantOwnerUserId.value = user.uid;
+    }
+  }
+
+  if (piConnectBtn) {
+    piConnectBtn.addEventListener("click", async () => {
+      if (piStatus) {
+        piStatus.textContent = "⏳ Connecting with Pi...";
+        piStatus.style.color = "#f59e0b";
+      }
+
+      const result = await authHandler.handleAuthButtonClick(
+        (successResult) => {
+          updatePiAuthUI(successResult);
+        },
+        (errorResult) => {
+          if (piStatus) {
+            piStatus.textContent = `❌ ${errorResult?.error || "Pi authentication failed."}`;
+            piStatus.style.color = "#ef4444";
+          }
+        }
+      );
+
+      if (!result?.ok && piStatus) {
+        piStatus.textContent = `❌ ${result?.error || "Pi authentication failed."}`;
+        piStatus.style.color = "#ef4444";
+      }
+    });
+  }
 
   // -------------------------------------------------
   // MENU HAMBURGER LOGIC (minimal, non‑intrusive)
