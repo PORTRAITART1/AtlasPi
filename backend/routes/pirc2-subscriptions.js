@@ -251,4 +251,287 @@ router.get("/:id", (req, res) => {
   );
 });
 
+/**
+ * POST /api/pirc2/subscriptions/cancel/:id
+ * Cancel recurring renewal for a subscription
+ */
+ router.post("/cancel/:id", (req, res) => {
+    const { id } = req.params;
+    const { subscriber_uid } = req.body;
+  
+    if (!id || !subscriber_uid) {
+      return res.status(400).json({
+        ok: false,
+        error: "Subscription id and subscriber_uid are required"
+      });
+    }
+  
+    db.get(
+      `SELECT id, subscriber_uid, auto_renew, status
+       FROM subscriptions_registry
+       WHERE id = ?`,
+      [id],
+      (err, row) => {
+        if (err) {
+          logger.error("PiRC2 cancel lookup DB error: " + err.message);
+          return res.status(500).json({
+            ok: false,
+            error: "Database error while loading PiRC2 subscription"
+          });
+        }
+  
+        if (!row) {
+          return res.status(404).json({
+            ok: false,
+            error: "PiRC2 subscription not found"
+          });
+        }
+  
+        if (row.subscriber_uid !== subscriber_uid) {
+          return res.status(403).json({
+            ok: false,
+            error: "Unauthorized. Subscription does not belong to this subscriber."
+          });
+        }
+  
+        if (!row.auto_renew) {
+          return res.status(400).json({
+            ok: false,
+            error: "Subscription is already cancelled"
+          });
+        }
+  
+        const now = new Date().toISOString();
+  
+        db.run(
+          `UPDATE subscriptions_registry
+           SET auto_renew = 0, updated_at = ?
+           WHERE id = ?`,
+          [now, id],
+          function (updateErr) {
+            if (updateErr) {
+              logger.error("PiRC2 cancel update DB error: " + updateErr.message);
+              return res.status(500).json({
+                ok: false,
+                error: "Database error while cancelling PiRC2 subscription"
+              });
+            }
+  
+            db.run(
+              `INSERT INTO subscription_events
+               (subscription_id, contract_sub_id, event_type, event_source, payload_json, created_at)
+               VALUES (?, ?, ?, ?, ?, ?)`,
+              [
+                id,
+                null,
+                "cancel",
+                "backend",
+                JSON.stringify({ subscriber_uid }),
+                now
+              ],
+              () => {}
+            );
+  
+            return res.json({
+              ok: true,
+              message: "PiRC2 subscription cancelled successfully",
+              id: Number(id),
+              auto_renew: 0
+            });
+          }
+        );
+      }
+    );
+  });
+  
+  /**
+   * POST /api/pirc2/subscriptions/toggle-auto-renew/:id
+   * Toggle auto_renew on/off for a subscription
+   */
+  router.post("/toggle-auto-renew/:id", (req, res) => {
+    const { id } = req.params;
+    const { subscriber_uid } = req.body;
+  
+    if (!id || !subscriber_uid) {
+      return res.status(400).json({
+        ok: false,
+        error: "Subscription id and subscriber_uid are required"
+      });
+    }
+  
+    db.get(
+      `SELECT id, subscriber_uid, auto_renew, status
+       FROM subscriptions_registry
+       WHERE id = ?`,
+      [id],
+      (err, row) => {
+        if (err) {
+          logger.error("PiRC2 toggle lookup DB error: " + err.message);
+          return res.status(500).json({
+            ok: false,
+            error: "Database error while loading PiRC2 subscription"
+          });
+        }
+  
+        if (!row) {
+          return res.status(404).json({
+            ok: false,
+            error: "PiRC2 subscription not found"
+          });
+        }
+  
+        if (row.subscriber_uid !== subscriber_uid) {
+          return res.status(403).json({
+            ok: false,
+            error: "Unauthorized. Subscription does not belong to this subscriber."
+          });
+        }
+  
+        if (row.status === "expired") {
+          return res.status(400).json({
+            ok: false,
+            error: "Expired subscription cannot toggle auto-renew"
+          });
+        }
+  
+        const nextAutoRenew = row.auto_renew ? 0 : 1;
+        const now = new Date().toISOString();
+  
+        db.run(
+          `UPDATE subscriptions_registry
+           SET auto_renew = ?, updated_at = ?
+           WHERE id = ?`,
+          [nextAutoRenew, now, id],
+          function (updateErr) {
+            if (updateErr) {
+              logger.error("PiRC2 toggle update DB error: " + updateErr.message);
+              return res.status(500).json({
+                ok: false,
+                error: "Database error while toggling auto-renew"
+              });
+            }
+  
+            db.run(
+              `INSERT INTO subscription_events
+               (subscription_id, contract_sub_id, event_type, event_source, payload_json, created_at)
+               VALUES (?, ?, ?, ?, ?, ?)`,
+              [
+                id,
+                null,
+                "toggle_auto_renew",
+                "backend",
+                JSON.stringify({ subscriber_uid, auto_renew: nextAutoRenew }),
+                now
+              ],
+              () => {}
+            );
+  
+            return res.json({
+              ok: true,
+              message: "PiRC2 auto-renew updated successfully",
+              id: Number(id),
+              auto_renew: nextAutoRenew
+            });
+          }
+        );
+      }
+    );
+  });
+  
+  /**
+   * POST /api/pirc2/subscriptions/extend/:id
+   * Extend / refresh a subscription locally
+   */
+  router.post("/extend/:id", (req, res) => {
+    const { id } = req.params;
+    const { subscriber_uid } = req.body;
+  
+    if (!id || !subscriber_uid) {
+      return res.status(400).json({
+        ok: false,
+        error: "Subscription id and subscriber_uid are required"
+      });
+    }
+  
+    db.get(
+      `SELECT id, subscriber_uid, status
+       FROM subscriptions_registry
+       WHERE id = ?`,
+      [id],
+      (err, row) => {
+        if (err) {
+          logger.error("PiRC2 extend lookup DB error: " + err.message);
+          return res.status(500).json({
+            ok: false,
+            error: "Database error while loading PiRC2 subscription"
+          });
+        }
+  
+        if (!row) {
+          return res.status(404).json({
+            ok: false,
+            error: "PiRC2 subscription not found"
+          });
+        }
+  
+        if (row.subscriber_uid !== subscriber_uid) {
+          return res.status(403).json({
+            ok: false,
+            error: "Unauthorized. Subscription does not belong to this subscriber."
+          });
+        }
+  
+        if (row.status === "expired") {
+          return res.status(400).json({
+            ok: false,
+            error: "Expired subscription cannot be extended"
+          });
+        }
+  
+        const now = new Date().toISOString();
+  
+        db.run(
+          `UPDATE subscriptions_registry
+           SET auto_renew = 1,
+               status = 'active',
+               last_contract_sync_at = ?,
+               updated_at = ?
+           WHERE id = ?`,
+          [now, now, id],
+          function (updateErr) {
+            if (updateErr) {
+              logger.error("PiRC2 extend update DB error: " + updateErr.message);
+              return res.status(500).json({
+                ok: false,
+                error: "Database error while extending PiRC2 subscription"
+              });
+            }
+  
+            db.run(
+              `INSERT INTO subscription_events
+               (subscription_id, contract_sub_id, event_type, event_source, payload_json, created_at)
+               VALUES (?, ?, ?, ?, ?, ?)`,
+              [
+                id,
+                null,
+                "extend",
+                "backend",
+                JSON.stringify({ subscriber_uid }),
+                now
+              ],
+              () => {}
+            );
+  
+            return res.json({
+              ok: true,
+              message: "PiRC2 subscription extended successfully",
+              id: Number(id),
+              auto_renew: 1,
+              status: "active"
+            });
+          }
+        );
+      }
+    );
+  });
 export default router;
