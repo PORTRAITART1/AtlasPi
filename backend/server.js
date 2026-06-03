@@ -3,7 +3,7 @@ import cors from "cors";
 import helmet from "helmet";
 import morgan from "morgan";
 import rateLimit from "express-rate-limit";
-
+import pirc2ServicesRoutes from "./routes/pirc2-services.js";
 import authRoutes from "./routes/auth.js";
 import paymentRoutes from "./routes/payments.js";
 import subscriptionRoutes from "./routes/subscriptions.js";
@@ -99,7 +99,7 @@ app.use("/api/pi-payments", piPaymentRoutes);
 app.use("/api/subscriptions", subscriptionRoutes);
 app.use("/api/merchant-listings", merchantListingRoutes);
 app.use("/api/support", supportRoutes);
-
+app.use("/api/pirc2/services", pirc2ServicesRoutes);
 app.use((err, req, res, next) => {
   logger.error("Unhandled server error: " + err.message);
   res.status(500).json({
