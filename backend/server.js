@@ -12,6 +12,7 @@ import logger from "./utils/logger.js";
 import merchantListingRoutes from "./routes/merchantListings.js";
 import supportRoutes from "./routes/support.js";
 import envManager from "./config/envManager.js";
+import pirc2SubscriptionsRoutes from "./routes/pirc2-subscriptions.js";
 
 const app = express();
 const PORT = envManager.get('port', 3000);
@@ -100,6 +101,7 @@ app.use("/api/subscriptions", subscriptionRoutes);
 app.use("/api/merchant-listings", merchantListingRoutes);
 app.use("/api/support", supportRoutes);
 app.use("/api/pirc2/services", pirc2ServicesRoutes);
+app.use("/api/pirc2/subscriptions", pirc2SubscriptionsRoutes);
 app.use((err, req, res, next) => {
   logger.error("Unhandled server error: " + err.message);
   res.status(500).json({
