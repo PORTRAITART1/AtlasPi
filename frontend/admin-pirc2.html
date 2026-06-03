@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AtlasPi - Admin PiRC2 Dashboard</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="shared-theme.css" />
+
+  <style>
+    .pirc2-admin-hero {
+      padding-top: 40px;
+    }
+
+    .pirc2-admin-grid {
+      display: grid;
+      gap: 22px;
+      margin-top: 24px;
+    }
+
+    .pirc2-admin-card {
+      border: 1px solid rgba(255,255,255,0.08);
+      background: linear-gradient(180deg, rgba(255,255,255,0.07) 0%, rgba(255,255,255,0.03) 100%);
+      border-radius: 22px;
+      padding: 24px;
+      box-shadow: 0 18px 40px rgba(0,0,0,0.18);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .pirc2-admin-card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(circle at top right, rgba(124, 58, 237, 0.18), transparent 34%),
+        radial-gradient(circle at bottom left, rgba(59, 130, 246, 0.12), transparent 30%);
+      pointer-events: none;
+    }
+
+    .pirc2-admin-card > * {
+      position: relative;
+      z-index: 1;
+    }
+
+    .pirc2-status {
+      margin-top: 18px;
+      padding: 14px 16px;
+      border-radius: 14px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .pirc2-table-head,
+    .pirc2-row {
+      display: grid;
+      gap: 12px;
+      padding: 14px 16px;
+      border-radius: 14px;
+      align-items: center;
+    }
+
+    .pirc2-table-head {
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.08);
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
+
+    .pirc2-row {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      margin-bottom: 10px;
+    }
+
+    .pirc2-details {
+      display: none;
+      margin-top: 8px;
+    }
+
+    .pirc2-services-head,
+    .pirc2-services-row {
+      grid-template-columns: 1.4fr 1fr 1fr 1fr 1fr 1fr;
+    }
+
+    .pirc2-subs-head,
+    .pirc2-subs-row {
+      grid-template-columns: 1.3fr 1.3fr 1fr 1fr 1fr 1fr 1fr;
+    }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <div class="container nav">
+      <a href="index.html" class="brand">
+        <img src="logo-atlaspi.png" alt="AtlasPi logo" class="brand-logo" />
+        <div class="brand-text">
+          <strong>AtlasPi</strong>
+          <span>The Trusted Map of Pi Commerce</span>
+        </div>
+      </a>
+
+      <div class="menu-shell">
+        <button
+          type="button"
+          class="menu-toggle"
+          id="menuToggle"
+          aria-label="Open menu"
+          aria-expanded="false"
+        >
+          ☰
+        </button>
+
+        <nav class="menu-panel" id="menuPanel" hidden>
+          <a href="index.html">Home</a>
+          <a href="discover.html">Discover</a>
+          <a href="vip.html">VIP</a>
+          <a href="support.html">Support</a>
+          <a href="profile.html" class="btn btn-nav">Profile</a>
+        </nav>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero pirc2-admin-hero" id="pirc2-admin-hero">
+      <div class="container hero-grid">
+        <div class="hero-copy">
+          <span class="eyebrow">PiRC2 Admin</span>
+          <h1>
+            AtlasPi
+            <span class="gradient-text">PiRC2 Dashboard</span>
+          </h1>
+          <p class="hero-lead">
+            Review PiRC2 services and subscriptions from a dedicated admin dashboard.
+          </p>
+          <p>
+            This page is the admin layer for AtlasPi's recurring subscription module.
+          </p>
+
+          <div class="hero-actions">
+            <a href="#pirc2-services" class="btn btn-primary">View Services</a>
+            <a href="#pirc2-subscriptions" class="btn btn-secondary">View Subscriptions</a>
+          </div>
+        </div>
+
+        <div class="hero-visual">
+          <article class="feature-card">
+            <div class="feature-icon">🟣</div>
+            <h3>PiRC2 Admin Layer</h3>
+            <p>
+              Monitor recurring plans, subscriber state, and AtlasPi subscription structure.
+            </p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="pirc2-services">
+      <div class="container">
+        <div class="section-heading">
+          <span class="eyebrow">Services</span>
+          <h2>PiRC2 Services</h2>
+          <p>
+            Review all local PiRC2 service definitions created for AtlasPi premium plans.
+          </p>
+        </div>
+
+        <article class="pirc2-admin-card">
+          <div class="hero-actions" style="margin-bottom:18px;">
+            <button type="button" class="btn btn-secondary" id="loadPirc2ServicesBtn">Load PiRC2 Services</button>
+          </div>
+
+          <div id="pirc2ServicesStatus" class="pirc2-status">
+            <p style="margin:0;">No PiRC2 services loaded yet.</p>
+          </div>
+
+          <div style="overflow-x:auto; margin-top:18px;">
+            <div class="pirc2-table-head pirc2-services-head">
+              <div>Service</div>
+              <div>Code</div>
+              <div>Price</div>
+              <div>Period</div>
+              <div>Visibility</div>
+              <div>Actions</div>
+            </div>
+            <div id="pirc2ServicesContainer"></div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="section" id="pirc2-subscriptions">
+      <div class="container">
+        <div class="section-heading">
+          <span class="eyebrow">Subscriptions</span>
+          <h2>PiRC2 Subscriptions</h2>
+          <p>
+            Review local subscription registry entries linked to PiRC2 services.
+          </p>
+        </div>
+
+        <article class="pirc2-admin-card">
+          <div class="hero-actions" style="margin-bottom:18px;">
+            <button type="button" class="btn btn-secondary" id="loadPirc2SubscriptionsBtn">Load PiRC2 Subscriptions</button>
+          </div>
+
+          <div id="pirc2SubscriptionsStatus" class="pirc2-status">
+            <p style="margin:0;">No PiRC2 subscriptions loaded yet.</p>
+          </div>
+
+          <div style="overflow-x:auto; margin-top:18px;">
+            <div class="pirc2-table-head pirc2-subs-head">
+              <div>Subscriber</div>
+              <div>Service</div>
+              <div>Status</div>
+              <div>Auto Renew</div>
+              <div>Pay Upfront</div>
+              <div>Price</div>
+              <div>Actions</div>
+            </div>
+            <div id="pirc2SubscriptionsContainer"></div>
+          </div>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-grid">
+      <div>
+        <strong>AtlasPi</strong>
+        <p>The Trusted Map of Pi Commerce</p>
+        <p>
+          Helping pioneers and merchants move toward stronger discovery, trust,
+          and real-world Pi utility.
+        </p>
+      </div>
+
+      <div>
+        <a href="index.html">Home</a><br />
+        <a href="discover.html">Discover</a><br />
+        <a href="support.html">Support</a><br />
+        <a href="privacy.html">Privacy</a><br />
+        <a href="terms.html">Terms</a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="config.js?v=12"></script>
+  <script src="mobile-menu.js"></script>
+  <script>
+    const API_BASE_URL = window.ATLASPI_CONFIG?.API_BASE_URL || "https://atlaspi-backend.onrender.com";
+
+    const pirc2ServicesStatus = document.getElementById("pirc2ServicesStatus");
+    const pirc2ServicesContainer = document.getElementById("pirc2ServicesContainer");
+    const loadPirc2ServicesBtn = document.getElementById("loadPirc2ServicesBtn");
+
+    const pirc2SubscriptionsStatus = document.getElementById("pirc2SubscriptionsStatus");
+    const pirc2SubscriptionsContainer = document.getElementById("pirc2SubscriptionsContainer");
+    const loadPirc2SubscriptionsBtn = document.getElementById("loadPirc2SubscriptionsBtn");
+
+    function formatPeriod(periodSecs) {
+      if (periodSecs === 2592000) return "Monthly";
+      if (periodSecs === 604800) return "Weekly";
+      if (periodSecs === 7776000) return "Quarterly";
+      if (periodSecs === 31536000) return "Yearly";
+      return `${periodSecs} secs`;
+    }
+
+    function yesNo(value) {
+      return value ? "Yes" : "No";
+    }
+
+    async function loadPirc2Services() {
+      pirc2ServicesStatus.innerHTML = '<p style="margin:0;">⏳ Loading PiRC2 services...</p>';
+      pirc2ServicesContainer.innerHTML = "";
+
+      try {
+        const response = await fetch(`${API_BASE_URL}/api/pirc2/services/list`);
+        const data = await response.json();
+
+        if (!data.ok) {
+          pirc2ServicesStatus.innerHTML = `<p style="margin:0;color:#dc2626;">❌ ${data.error || "Failed to load PiRC2 services."}</p>`;
+          return;
+        }
+
+        const services = data.services || [];
+
+        if (!services.length) {
+          pirc2ServicesStatus.innerHTML = '<p style="margin:0;color:#f59e0b;">⚠️ No PiRC2 services found.</p>';
+          return;
+        }
+
+        pirc2ServicesStatus.innerHTML = `<p style="margin:0;color:#10b981;">✅ ${services.length} PiRC2 service(s) loaded.</p>`;
+
+        services.forEach((service) => {
+          const wrapper = document.createElement("div");
+          wrapper.style.marginBottom = "12px";
+
+          const row = document.createElement("div");
+          row.className = "pirc2-row pirc2-services-row";
+
+          row.innerHTML = `
+            <div><strong>${service.name || "-"}</strong></div>
+            <div>${service.service_code || "-"}</div>
+            <div>${service.price_amount ?? "-"} ${service.price_currency || "PI"}</div>
+            <div>${formatPeriod(service.period_secs)}</div>
+            <div>${service.visibility_level || "-"}</div>
+            <div><button type="button" class="btn btn-primary service-view-btn" style="padding:8px 12px; min-width:auto;">View</button></div>
+          `;
+
+          const details = document.createElement("div");
+          details.className = "admin-listing-card pirc2-details";
+          details.innerHTML = `
+            <p><strong>Name:</strong> ${service.name || "-"}</p>
+            <p><strong>Code:</strong> ${service.service_code || "-"}</p>
+            <p><strong>Description:</strong> ${service.description || "-"}</p>
+            <p><strong>Price:</strong> ${service.price_amount ?? "-"} ${service.price_currency || "PI"}</p>
+            <p><strong>Period:</strong> ${formatPeriod(service.period_secs)}</p>
+            <p><strong>Trial:</strong> ${service.trial_period_secs ? formatPeriod(service.trial_period_secs) : "No trial"}</p>
+            <p><strong>Approve Periods:</strong> ${service.approve_periods ?? "-"}</p>
+            <p><strong>Active:</strong> ${yesNo(service.is_active)}</p>
+            <p><strong>Visibility:</strong> ${service.visibility_level || "-"}</p>
+            <p><strong>Created:</strong> ${service.created_at || "-"}</p>
+            <p><strong>Updated:</strong> ${service.updated_at || "-"}</p>
+          `;
+
+          const btn = row.querySelector(".service-view-btn");
+          btn?.addEventListener("click", () => {
+            const isHidden = details.style.display === "none" || details.style.display === "";
+            details.style.display = isHidden ? "block" : "none";
+            btn.textContent = isHidden ? "Hide" : "View";
+          });
+
+          wrapper.appendChild(row);
+          wrapper.appendChild(details);
+          pirc2ServicesContainer.appendChild(wrapper);
+        });
+      } catch (error) {
+        pirc2ServicesStatus.innerHTML = '<p style="margin:0;color:#dc2626;">❌ Failed to contact backend for PiRC2 services.</p>';
+      }
+    }
+
+    async function loadPirc2Subscriptions() {
+      pirc2SubscriptionsStatus.innerHTML = '<p style="margin:0;">⏳ Loading PiRC2 subscriptions...</p>';
+      pirc2SubscriptionsContainer.innerHTML = "";
+
+      try {
+        const response = await fetch(`${API_BASE_URL}/api/pirc2/subscriptions/list`);
+        const data = await response.json();
+
+        if (!data.ok) {
+          pirc2SubscriptionsStatus.innerHTML = `<p style="margin:0;color:#dc2626;">❌ ${data.error || "Failed to load PiRC2 subscriptions."}</p>`;
+          return;
+        }
+
+        const subscriptions = data.subscriptions || [];
+
+        if (!subscriptions.length) {
+          pirc2SubscriptionsStatus.innerHTML = '<p style="margin:0;color:#f59e0b;">⚠️ No PiRC2 subscriptions found.</p>';
+          return;
+        }
+
+        pirc2SubscriptionsStatus.innerHTML = `<p style="margin:0;color:#10b981;">✅ ${subscriptions.length} PiRC2 subscription(s) loaded.</p>`;
+
+        subscriptions.forEach((sub) => {
+          const wrapper = document.createElement("div");
+          wrapper.style.marginBottom = "12px";
+
+          const row = document.createElement("div");
+          row.className = "pirc2-row pirc2-subs-row";
+
+          row.innerHTML = `
+            <div><strong>${sub.subscriber_username || sub.subscriber_uid || "-"}</strong></div>
+            <div>${sub.service_name || sub.service_code || "-"}</div>
+            <div>${sub.status || "-"}</div>
+            <div>${yesNo(sub.auto_renew)}</div>
+            <div>${yesNo(sub.pay_upfront)}</div>
+            <div>${sub.price_amount ?? "-"} ${sub.price_currency || "PI"}</div>
+            <div><button type="button" class="btn btn-primary sub-view-btn" style="padding:8px 12px; min-width:auto;">View</button></div>
+          `;
+
+          const details = document.createElement("div");
+          details.className = "admin-listing-card pirc2-details";
+          details.innerHTML = `
+            <p><strong>Subscriber UID:</strong> ${sub.subscriber_uid || "-"}</p>
+            <p><strong>Subscriber Username:</strong> ${sub.subscriber_username || "-"}</p>
+            <p><strong>Subscriber Wallet:</strong> ${sub.subscriber_wallet || "-"}</p>
+            <p><strong>Service:</strong> ${sub.service_name || "-"}</p>
+            <p><strong>Service Code:</strong> ${sub.service_code || "-"}</p>
+            <p><strong>Status:</strong> ${sub.status || "-"}</p>
+            <p><strong>Auto Renew:</strong> ${yesNo(sub.auto_renew)}</p>
+            <p><strong>Pay Upfront:</strong> ${yesNo(sub.pay_upfront)}</p>
+            <p><strong>Price:</strong> ${sub.price_amount ?? "-"} ${sub.price_currency || "PI"}</p>
+            <p><strong>Trial End:</strong> ${sub.trial_end_ts || "-"}</p>
+            <p><strong>Service End:</strong> ${sub.service_end_ts || "-"}</p>
+            <p><strong>Next Charge:</strong> ${sub.next_charge_ts || "-"}</p>
+            <p><strong>Created:</strong> ${sub.created_at || "-"}</p>
+            <p><strong>Updated:</strong> ${sub.updated_at || "-"}</p>
+          `;
+
+          const btn = row.querySelector(".sub-view-btn");
+          btn?.addEventListener("click", () => {
+            const isHidden = details.style.display === "none" || details.style.display === "";
+            details.style.display = isHidden ? "block" : "none";
+            btn.textContent = isHidden ? "Hide" : "View";
+          });
+
+          wrapper.appendChild(row);
+          wrapper.appendChild(details);
+          pirc2SubscriptionsContainer.appendChild(wrapper);
+        });
+      } catch (error) {
+        pirc2SubscriptionsStatus.innerHTML = '<p style="margin:0;color:#dc2626;">❌ Failed to contact backend for PiRC2 subscriptions.</p>';
+      }
+    }
+
+    if (loadPirc2ServicesBtn) {
+      loadPirc2ServicesBtn.addEventListener("click", loadPirc2Services);
+    }
+
+    if (loadPirc2SubscriptionsBtn) {
+      loadPirc2SubscriptionsBtn.addEventListener("click", loadPirc2Subscriptions);
+    }
+  </script>
+</body>
+</html>
