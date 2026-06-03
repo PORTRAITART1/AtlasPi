@@ -1,10 +1,11 @@
 import express from "express";
 import db from "../config/db.js";
 import logger from "../utils/logger.js";
+import axios from "axios";
 
 const router = express.Router();
 
-router.post("/pi", (req, res) => {
+router.post("/pi", async (req, res) => {
   try {
     const { uid, username, accessToken, wallet_address } = req.body;
 
@@ -16,12 +17,55 @@ router.post("/pi", (req, res) => {
       });
     }
 
+    let me;
+    try {
+      const meResponse = await axios.get("https://api.minepi.com/v2/me", {
+        headers: {
+          Authorization: `Bearer ${accessToken}`
+        },
+        timeout: 15000
+      });
+
+      me = meResponse.data;
+    } catch (verifyError) {
+      logger.error("Pi /me verification failed: " + verifyError.message);
+      return res.status(401).json({
+        ok: false,
+        error: "Pi token verification failed"
+      });
+    }
+
+    if (!me || !me.uid) {
+      logger.error("Pi /me verification returned invalid response");
+      return res.status(401).json({
+        ok: false,
+        error: "Invalid Pi identity response"
+      });
+    }
+
+    if (me.uid !== uid) {
+      logger.error(`Auth uid mismatch: frontend=${uid}, pi=${me.uid}`);
+      return res.status(401).json({
+        ok: false,
+        error: "UID mismatch after Pi verification"
+      });
+    }
+
+    if (me.username && username && me.username !== username) {
+      logger.error(`Auth username mismatch: frontend=${username}, pi=${me.username}`);
+      return res.status(401).json({
+        ok: false,
+        error: "Username mismatch after Pi verification"
+      });
+    }
+
+    const verifiedUsername = me.username || username;
     const createdAt = new Date().toISOString();
 
     db.run(
       `INSERT INTO auth_logs (uid, username, wallet_address, access_token, created_at)
        VALUES (?, ?, ?, ?, ?)`,
-      [uid, username, wallet_address || "", accessToken, createdAt],
+      [me.uid, verifiedUsername, wallet_address || "", accessToken, createdAt],
       function (err) {
         if (err) {
           logger.error("Database error on auth log insert: " + err.message);
@@ -31,16 +75,15 @@ router.post("/pi", (req, res) => {
           });
         }
 
-        logger.info(`Auth success for user ${username} (${uid}) - token stored`);
+        logger.info(`Auth verified with Pi /me for user ${verifiedUsername} (${me.uid})`);
 
         return res.json({
           ok: true,
-          message: "Pi auth received and logged",
+          message: "Pi auth verified and logged",
           user: {
-            uid,
-            username,
-            wallet_address: wallet_address || null,
-            access_token: accessToken
+            uid: me.uid,
+            username: verifiedUsername,
+            wallet_address: wallet_address || null
           }
         });
       }
