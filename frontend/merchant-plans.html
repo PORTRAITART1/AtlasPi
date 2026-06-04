@@ -182,7 +182,11 @@
         <div id="plansStatus" class="plans-status">
           <p style="margin:0;">No plans loaded yet.</p>
         </div>
-
+        
+        <div id="plansActionStatus" class="plans-status" style="display:none;">
+          <p style="margin:0;">No action started yet.</p>
+        </div>
+        
         <div id="plansGrid" class="plans-grid"></div>
       </div>
     </section>
@@ -215,6 +219,7 @@
     const API_BASE_URL = window.ATLASPI_CONFIG?.API_BASE_URL || "https://atlaspi-backend.onrender.com";
     const plansGrid = document.getElementById("plansGrid");
     const plansStatus = document.getElementById("plansStatus");
+    const plansActionStatus = document.getElementById("plansActionStatus");
 
     function formatPeriod(periodSecs) {
       if (periodSecs === 2592000) return "Monthly";
@@ -252,76 +257,255 @@
         .join("");
     }
 
-    async function loadPlans() {
-      if (plansStatus) {
-        plansStatus.innerHTML = '<p style="margin:0;">⏳ Loading PiRC2 plans...</p>';
-      }
+    function showPlanActionStatus(message, type = "info") {
+  if (!plansActionStatus) return;
 
-      if (plansGrid) {
-        plansGrid.innerHTML = "";
-      }
+  plansActionStatus.style.display = "block";
+  plansActionStatus.innerHTML = `<p style="margin:0;">${message}</p>`;
 
-      try {
-        const response = await fetch(`${API_BASE_URL}/api/pirc2/services/list`);
-        const data = await response.json();
+  if (type === "error") {
+    plansActionStatus.style.background = "rgba(220, 38, 38, 0.12)";
+    plansActionStatus.style.border = "1px solid rgba(220, 38, 38, 0.25)";
+    plansActionStatus.style.color = "#fecaca";
+  } else if (type === "success") {
+    plansActionStatus.style.background = "rgba(34, 197, 94, 0.12)";
+    plansActionStatus.style.border = "1px solid rgba(34, 197, 94, 0.25)";
+    plansActionStatus.style.color = "#bbf7d0";
+  } else {
+    plansActionStatus.style.background = "rgba(59, 130, 246, 0.12)";
+    plansActionStatus.style.border = "1px solid rgba(59, 130, 246, 0.25)";
+    plansActionStatus.style.color = "#bfdbfe";
+  }
+}
 
-        if (!data.ok) {
-          if (plansStatus) {
-            plansStatus.innerHTML = `<p style="margin:0;color:#dc2626;">❌ ${data.error || "Failed to load plans."}</p>`;
-          }
-          return;
-        }
+async function createSubscription(serviceId, priceAmount) {
+  const uid = "test-user-002";
+  const username = "atlas_test_user";
+  const wallet = "PI-TESTNET-WALLET-ATLASPI-002";
 
-        const services = data.services || [];
+  showPlanActionStatus("⏳ Creating PiRC2 subscription...", "info");
 
-        if (!services.length) {
-          if (plansStatus) {
-            plansStatus.innerHTML = '<p style="margin:0;color:#f59e0b;">⚠️ No PiRC2 plans available yet.</p>';
-          }
-          return;
-        }
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/pirc2/subscriptions/create`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        service_id: serviceId,
+        subscriber_uid: uid,
+        subscriber_username: username,
+        subscriber_wallet: wallet,
+        status: "active",
+        auto_renew: true,
+        pay_upfront: true,
+        price_amount: priceAmount,
+        price_currency: "PI"
+      })
+    });
 
-        if (plansStatus) {
-          plansStatus.innerHTML = `<p style="margin:0;color:#10b981;">✅ ${services.length} plan(s) loaded.</p>`;
-        }
+    const data = await response.json();
 
-        plansGrid.innerHTML = services.map((service) => `
-          <article class="plan-card">
-            <div class="plan-top">
-              <div>
-                <span class="eyebrow">${service.visibility_level || "premium"}</span>
-                <h3 style="margin-top:12px;">${service.name || "-"}</h3>
-              </div>
-              <span class="plan-badge">PiRC2</span>
-            </div>
-
-            <p>${service.description || "Premium service for AtlasPi merchants."}</p>
-
-            <div class="plan-price">${service.price_amount ?? "-"} ${service.price_currency || "PI"}</div>
-            <div class="plan-meta">
-              Billing: <strong>${formatPeriod(service.period_secs)}</strong><br />
-              Trial: <strong>${service.trial_period_secs ? formatPeriod(service.trial_period_secs) : "No trial"}</strong><br />
-              Approve Periods: <strong>${service.approve_periods ?? 1}</strong>
-            </div>
-
-            <div class="plan-features">
-              ${renderFeatureFlags(service.feature_flags_json)}
-            </div>
-
-            <div class="hero-actions">
-              <a href="payments.html" class="btn btn-primary">Choose Plan</a>
-              <a href="vip.html" class="btn btn-secondary">Learn More</a>
-            </div>
-          </article>
-        `).join("");
-      } catch (error) {
-        if (plansStatus) {
-          plansStatus.innerHTML = '<p style="margin:0;color:#dc2626;">❌ Failed to contact backend for PiRC2 plans.</p>';
-        }
-      }
+    if (!data.ok) {
+      showPlanActionStatus(`❌ ${data.error || "Failed to create subscription."}`, "error");
+      return;
     }
 
-    loadPlans();
-  </script>
+    showPlanActionStatus("✅ Subscription created successfully. Redirecting...", "success");
+
+    setTimeout(() => {
+      window.location.href = `my-subscriptions.html?uid=${encodeURIComponent(uid)}`;
+    }, 900);
+  } catch (error) {
+    showPlanActionStatus("❌ Failed to contact backend for subscription creation.", "error");
+  }
+}
+
+<script>
+  const API_BASE_URL = window.ATLASPI_CONFIG?.API_BASE_URL || "https://atlaspi-backend.onrender.com";
+  const plansGrid = document.getElementById("plansGrid");
+  const plansStatus = document.getElementById("plansStatus");
+  const plansActionStatus = document.getElementById("plansActionStatus");
+
+  function formatPeriod(periodSecs) {
+    if (periodSecs === 2592000) return "Monthly";
+    if (periodSecs === 604800) return "Weekly";
+    if (periodSecs === 7776000) return "Quarterly";
+    if (periodSecs === 31536000) return "Yearly";
+    return `${periodSecs} secs`;
+  }
+
+  function renderFeatureFlags(flags) {
+    if (!flags || typeof flags !== "object") {
+      return `
+        <div class="plan-feature">Structured premium merchant visibility</div>
+        <div class="plan-feature">Future-ready subscription positioning</div>
+      `;
+    }
+
+    const labels = {
+      vip_badge: "VIP badge",
+      discovery_boost: "Discovery boost",
+      map_priority: "Map priority",
+      featured_listing: "Featured listing"
+    };
+
+    const activeFeatures = Object.entries(flags)
+      .filter(([, value]) => !!value)
+      .map(([key]) => labels[key] || key);
+
+    if (!activeFeatures.length) {
+      return `<div class="plan-feature">Premium merchant visibility</div>`;
+    }
+
+    return activeFeatures
+      .map((feature) => `<div class="plan-feature">${feature}</div>`)
+      .join("");
+  }
+
+  function showPlanActionStatus(message, type = "info") {
+    if (!plansActionStatus) return;
+
+    plansActionStatus.style.display = "block";
+    plansActionStatus.innerHTML = `<p style="margin:0;">${message}</p>`;
+
+    if (type === "error") {
+      plansActionStatus.style.background = "rgba(220, 38, 38, 0.12)";
+      plansActionStatus.style.border = "1px solid rgba(220, 38, 38, 0.25)";
+      plansActionStatus.style.color = "#fecaca";
+    } else if (type === "success") {
+      plansActionStatus.style.background = "rgba(34, 197, 94, 0.12)";
+      plansActionStatus.style.border = "1px solid rgba(34, 197, 94, 0.25)";
+      plansActionStatus.style.color = "#bbf7d0";
+    } else {
+      plansActionStatus.style.background = "rgba(59, 130, 246, 0.12)";
+      plansActionStatus.style.border = "1px solid rgba(59, 130, 246, 0.25)";
+      plansActionStatus.style.color = "#bfdbfe";
+    }
+  }
+
+  async function createSubscription(serviceId, priceAmount) {
+    const uid = "test-user-002";
+    const username = "atlas_test_user";
+    const wallet = "PI-TESTNET-WALLET-ATLASPI-002";
+
+    showPlanActionStatus("⏳ Creating PiRC2 subscription...", "info");
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/pirc2/subscriptions/create`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          service_id: serviceId,
+          subscriber_uid: uid,
+          subscriber_username: username,
+          subscriber_wallet: wallet,
+          status: "active",
+          auto_renew: true,
+          pay_upfront: true,
+          price_amount: priceAmount,
+          price_currency: "PI"
+        })
+      });
+
+      const data = await response.json();
+
+      if (!data.ok) {
+        showPlanActionStatus(`❌ ${data.error || "Failed to create subscription."}`, "error");
+        return;
+      }
+
+      showPlanActionStatus("✅ Subscription created successfully. Redirecting...", "success");
+
+      setTimeout(() => {
+        window.location.href = `my-subscriptions.html?uid=${encodeURIComponent(uid)}`;
+      }, 900);
+    } catch (error) {
+      showPlanActionStatus("❌ Failed to contact backend for subscription creation.", "error");
+    }
+  }
+
+  async function loadPlans() {
+    if (plansStatus) {
+      plansStatus.innerHTML = '<p style="margin:0;">⏳ Loading PiRC2 plans...</p>';
+    }
+
+    if (plansGrid) {
+      plansGrid.innerHTML = "";
+    }
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/pirc2/services/list`);
+      const data = await response.json();
+
+      if (!data.ok) {
+        if (plansStatus) {
+          plansStatus.innerHTML = `<p style="margin:0;color:#dc2626;">❌ ${data.error || "Failed to load plans."}</p>`;
+        }
+        return;
+      }
+
+      const services = data.services || [];
+
+      if (!services.length) {
+        if (plansStatus) {
+          plansStatus.innerHTML = '<p style="margin:0;color:#f59e0b;">⚠️ No PiRC2 plans available yet.</p>';
+        }
+        return;
+      }
+
+      if (plansStatus) {
+        plansStatus.innerHTML = `<p style="margin:0;color:#10b981;">✅ ${services.length} plan(s) loaded.</p>`;
+      }
+
+      plansGrid.innerHTML = services.map((service) => `
+        <article class="plan-card">
+          <div class="plan-top">
+            <div>
+              <span class="eyebrow">${service.visibility_level || "premium"}</span>
+              <h3 style="margin-top:12px;">${service.name || "-"}</h3>
+            </div>
+            <span class="plan-badge">PiRC2</span>
+          </div>
+
+          <p>${service.description || "Premium service for AtlasPi merchants."}</p>
+
+          <div class="plan-price">${service.price_amount ?? "-"} ${service.price_currency || "PI"}</div>
+          <div class="plan-meta">
+            Billing: <strong>${formatPeriod(service.period_secs)}</strong><br />
+            Trial: <strong>${service.trial_period_secs ? formatPeriod(service.trial_period_secs) : "No trial"}</strong><br />
+            Approve Periods: <strong>${service.approve_periods ?? 1}</strong>
+          </div>
+
+          <div class="plan-features">
+            ${renderFeatureFlags(service.feature_flags_json)}
+          </div>
+
+          <div class="hero-actions">
+            <button type="button" class="btn btn-primary choose-plan-btn" data-service-id="${service.id}" data-price="${service.price_amount}">Choose Plan</button>
+            <a href="vip.html" class="btn btn-secondary">Learn More</a>
+          </div>
+        </article>
+      `).join("");
+
+      const choosePlanButtons = document.querySelectorAll(".choose-plan-btn");
+      choosePlanButtons.forEach((button) => {
+        button.addEventListener("click", () => {
+          const serviceId = button.getAttribute("data-service-id");
+          const price = Number(button.getAttribute("data-price") || "0");
+          createSubscription(serviceId, price);
+        });
+      });
+    } catch (error) {
+      if (plansStatus) {
+        plansStatus.innerHTML = '<p style="margin:0;color:#dc2626;">❌ Failed to contact backend for PiRC2 plans.</p>';
+      }
+    }
+  }
+
+  loadPlans();
+</script>
 </body>
 </html>
