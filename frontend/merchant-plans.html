@@ -214,113 +214,7 @@
   </footer>
 
   <script src="config.js?v=12"></script>
-  <script src="mobile-menu.js"></script>
-  <script>
-    const API_BASE_URL = window.ATLASPI_CONFIG?.API_BASE_URL || "https://atlaspi-backend.onrender.com";
-    const plansGrid = document.getElementById("plansGrid");
-    const plansStatus = document.getElementById("plansStatus");
-    const plansActionStatus = document.getElementById("plansActionStatus");
-
-    function formatPeriod(periodSecs) {
-      if (periodSecs === 2592000) return "Monthly";
-      if (periodSecs === 604800) return "Weekly";
-      if (periodSecs === 7776000) return "Quarterly";
-      if (periodSecs === 31536000) return "Yearly";
-      return `${periodSecs} secs`;
-    }
-
-    function renderFeatureFlags(flags) {
-      if (!flags || typeof flags !== "object") {
-        return `
-          <div class="plan-feature">Structured premium merchant visibility</div>
-          <div class="plan-feature">Future-ready subscription positioning</div>
-        `;
-      }
-
-      const labels = {
-        vip_badge: "VIP badge",
-        discovery_boost: "Discovery boost",
-        map_priority: "Map priority",
-        featured_listing: "Featured listing"
-      };
-
-      const activeFeatures = Object.entries(flags)
-        .filter(([, value]) => !!value)
-        .map(([key]) => labels[key] || key);
-
-      if (!activeFeatures.length) {
-        return `<div class="plan-feature">Premium merchant visibility</div>`;
-      }
-
-      return activeFeatures
-        .map((feature) => `<div class="plan-feature">${feature}</div>`)
-        .join("");
-    }
-
-    function showPlanActionStatus(message, type = "info") {
-  if (!plansActionStatus) return;
-
-  plansActionStatus.style.display = "block";
-  plansActionStatus.innerHTML = `<p style="margin:0;">${message}</p>`;
-
-  if (type === "error") {
-    plansActionStatus.style.background = "rgba(220, 38, 38, 0.12)";
-    plansActionStatus.style.border = "1px solid rgba(220, 38, 38, 0.25)";
-    plansActionStatus.style.color = "#fecaca";
-  } else if (type === "success") {
-    plansActionStatus.style.background = "rgba(34, 197, 94, 0.12)";
-    plansActionStatus.style.border = "1px solid rgba(34, 197, 94, 0.25)";
-    plansActionStatus.style.color = "#bbf7d0";
-  } else {
-    plansActionStatus.style.background = "rgba(59, 130, 246, 0.12)";
-    plansActionStatus.style.border = "1px solid rgba(59, 130, 246, 0.25)";
-    plansActionStatus.style.color = "#bfdbfe";
-  }
-}
-
-async function createSubscription(serviceId, priceAmount) {
-  const uid = "test-user-002";
-  const username = "atlas_test_user";
-  const wallet = "PI-TESTNET-WALLET-ATLASPI-002";
-
-  showPlanActionStatus("⏳ Creating PiRC2 subscription...", "info");
-
-  try {
-    const response = await fetch(`${API_BASE_URL}/api/pirc2/subscriptions/create`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        service_id: serviceId,
-        subscriber_uid: uid,
-        subscriber_username: username,
-        subscriber_wallet: wallet,
-        status: "active",
-        auto_renew: true,
-        pay_upfront: true,
-        price_amount: priceAmount,
-        price_currency: "PI"
-      })
-    });
-
-    const data = await response.json();
-
-    if (!data.ok) {
-      showPlanActionStatus(`❌ ${data.error || "Failed to create subscription."}`, "error");
-      return;
-    }
-
-    showPlanActionStatus("✅ Subscription created successfully. Redirecting...", "success");
-
-    setTimeout(() => {
-      window.location.href = `my-subscriptions.html?uid=${encodeURIComponent(uid)}`;
-    }, 900);
-  } catch (error) {
-    showPlanActionStatus("❌ Failed to contact backend for subscription creation.", "error");
-  }
-}
-
+<script src="mobile-menu.js"></script>
 <script>
   const API_BASE_URL = window.ATLASPI_CONFIG?.API_BASE_URL || "https://atlaspi-backend.onrender.com";
   const plansGrid = document.getElementById("plansGrid");
@@ -398,7 +292,7 @@ async function createSubscription(serviceId, priceAmount) {
           "Content-Type": "application/json"
         },
         body: JSON.stringify({
-          service_id: serviceId,
+          service_id: Number(serviceId),
           subscriber_uid: uid,
           subscriber_username: username,
           subscriber_wallet: wallet,
