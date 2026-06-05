@@ -216,7 +216,7 @@ class PiIntegrationManager {
     }
     try {
       const authResult = await Pi.authenticate(
-        ['payments'], // request the payments scope (minimum required for createPayment)
+        ['username', 'payments', 'wallet_address'], // request the payments scope (minimum required for createPayment)
         (payment) => {
           if (payment && payment.identifier && payment.transaction && payment.transaction.txid) {
             const apiBase = window.ATLASPI_CONFIG?.API_BASE_URL || 'https://atlaspi-backend.onrender.com';
