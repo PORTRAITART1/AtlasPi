@@ -7,6 +7,7 @@ COPY frontend/*.html ./
 COPY frontend/*.css ./
 COPY frontend/*.js ./
 COPY frontend/*.png ./
+COPY frontend/validation-key.txt ./
 COPY frontend/images ./images/
 
 # Configuration nginx personnalisée
