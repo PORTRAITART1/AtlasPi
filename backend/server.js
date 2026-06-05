@@ -89,7 +89,7 @@ app.get("/api/health", (req, res) => {
   res.json({
     ok: true,
     status: "running",
-    mode: envManager.get('piMode', 'demo'),
+    mode: envManager.getModeInfo().mode,
     message: "AtlasPi backend is healthy"
   });
 });
