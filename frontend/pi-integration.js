@@ -54,7 +54,10 @@ class PiIntegrationManager {
       // Initialise le SDK – sandbox mode pour le développement / testnet
       // Le mode réel (sandbox ou production) sera déterminé par le backend,
       // on ne force donc plus de mode ici.
-      await Pi.init({ version: '2.0', sandbox: true });
+      await Pi.init({
+        version: '2.0',
+        sandbox: this.mode === 'pirc2-sandbox'
+      });
       this.sdkAvailable = true;
 
       console.log('[Pi Integration] Pi SDK initialised (sandbox) – mode conservé:', this.mode);
