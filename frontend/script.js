@@ -231,7 +231,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
       const result = await piPaymentHandler.initiatePayment({
         amount: Number(amount),
-        memo: memo || 'AtlasPi payment'
+        memo: memo || 'AtlasPi VIP subscription',
+        metadata: {
+          productType: "atlaspi_vip",
+          plan: "vip_monthly",
+          source: "payments_page",
+          amountLabel: "3.14"
+        }
       });
 
       if (paymentStatusElement) {

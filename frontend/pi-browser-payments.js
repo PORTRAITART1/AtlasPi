@@ -50,7 +50,7 @@ class PiBrowserPayments {
    * Déclenche le paiement : Pi réel si SDK dispo, sinon fallback démo.
    */
   async initiatePayment(paymentConfig) {
-    const { amount, memo } = paymentConfig;
+    const { amount, memo, metadata } = paymentConfig;
 
     if (!amount || amount <= 0) {
       throw new Error('Invalid amount');
@@ -96,7 +96,7 @@ class PiBrowserPayments {
    * Flow de paiement Pi Browser OFFICIEL (3 phases)
    */
   async initiateRealPiPayment(paymentConfig) {
-    const { amount, memo } = paymentConfig;
+    const { amount, memo, metadata } = paymentConfig;
 
     return new Promise((resolve, reject) => {
       try {
@@ -106,10 +106,11 @@ class PiBrowserPayments {
   {
     amount: parseFloat(amount),
     memo: memo || 'AtlasPi payment',
-    metadata: {
-      source: 'atlaspi',
-      type: 'user_to_app_payment',
-      createdAt: new Date().toISOString()
+    metadata: metadata || {
+      productType: "atlaspi_vip",
+      plan: "vip_monthly",
+      source: "payments_page",
+      amountLabel: "3.14"
     }
   },
           {
