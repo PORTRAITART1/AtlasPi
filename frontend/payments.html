@@ -256,6 +256,33 @@
         </div>
       </div>
     </section>
+    <section class="section" id="payments-auth">
+      <div class="container">
+        <div class="section-heading">
+          <span class="eyebrow">Authentication</span>
+          <h2>Connect with Pi First</h2>
+          <p>
+            Authenticate with your Pi account first. Once connected, you can proceed
+            with your AtlasPi VIP support payment.
+          </p>
+        </div>
+    
+        <article class="payments-main-card" style="max-width:760px; margin:0 auto;">
+          <div class="feature-icon">🔐</div>
+          <h3>Pi Connection</h3>
+          <p id="piStatus">Connect your Pi account before making a support payment.</p>
+    
+          <div class="payments-actions" style="margin-top:18px;">
+            <button type="button" class="btn btn-primary" id="piConnectBtn">Connect with Pi</button>
+          </div>
+    
+          <div style="margin-top:16px;">
+            <p><strong>Username:</strong> <span id="piUsername">-</span></p>
+            <p><strong>Wallet:</strong> <span id="piWallet">-</span></p>
+          </div>
+        </article>
+      </div>
+    </section>
 
     <section class="section" id="payments-details">
       <div class="container">
@@ -323,12 +350,12 @@
                 />
               </div>
             
-              <button type="button" class="btn btn-primary" id="createPaymentBtn">
-                Support with Testnet
+              <button type="button" class="btn btn-primary" id="createPaymentBtn" disabled>
+                Support AtlasPi VIP
               </button>
             
               <div id="paymentStatus" class="payments-note">
-                Ready to start a testnet payment.
+                🔐 Connect with Pi first to unlock the payment.
               </div>
             </div>
           </article>

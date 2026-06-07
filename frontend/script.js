@@ -210,19 +210,13 @@ document.addEventListener("DOMContentLoaded", () => {
         return;
       }
 
-            if (paymentStatusElement) {
-        paymentStatusElement.textContent = '⏳ Requesting Pi payments permission...';
-      }
+      const paymentUser = currentUser || window.piIntegrationManager?.getUser?.();
 
-      if (window.piIntegrationManager && typeof window.piIntegrationManager.authPiSdk === 'function') {
-        const authResult = await window.piIntegrationManager.authPiSdk();
-
-        if (!authResult || !authResult.ok) {
-          if (paymentStatusElement) {
-            paymentStatusElement.textContent = `❌ ${authResult?.error || 'Pi authentication failed.'}`;
-          }
-          return;
+      if (!paymentUser?.uid || !paymentUser?.username) {
+        if (paymentStatusElement) {
+          paymentStatusElement.textContent = '❌ Connect with Pi before making payment.';
         }
+        return;
       }
 
       if (paymentStatusElement) {
@@ -230,6 +224,9 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       const result = await piPaymentHandler.initiatePayment({
+        uid: paymentUser.uid,
+        username: paymentUser.username,
+        wallet_address: paymentUser.wallet_address || null,
         amount: Number(amount),
         memo: memo || 'AtlasPi VIP subscription',
         metadata: {
@@ -297,6 +294,30 @@ if (merchantListingForm) {
       piConnectBtn.textContent = user?.username
         ? `✓ Connected: ${user.username}`
         : "Connect with Pi";
+    }
+    
+    if (createPaymentBtn) {
+      createPaymentBtn.disabled = !user;
+      createPaymentBtn.style.opacity = user ? "1" : "0.6";
+      createPaymentBtn.style.cursor = user ? "pointer" : "not-allowed";
+    }
+
+    if (paymentStatusElement) {
+      paymentStatusElement.textContent = user
+        ? "✅ Ready to support AtlasPi VIP."
+        : "🔐 Connect with Pi first to unlock the payment.";
+    }
+
+    if (createPaymentBtn) {
+      createPaymentBtn.disabled = !user;
+      createPaymentBtn.style.opacity = user ? "1" : "0.6";
+      createPaymentBtn.style.cursor = user ? "pointer" : "not-allowed";
+    }
+
+    if (paymentStatusElement) {
+      paymentStatusElement.textContent = user
+        ? "✅ Ready to support AtlasPi VIP."
+        : "🔐 Connect with Pi first to unlock the payment.";
     }
 
     if (merchantOwnerUserId && user?.uid) {
