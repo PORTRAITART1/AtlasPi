@@ -618,7 +618,128 @@
       </div>
     </div>
   </header>
+
+  <section class="section" id="app-demo">
+    <div class="container">
+      <div class="section-heading">
+        <span class="eyebrow">App Demo</span>
+        <h2>AtlasPi App Connection Preview</h2>
+        <p>
+          This section prepares the real app connection with the backend, Pi login,
+          and payment flow.
+        </p>
+      </div>
   
+      <div class="feature-grid">
+        <article class="feature-card">
+          <div class="feature-icon">🔐</div>
+          <h3>Pi Connection</h3>
+          <p id="piStatus">Connect your Pi account to continue.</p>
+          <button type="button" class="btn btn-primary" id="piConnectBtn">
+            Connect with Pi
+          </button>
+  
+          <div style="margin-top: 16px;">
+            <p><strong>Username:</strong> <span id="piUsername">-</span></p>
+            <p><strong>Wallet:</strong> <span id="piWallet">-</span></p>
+          </div>
+        </article>
+  
+        <article class="feature-card">
+          <div class="feature-icon">💸</div>
+          <h3>Pay with Pi</h3>
+  
+          <div style="margin-bottom: 12px;">
+            <label for="payAmount"><strong>Amount</strong></label><br />
+            <input
+              type="number"
+              id="payAmount"
+              placeholder="Enter amount"
+              step="0.01"
+              style="width: 100%; padding: 10px; margin-top: 6px;"
+            />
+          </div>
+  
+          <div style="margin-bottom: 12px;">
+            <label for="payMemo"><strong>Memo</strong></label><br />
+            <input
+              type="text"
+              id="payMemo"
+              placeholder="Why are you paying?"
+              style="width: 100%; padding: 10px; margin-top: 6px;"
+            />
+          </div>
+  
+          <button type="button" class="btn btn-primary" id="createPaymentBtn">
+            Pay with Pi
+          </button>
+  
+          <div style="margin-top: 12px; display: flex; gap: 10px; flex-wrap: wrap;">
+            <button type="button" class="btn btn-secondary" id="approvePaymentBtn" style="display:none;">
+              Approve Payment
+            </button>
+  
+            <button type="button" class="btn btn-secondary" id="completePaymentBtn" style="display:none;">
+              Complete Payment
+            </button>
+          </div>
+  
+          <p id="paymentStatus" style="margin-top: 16px;">
+            Pi payment ready.
+          </p>
+  
+          <div style="margin-top: 20px;">
+            <h4 style="margin-bottom: 10px;">Saved Payments</h4>
+  
+            <button type="button" class="btn btn-secondary" id="loadPaymentsBtn">
+              Load Payments List
+            </button>
+  
+            <p id="paymentListStatus" style="margin-top: 12px;">
+              No payment list loaded yet.
+            </p>
+  
+            <div id="paymentList" style="margin-top: 12px;"></div>
+          </div>
+        </article>
+  
+        <article class="feature-card pioneer-profile-card">
+          <div class="feature-icon">👤</div>
+          <h3>Pioneer Profile</h3>
+          <p class="pioneer-profile-subtext">
+            Build your trusted presence in the Pi ecosystem.
+          </p>
+  
+          <div class="pioneer-profile-fields">
+            <p><strong>Username:</strong> <span id="pioneerUsername">@demoUser</span></p>
+            <p><strong>Wallet:</strong> <span id="pioneerWallet">Wallet connected</span></p>
+            <p><strong>Country:</strong> <span id="pioneerCountry">-</span></p>
+            <p><strong>City:</strong> <span id="pioneerCity">-</span></p>
+            <p><strong>Role:</strong> <span id="pioneerRole">Pioneer</span></p>
+            <p><strong>Bio:</strong> <span id="pioneerBio">-</span></p>
+          </div>
+  
+          <div class="pioneer-profile-badges">
+            <span class="profile-badge">Map-ready</span>
+            <span class="profile-badge">VIP-ready</span>
+            <span class="profile-badge">Discovery-ready</span>
+          </div>
+  
+          <p class="pioneer-profile-future">
+            Future-ready for Map, VIP and Pioneer Discovery.
+          </p>
+        </article>
+  
+        <article class="feature-card">
+          <div class="feature-icon">🟢</div>
+          <h3>System Status</h3>
+          <p id="apiStatus">Checking backend connection...</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="merchant-form-section">
   <main>
     
     <section class="hero" id="hero">
@@ -969,125 +1090,6 @@
       </div>
     </section>
 
-    <section class="section" id="app-demo">
-      <div class="container">
-        <div class="section-heading">
-          <span class="eyebrow">App Demo</span>
-          <h2>AtlasPi App Connection Preview</h2>
-          <p>
-            This section prepares the real app connection with the backend, Pi login,
-            and payment flow.
-          </p>
-        </div>
-
-        <div class="feature-grid">
-          <article class="feature-card">
-            <div class="feature-icon">🟢</div>
-            <h3>System Status</h3>
-            <p id="apiStatus">Checking backend connection...</p>
-          </article>
-
-          <article class="feature-card">
-            <div class="feature-icon">🔐</div>
-            <h3>Pi Connection</h3>
-            <p id="piStatus">Connect your Pi account to continue.</p>
-            <button type="button" class="btn btn-primary" id="piConnectBtn">
-              Connect with Pi
-            </button>
-
-            <div style="margin-top: 16px;">
-              <p><strong>Username:</strong> <span id="piUsername">-</span></p>
-              <p><strong>Wallet:</strong> <span id="piWallet">-</span></p>
-            </div>
-          </article>
-          <article class="feature-card pioneer-profile-card">
-            <div class="feature-icon">👤</div>
-            <h3>Pioneer Profile</h3>
-            <p class="pioneer-profile-subtext">
-              Build your trusted presence in the Pi ecosystem.
-            </p>
-          
-            <div class="pioneer-profile-fields">
-              <p><strong>Username:</strong> <span id="pioneerUsername">@demoUser</span></p>
-              <p><strong>Wallet:</strong> <span id="pioneerWallet">Wallet connected</span></p>
-              <p><strong>Country:</strong> <span id="pioneerCountry">-</span></p>
-              <p><strong>City:</strong> <span id="pioneerCity">-</span></p>
-              <p><strong>Role:</strong> <span id="pioneerRole">Pioneer</span></p>
-              <p><strong>Bio:</strong> <span id="pioneerBio">-</span></p>
-            </div>
-          
-            <div class="pioneer-profile-badges">
-              <span class="profile-badge">Map-ready</span>
-              <span class="profile-badge">VIP-ready</span>
-              <span class="profile-badge">Discovery-ready</span>
-            </div>
-          
-            <p class="pioneer-profile-future">
-              Future-ready for Map, VIP and Pioneer Discovery.
-            </p>
-          </article>
-
-          <article class="feature-card">
-            <div class="feature-icon">💸</div>
-            <h3>Pay with Pi</h3>
-
-            <div style="margin-bottom: 12px;">
-              <label for="payAmount"><strong>Amount</strong></label><br />
-              <input
-                type="number"
-                id="payAmount"
-                placeholder="Enter amount"
-                step="0.01"
-                style="width: 100%; padding: 10px; margin-top: 6px;"
-              />
-            </div>
-
-            <div style="margin-bottom: 12px;">
-              <label for="payMemo"><strong>Memo</strong></label><br />
-              <input
-                type="text"
-                id="payMemo"
-                placeholder="Why are you paying?"
-                style="width: 100%; padding: 10px; margin-top: 6px;"
-              />
-            </div>
-
-            <button type="button" class="btn btn-primary" id="createPaymentBtn">
-  Pay with Pi
-</button>
-
-<div style="margin-top: 12px; display: flex; gap: 10px; flex-wrap: wrap;">
-  <button type="button" class="btn btn-secondary" id="approvePaymentBtn" style="display:none;">
-    Approve Payment
-  </button>
-
-  <button type="button" class="btn btn-secondary" id="completePaymentBtn" style="display:none;">
-    Complete Payment
-  </button>
-</div>
-
-<p id="paymentStatus" style="margin-top: 16px;">
-  Pi payment ready.
-</p>
-<div style="margin-top: 20px;">
-  <h4 style="margin-bottom: 10px;">Saved Payments</h4>
-
-  <button type="button" class="btn btn-secondary" id="loadPaymentsBtn">
-    Load Payments List
-  </button>
-
-  <p id="paymentListStatus" style="margin-top: 12px;">
-    No payment list loaded yet.
-  </p>
-
-  <div id="paymentList" style="margin-top: 12px;"></div>
-</div>
-          </article>
-        </div>
-      </div>
-    </section>
-
-    <section class="section" id="merchant-form-section">
       <div class="container">
         <div class="section-heading">
           <span class="eyebrow">Merchant Listing Demo</span>
