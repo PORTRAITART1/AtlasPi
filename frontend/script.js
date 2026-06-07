@@ -236,7 +236,7 @@ document.addEventListener("DOMContentLoaded", () => {
           productType: "atlaspi_vip",
           plan: "vip_monthly",
           source: "payments_page",
-          amountLabel: "3.14"
+          amountLabel: "0.1"
         }
       });
 
