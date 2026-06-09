@@ -19,7 +19,7 @@ Rotation complète et sécurisée de **5 secrets internes** d'AtlasPi :
 ### Secrets rotés
 ```
 ADMIN_SECRET (ancien)                   → ADMIN_SECRET (nouveau)
-  atlaspi-dev-secret-change-in-prod        atlaspi_admin_9Xv3!mQ7#Lp2@rT6$Ks8^nB4%Hd1
+  atlaspi-dev-secret-change-in-prod        [REDACTED_ADMIN_SECRET]
 
 ATLASPI_APP_SECRET (nouveau)            atlaspi_app_7Pz4@Lm9#Qx2!Vr6$Nt8^Hs3%Ky1
 ATLASPI_SIGNING_SECRET (nouveau)        atlaspi_sign_4Qm8!Tx2#Lp7@Vr5$Ns9^Hb3%Kd6
@@ -129,7 +129,7 @@ node test-secret-rotation.js
 1. Démarrer backend: npm start
 2. Admin moderation:
    - POST /api/merchant-listings/pending
-   - Header: x-admin-secret=atlaspi_admin_9Xv3!mQ7#Lp2@rT6$Ks8^nB4%Hd1
+   - Header: x-admin-secret=[REDACTED_ADMIN_SECRET]
    - Expect: 200 OK (list of pending or empty)
 
 3. Payment demo (sans secret):
@@ -230,7 +230,7 @@ npm start
 node test-secret-rotation.js
 
 # 3. Test admin moderation (via frontend)
-# Entrer secret: atlaspi_admin_9Xv3!mQ7#Lp2@rT6$Ks8^nB4%Hd1
+# Entrer secret: [REDACTED_ADMIN_SECRET]
 # Load pending listings → devrait fonctionner
 ```
 

@@ -10,7 +10,7 @@
 
 ### New Secret Values
 ```
-ADMIN_SECRET = atlaspi_admin_9Xv3!mQ7#Lp2@rT6$Ks8^nB4%Hd1
+ADMIN_SECRET = [REDACTED_ADMIN_SECRET]
 ATLASPI_APP_SECRET = atlaspi_app_7Pz4@Lm9#Qx2!Vr6$Nt8^Hs3%Ky1
 ATLASPI_SIGNING_SECRET = atlaspi_sign_4Qm8!Tx2#Lp7@Vr5$Ns9^Hb3%Kd6
 DEMO_AUTH_SECRET = atlaspi_demo_6Rx3#Kv8!Mp2@Ts7$Nq4^Hc9%Lf1
@@ -177,7 +177,7 @@ If AtlasPi is deployed on Render.com:
 1. **Dashboard:** Settings → Environment
 2. **Add/Update:**
    ```
-   ADMIN_SECRET=atlaspi_admin_9Xv3!mQ7#Lp2@rT6$Ks8^nB4%Hd1
+   ADMIN_SECRET=[REDACTED_ADMIN_SECRET]
    ATLASPI_APP_SECRET=atlaspi_app_7Pz4@Lm9#Qx2!Vr6$Nt8^Hs3%Ky1
    ATLASPI_SIGNING_SECRET=atlaspi_sign_4Qm8!Tx2#Lp7@Vr5$Ns9^Hb3%Kd6
    DEMO_AUTH_SECRET=atlaspi_demo_6Rx3#Kv8!Mp2@Ts7$Nq4^Hc9%Lf1
@@ -236,7 +236,7 @@ These secrets are for **AtlasPi internal use** (admin moderation, demo auth):
 
 2. **Test admin moderation:**
    - Visit frontend admin panel
-   - Enter new ADMIN_SECRET: `atlaspi_admin_9Xv3!mQ7#Lp2@rT6$Ks8^nB4%Hd1`
+   - Enter new ADMIN_SECRET: `[REDACTED_ADMIN_SECRET]`
    - Load pending listings → should work
 
 3. **Test demo flows:**
