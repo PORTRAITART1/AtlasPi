@@ -23,13 +23,13 @@ const determineApiBaseUrl = () => {
 
     // Render production
     if (hostname.includes('onrender.com') || hostname.includes('atlaspi')) {
-      return 'https://atlaspi.onrender.com';
+      return 'https://atlaspi-backend.onrender.com';
     }
 
     return `${protocol}//${hostname}`;
   }
 
-  return 'https://atlaspi.onrender.com';
+  return 'https://atlaspi-backend.onrender.com';
 };
 
 const ATLASPI_CONFIG = {
