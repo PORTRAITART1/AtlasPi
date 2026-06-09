@@ -54,3 +54,9 @@ AlchemyAPI SDK py/
 PiRC-main/
 SmartContracts-main/
 sdk-main/
+# Environment files
+.env
+.env.*
+*.env
+*.env.*
+!.env.example
