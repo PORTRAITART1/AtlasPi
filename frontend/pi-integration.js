@@ -60,7 +60,7 @@ class PiIntegrationManager {
       });
       this.sdkAvailable = true;
 
-      console.log('[Pi Integration] Pi SDK initialised (sandbox) – mode conservé:', this.mode);
+      console.log('[Pi Integration] Pi SDK initialised (mainnet) – mode conservé:', this.mode);
 
       // Synchroniser l’état SDK avec le gestionnaire de paiement
       if (window.piBrowserPayments) {
@@ -118,11 +118,11 @@ class PiIntegrationManager {
 
     // 2. Si Pi SDK est disponible dans le navigateur
     if (typeof window !== "undefined" && window.Pi) {
-      return "pirc2-sandbox";
+      return "pirc2-production";
     }
 
     // 3. Fallback simple
-    return "demo";
+    return "pirc2-production";
   }
 
   initConfig() {

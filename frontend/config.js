@@ -1,78 +1,57 @@
 /**
- * AtlasPi Frontend Configuration
- * 
- * This file provides dynamic configuration for the frontend.
- * It can be injected at runtime or loaded as needed.
+ * AtlasPi Frontend Configuration - MAINNET
  */
 
-// Determine API_BASE_URL from environment
-// Priority: 1) window.ATLASPI_CONFIG 2) localStorage 3) current origin 4) fallback
 const determineApiBaseUrl = () => {
-  // 1. Check if already set globally (e.g., via HTML script injection)
   if (typeof window !== 'undefined' && window.ATLASPI_CONFIG && window.ATLASPI_CONFIG.API_BASE_URL) {
     return window.ATLASPI_CONFIG.API_BASE_URL;
   }
 
-  // 2. Check localStorage (user can override)
   try {
     const stored = localStorage.getItem('atlaspi_api_base_url');
-    if (stored) {
-      return stored;
-    }
-  } catch (e) {
-    // localStorage might be disabled
-  }
+    if (stored) return stored;
+  } catch (e) {}
 
-  // 3. If running in Docker or same-origin environment
-  // Default: assume backend is on same host + different port or same host
-  // For Docker: frontend:8080 → backend:3000 (both localhost)
   if (typeof window !== 'undefined' && window.location) {
     const protocol = window.location.protocol;
     const hostname = window.location.hostname;
-    
-    // In Docker localhost environment
+
+    // Local development
     if (hostname === 'localhost' || hostname === '127.0.0.1') {
       return `${protocol}//localhost:3000`;
     }
 
-// Render production setup for AtlasPi
-if (
-  hostname === 'atlaspi-frontend.onrender.com' ||
-  hostname === 'atlaspi-frontend-static.onrender.com'
-) {
-  return 'https://atlaspi-backend.onrender.com';
-}
-
-    // In production, assume backend is on /api relative path
-    if (window.location.port === '8080' || window.location.port === '80' || window.location.port === '443') {
-      return `${protocol}//${hostname}:3000`;
+    // Render production
+    if (hostname.includes('onrender.com') || hostname.includes('atlaspi')) {
+      return 'https://atlaspi.onrender.com';
     }
 
-    // For same-origin setup, use /api as relative path
-    return `${protocol}//${hostname}/api`;
+    return `${protocol}//${hostname}`;
   }
 
-  // 4. Fallback (should not reach here in normal circumstances)
-  return 'http://localhost:3000';
+  return 'https://atlaspi.onrender.com';
 };
 
-// Main config object
 const ATLASPI_CONFIG = {
-  // API Base URL - dynamically determined or configurable
   API_BASE_URL: determineApiBaseUrl(),
 
-  // Application metadata
+  // App metadata
   APP_NAME: 'AtlasPi',
   APP_VERSION: '1.0.0',
 
-  // Feature flags
+  // Mode mainnet
+  APP_MODE: 'pirc2-production',
+  PI_NETWORK: 'mainnet',
+  PI_SANDBOX: false,
+
+  // Feature flags - MAINNET
   FEATURES: {
-    DEMO_AUTH: true,        // Enable demo authentication
-    DEMO_PAYMENTS: true,    // Enable demo payments
-    ADMIN_MODERATION: true, // Enable admin moderation
+    DEMO_AUTH: false,
+    DEMO_PAYMENTS: false,
+    ADMIN_MODERATION: true,
   },
 
-  // API endpoints (relative to API_BASE_URL)
+  // API endpoints
   ENDPOINTS: {
     AUTH_PI: '/api/auth/pi',
     PAYMENTS_CREATE: '/api/payments/create-record',
@@ -90,7 +69,6 @@ const ATLASPI_CONFIG = {
     HEALTH: '/api/health',
   },
 
-  // Helper function to get full endpoint URL
   getEndpoint: function(key) {
     if (!this.ENDPOINTS[key]) {
       console.warn(`Unknown endpoint key: ${key}`);
@@ -99,14 +77,12 @@ const ATLASPI_CONFIG = {
     return this.API_BASE_URL + this.ENDPOINTS[key];
   },
 
-  // Helper function to set API base URL at runtime (useful for production)
   setApiBaseUrl: function(url) {
     this.API_BASE_URL = url;
     localStorage.setItem('atlaspi_api_base_url', url);
     console.log(`API Base URL updated to: ${url}`);
   },
 
-  // Reset to default
   resetApiBaseUrl: function() {
     localStorage.removeItem('atlaspi_api_base_url');
     this.API_BASE_URL = determineApiBaseUrl();
@@ -114,12 +90,11 @@ const ATLASPI_CONFIG = {
   },
 };
 
-// Make config globally available
 if (typeof window !== 'undefined') {
   window.ATLASPI_CONFIG = ATLASPI_CONFIG;
+  console.log('[AtlasPi] Config loaded — mode:', ATLASPI_CONFIG.APP_MODE, '| network:', ATLASPI_CONFIG.PI_NETWORK);
 }
 
-// Export for module systems (if used)
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = ATLASPI_CONFIG;
 }
