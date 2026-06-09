@@ -1,6 +1,7 @@
 import express from "express";
 import db from "../config/db.js";
 import logger from "../utils/logger.js";
+import { requireAdminSecret } from "../middlewares/adminAuth.js";
 import { v4 as uuidv4 } from "uuid";
 
 const router = express.Router();
@@ -867,18 +868,7 @@ router.get("/pending", (req, res) => {
   );
 });
 
-router.get("/admin-stats", (req, res) => {
-  const adminSecret = process.env.ADMIN_SECRET || "atlaspi-dev-secret-change-in-prod";
-  const headerSecret = req.headers["x-admin-secret"];
-
-  if (!headerSecret || headerSecret !== adminSecret) {
-    logger.warn("Admin stats access rejected: invalid or missing secret");
-    return res.status(403).json({
-      ok: false,
-      error: "Unauthorized. Invalid or missing admin secret."
-    });
-  }
-
+router.get("/admin-stats", requireAdminSecret, (req, res) => {
   db.get(
     `SELECT
       COUNT(*) AS total,
