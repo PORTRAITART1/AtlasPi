@@ -169,8 +169,11 @@
           </div>
 
           <div class="hero-actions">
+            <div id="vipStatusBadge" style="margin-bottom:12px; font-size:1rem;">
+              <span style="opacity:0.6;">Checking VIP status...</span>
+            </div>
             <a href="#profile-update-form" class="btn btn-primary">Update Profile</a>
-            <a href="index.html" class="btn btn-secondary">Back to Home</a>
+            <a href="discover.html" class="btn btn-secondary">🌍 Back to Discover</a>
           </div>
         </div>
 
@@ -477,7 +480,7 @@
       </div>
     </div>
   </footer>
-  <script src="config.js?v=11"></script>
+  <script src="config.js?v=13"></script>
   <script src="profile-data.js"></script>
   <script>
     const profileData = window.ATLASPI_PROFILE_DATA || {};
@@ -587,34 +590,98 @@
       };
     }
   
+    // ── VIP Status Check ──────────────────────────────────────
+    async function checkVIPStatus(uid) {
+      try {
+        const res = await fetch(`${API_BASE_URL}/api/user/status?uid=${uid}`);
+        const data = await res.json();
+        return data;
+      } catch (e) {
+        console.warn('[Profile] VIP status check failed:', e);
+        return { isVIP: false };
+      }
+    }
+
+    // ── Render VIP Badge ──────────────────────────────────────
+    function renderVIPBadge(isVIP, vipExpiry) {
+      const badge = document.getElementById('vipStatusBadge');
+      if (!badge) return;
+      if (isVIP) {
+        const expiry = vipExpiry ? new Date(vipExpiry).toLocaleDateString() : 'N/A';
+        badge.innerHTML = `<span style="color:#a855f7;font-weight:700;">💎 VIP Active</span> <small style="opacity:0.7;">until ${expiry}</small>`;
+      } else {
+        badge.innerHTML = `<span style="opacity:0.6;">No VIP — <a href="vip.html" style="color:#a855f7;">Go VIP 💎</a></span>`;
+      }
+    }
+
+    // ── Init Profile with Pi SDK ──────────────────────────────
     async function initProfile() {
+      // 1. Try Pi SDK first
+      if (window.Pi && typeof window.Pi.authenticate === 'function') {
+        try {
+          const auth = await window.Pi.authenticate(['username', 'payments'], async (payment) => {
+            console.warn('[Profile] Incomplete payment found:', payment.identifier);
+          });
+
+          if (auth && auth.user) {
+            const piUser = auth.user;
+            const uid = piUser.uid;
+
+            // 2. Check VIP status from backend
+            const vipData = await checkVIPStatus(uid);
+
+            // 3. Apply profile data
+            applyProfileData({
+              ...normalizeBackendProfile({
+                username: piUser.username,
+                wallet_address: piUser.wallet_address || null,
+              }),
+              pills: [
+                `👤 ${piUser.username}`,
+                piUser.wallet_address ? '🔗 Wallet Connected' : '🔗 Wallet Not Connected',
+                vipData.isVIP ? '💎 VIP Active' : '🔓 Standard'
+              ]
+            });
+
+            // 4. Render VIP badge
+            renderVIPBadge(vipData.isVIP, vipData.vipExpiry);
+            return;
+          }
+        } catch (piErr) {
+          console.warn('[Profile] Pi SDK auth failed:', piErr);
+        }
+      }
+
+      // 5. Fallback — URL params
       const params = new URLSearchParams(window.location.search);
-      const uid = params.get("uid");
-  
+      const uid = params.get('uid');
       if (uid) {
         try {
           const response = await fetch(`${API_BASE_URL}/api/auth/profile/${uid}`);
           const data = await response.json();
-  
           if (data.ok && data.profile) {
+            const vipData = await checkVIPStatus(uid);
             applyProfileData(normalizeBackendProfile(data.profile));
+            renderVIPBadge(vipData.isVIP, vipData.vipExpiry);
             return;
           }
         } catch (error) {
-          console.error("Failed to load backend profile:", error);
+          console.error('[Profile] Backend profile fetch failed:', error);
         }
       }
-  
+
+      // 6. Final fallback
       applyProfileData(profileData);
+      renderVIPBadge(false, null);
     }
-  
+
     if (saveProfileBtn && profileSaveStatus) {
-      saveProfileBtn.addEventListener("click", () => {
-        profileSaveStatus.style.display = "block";
-        profileSaveStatus.textContent = "Profile changes saved locally for this preview.";
+      saveProfileBtn.addEventListener('click', () => {
+        profileSaveStatus.style.display = 'block';
+        profileSaveStatus.textContent = '✅ Profile updated.';
       });
     }
-  
+
     initProfile();
   </script>
   <script src="mobile-menu.js"></script>
