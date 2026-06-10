@@ -8,8 +8,39 @@
 
 import express, { Request, Response } from 'express';
 import PiPaymentService from '../services/pi-payment';
+import db from '../../config/db.js';
 
 const router = express.Router();
+
+// Helper: activate VIP for user after confirmed payment
+function activateVIP(uid: string, username: string, paymentId: string, txid: string): Promise<void> {
+  return new Promise((resolve, reject) => {
+    const now = new Date().toISOString();
+    const vipExpiry = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(); // 30 days
+
+    db.run(
+      `INSERT INTO users (uid, username, is_vip, vip_expires_at, vip_payment_id, vip_txid, created_at, updated_at)
+       VALUES (?, ?, 1, ?, ?, ?, ?, ?)
+       ON CONFLICT(uid) DO UPDATE SET
+         is_vip = 1,
+         vip_expires_at = ?,
+         vip_payment_id = ?,
+         vip_txid = ?,
+         updated_at = ?`,
+      [uid, username, vipExpiry, paymentId, txid, now, now,
+       vipExpiry, paymentId, txid, now],
+      (err: any) => {
+        if (err) {
+          console.error('❌ VIP activation failed:', err.message);
+          reject(err);
+        } else {
+          console.log(`✅ VIP activated for user ${username} (${uid}) until ${vipExpiry}`);
+          resolve();
+        }
+      }
+    );
+  });
+}
 
 /**
  * POST /api/payments/approve
@@ -123,14 +154,23 @@ router.post('/payments/complete', async (req: Request, res: Response) => {
       });
     }
 
-    // ✅ NOW you can safely deliver goods/services
-    // Example: await User.findByIdAndUpdate(userId, { isPremium: true });
+    // ✅ Activate VIP for user
+    const { uid, username } = req.body;
+    if (uid) {
+      try {
+        await activateVIP(uid, username || 'unknown', paymentId, txid);
+        console.log('✅ VIP activated for:', uid);
+      } catch (vipErr: any) {
+        console.error('⚠️ VIP activation error (payment still valid):', vipErr.message);
+      }
+    }
 
     res.json({
       success: true,
       paymentId,
       txid,
-      message: 'Payment completed successfully'
+      vipActivated: !!uid,
+      message: 'Payment completed successfully — VIP activated'
     });
   } catch (error: any) {
     console.error('❌ Payment completion error:', error.message);
@@ -191,6 +231,51 @@ router.get('/payments/network/info', (req: Request, res: Response) => {
     api: info.api,
     hasServerKey: info.hasServerKey
   });
+});
+
+/**
+ * GET /api/user/status
+ * Get VIP status for a user by uid
+ */
+router.get('/user/status', async (req: Request, res: Response) => {
+  const { uid } = req.query;
+
+  if (!uid) {
+    return res.status(400).json({ error: 'uid is required', success: false });
+  }
+
+  db.get(
+    `SELECT uid, username, is_vip, vip_expires_at, vip_payment_id FROM users WHERE uid = ?`,
+    [uid],
+    (err: any, row: any) => {
+      if (err) {
+        return res.status(500).json({ error: 'DB error', success: false });
+      }
+
+      if (!row) {
+        return res.json({
+          success: true,
+          uid,
+          isVIP: false,
+          vipExpiry: null,
+          message: 'User not found — not VIP'
+        });
+      }
+
+      const now = new Date();
+      const expiry = row.vip_expires_at ? new Date(row.vip_expires_at) : null;
+      const isVIPActive = row.is_vip === 1 && expiry && expiry > now;
+
+      res.json({
+        success: true,
+        uid: row.uid,
+        username: row.username,
+        isVIP: isVIPActive,
+        vipExpiry: row.vip_expires_at,
+        message: isVIPActive ? '✅ VIP active' : '❌ VIP not active'
+      });
+    }
+  );
 });
 
 export default router;

@@ -346,6 +346,22 @@ db.serialize(() => {
       FOREIGN KEY(service_id) REFERENCES subscription_services(id)
     )
   `);
+
+  // Users Table (VIP status + profile)
+  db.run(`
+    CREATE TABLE IF NOT EXISTS users (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      uid TEXT NOT NULL UNIQUE,
+      username TEXT NOT NULL,
+      wallet_address TEXT,
+      is_vip INTEGER NOT NULL DEFAULT 0,
+      vip_expires_at TEXT,
+      vip_payment_id TEXT,
+      vip_txid TEXT,
+      created_at TEXT NOT NULL,
+      updated_at TEXT NOT NULL
+    )
+  `);
 });
 
 export default db;
