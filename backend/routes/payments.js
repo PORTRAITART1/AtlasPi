@@ -140,12 +140,36 @@ router.post("/complete", (req, res) => {
 
         logger.info(`Payment completed: local=${localPaymentId}, txid=${txid}`);
 
+        // ✅ Activate VIP if uid provided
+        const { uid, username } = req.body;
+        if (uid) {
+          const vipExpiry = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
+          const nowVip = new Date().toISOString();
+          db.run(
+            `INSERT INTO users (uid, username, is_vip, vip_expires_at, vip_payment_id, vip_txid, created_at, updated_at)
+             VALUES (?, ?, 1, ?, ?, ?, ?, ?)
+             ON CONFLICT(uid) DO UPDATE SET
+               is_vip = 1,
+               vip_expires_at = ?,
+               vip_payment_id = ?,
+               vip_txid = ?,
+               updated_at = ?`,
+            [uid, username || 'unknown', vipExpiry, paymentId, txid, nowVip, nowVip,
+             vipExpiry, paymentId, txid, nowVip],
+            (vipErr) => {
+              if (vipErr) logger.error('VIP activation error: ' + vipErr.message);
+              else logger.info(`VIP activated for ${uid} until ${vipExpiry}`);
+            }
+          );
+        }
+
         return res.json({
           ok: true,
           status: "completed",
           localPaymentId,
           paymentId,
-          txid
+          txid,
+          vipActivated: !!uid
         });
       }
     );
@@ -175,6 +199,64 @@ router.get("/list", (req, res) => {
         ok: true,
         count: rows.length,
         payments: rows
+      });
+    }
+  );
+});
+
+// GET /api/payments/network/info
+router.get("/network/info", (req, res) => {
+  const network = process.env.PI_NETWORK || "mainnet";
+  const api = network === "testnet"
+    ? "https://api-testnet.minepi.com"
+    : "https://api.minepi.com";
+
+  return res.json({
+    ok: true,
+    network,
+    api,
+    hasServerKey: !!process.env.PI_API_KEY,
+    mode: process.env.APP_MODE || "pirc2-production"
+  });
+});
+
+// GET /api/payments/user/status?uid=xxx
+router.get("/user/status", (req, res) => {
+  const { uid } = req.query;
+
+  if (!uid) {
+    return res.status(400).json({ ok: false, error: "uid is required" });
+  }
+
+  db.get(
+    `SELECT uid, username, is_vip, vip_expires_at, vip_payment_id FROM users WHERE uid = ?`,
+    [uid],
+    (err, row) => {
+      if (err) {
+        return res.status(500).json({ ok: false, error: "DB error" });
+      }
+
+      if (!row) {
+        return res.json({
+          ok: true,
+          uid,
+          isVIP: false,
+          vipExpiry: null,
+          message: "User not found — not VIP"
+        });
+      }
+
+      const now = new Date();
+      const expiry = row.vip_expires_at ? new Date(row.vip_expires_at) : null;
+      const isVIPActive = row.is_vip === 1 && expiry && expiry > now;
+
+      return res.json({
+        ok: true,
+        uid: row.uid,
+        username: row.username,
+        isVIP: isVIPActive,
+        vipExpiry: row.vip_expires_at,
+        message: isVIPActive ? "✅ VIP active" : "❌ VIP not active"
       });
     }
   );
