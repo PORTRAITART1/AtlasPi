@@ -170,7 +170,7 @@
 
           <div class="hero-actions">
             <a href="#support-contact" class="btn btn-primary">Get Help</a>
-            <a href="index.html" class="btn btn-secondary">Back to Home</a>
+            <a href="discover.html" class="btn btn-secondary">🌍 Back to Discover</a>
           </div>
         </div>
 
@@ -408,6 +408,12 @@
     
         <article class="support-section-card" style="max-width: 860px; margin: 0 auto;">
           <div style="display:grid; gap:16px;">
+
+            <!-- Pi user info (auto-filled if connected) -->
+            <div id="supportPiInfo" style="display:none; padding:12px 16px; border-radius:12px; background:rgba(124,58,237,0.1); border:1px solid rgba(124,58,237,0.2);">
+              <span id="supportPiLabel" style="color:#a855f7; font-weight:600;">👤 Connected as: <span id="supportPiUsername"></span></span>
+            </div>
+
             <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap:16px;">
               <div>
                 <label for="supportName"><strong>Name</strong></label><br />
@@ -418,7 +424,7 @@
                   style="width:100%; margin-top:8px; padding:14px; border-radius:12px; border:1px solid rgba(255,255,255,0.12); background:rgba(255,255,255,0.04); color:inherit;"
                 />
               </div>
-    
+
               <div>
                 <label for="supportEmail"><strong>Email</strong></label><br />
                 <input
@@ -429,22 +435,23 @@
                 />
               </div>
             </div>
-    
+
             <div>
               <label for="supportType"><strong>Support Type</strong></label><br />
               <select
                 id="supportType"
                 style="width:100%; margin-top:8px; padding:14px; border-radius:12px; border:1px solid rgba(255,255,255,0.12); background:rgba(255,255,255,0.04); color:inherit;"
               >
-                <option>General Help</option>
-                <option>Account</option>
-                <option>Discovery</option>
-                <option>Merchant</option>
-                <option>Payment</option>
-                <option>Feedback</option>
+                <option value="general">💬 General Help</option>
+                <option value="payment">💳 Payment Issue</option>
+                <option value="vip">💎 VIP Access</option>
+                <option value="merchant">🏪 Merchant Issue</option>
+                <option value="auth">🔐 Login / Connection</option>
+                <option value="bug">🐛 Bug Report</option>
+                <option value="feedback">💡 Suggestion / Feedback</option>
               </select>
             </div>
-    
+
             <div>
               <label for="supportMessage"><strong>Message</strong></label><br />
               <textarea
@@ -454,13 +461,12 @@
                 style="width:100%; margin-top:8px; padding:14px; border-radius:12px; border:1px solid rgba(255,255,255,0.12); background:rgba(255,255,255,0.04); color:inherit;"
               ></textarea>
             </div>
-    
+
             <div class="support-actions">
-              <button type="button" class="btn btn-primary" id="sendSupportBtn">Send Request</button>
+              <button type="button" class="btn btn-primary" id="sendSupportBtn">🛟 Send Request</button>
             </div>
-    
-            <div id="supportFormStatus" class="support-highlight-item" style="display:none;">
-              Your support request has been saved locally for this preview.
+
+            <div id="supportFormStatus" class="support-highlight-item" style="display:none; padding:14px; border-radius:12px; background:rgba(124,58,237,0.1); border:1px solid rgba(124,58,237,0.2);">
             </div>
           </div>
         </article>
@@ -478,7 +484,7 @@
           </p>
 
           <div class="support-actions" style="justify-content:center;">
-            <a href="index.html" class="btn btn-primary">Back to Home</a>
+            <a href="discover.html" class="btn btn-primary">🌍 Back to Discover</a>
             <a href="discover.html" class="btn btn-secondary">Discover Merchants</a>
           </div>
         </article>
@@ -507,10 +513,38 @@
     </div>
   </footer>
 
-  <script src="config.js?v=11"></script>
+  <script src="config.js?v=13"></script>
   <script>
     const API_BASE_URL = window.ATLASPI_CONFIG?.API_BASE_URL || "https://atlaspi-backend.onrender.com";
-  
+
+    // Pre-fill form with Pi user if connected
+    let piUid = null;
+    let piUsername = null;
+
+    async function preFillPiUser() {
+      if (window.Pi && typeof window.Pi.authenticate === 'function') {
+        try {
+          const auth = await window.Pi.authenticate(['username'], () => {});
+          if (auth && auth.user) {
+            piUid = auth.user.uid;
+            piUsername = auth.user.username;
+            const nameField = document.getElementById('supportName');
+            if (nameField && !nameField.value) {
+              nameField.value = piUsername;
+            }
+            const piInfo = document.getElementById('supportPiInfo');
+            const piUsernameEl = document.getElementById('supportPiUsername');
+            if (piInfo) piInfo.style.display = 'block';
+            if (piUsernameEl) piUsernameEl.textContent = piUsername;
+          }
+        } catch (e) {
+          console.warn('[Support] Pi pre-fill failed:', e);
+        }
+      }
+    }
+
+    preFillPiUser();
+
     const sendSupportBtn = document.getElementById("sendSupportBtn");
     const supportFormStatus = document.getElementById("supportFormStatus");
     const supportName = document.getElementById("supportName");
@@ -586,7 +620,9 @@
               name,
               email,
               support_type: type,
-              message
+              message,
+              uid: piUid || null,
+              username: piUsername || null
             })
           });
   
@@ -597,8 +633,10 @@
             return;
           }
   
-          showSupportStatus("Your support request was sent successfully.", "success");
+          showSupportStatus("✅ Your support request was sent successfully. We will get back to you soon.", "success");
           supportMessage.value = "";
+          supportName.value = "";
+          supportEmail.value = "";
         } catch (error) {
           showSupportStatus("❌ Failed to contact backend for support request.", "error");
         }
