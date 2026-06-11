@@ -189,6 +189,22 @@ router.post('/payments/complete', async (req: Request, res: Response) => {
 });
 
 /**
+ * GET /api/payments/network/info
+ * ⚠️ Must be BEFORE /payments/:paymentId to avoid being captured
+ * Get current network info (mainnet vs testnet)
+ */
+router.get('/payments/network/info', (req: Request, res: Response) => {
+  const info = PiPaymentService.getNetworkInfo();
+
+  res.json({
+    success: true,
+    network: info.network,
+    api: info.api,
+    hasServerKey: info.hasServerKey
+  });
+});
+
+/**
  * GET /api/payments/:paymentId
  * 
  * Get payment status from Pi Platform
@@ -214,23 +230,6 @@ router.get('/payments/:paymentId', async (req: Request, res: Response) => {
       success: false
     });
   }
-});
-
-/**
- * GET /api/payments/network/info
- * 
- * Get current network info (testnet vs mainnet)
- * Useful for debugging
- */
-router.get('/payments/network/info', (req: Request, res: Response) => {
-  const info = PiPaymentService.getNetworkInfo();
-
-  res.json({
-    success: true,
-    network: info.network,
-    api: info.api,
-    hasServerKey: info.hasServerKey
-  });
 });
 
 /**
