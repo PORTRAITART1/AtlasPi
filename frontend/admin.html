@@ -322,7 +322,7 @@
 
           <div class="admin-actions">
             <a href="#admin-panel" class="btn btn-primary">Open Review Tools</a>
-            <a href="index.html" class="btn btn-secondary">Back to Home</a>
+            <a href="discover.html" class="btn btn-secondary">🌍 Back to Discover</a>
           </div>
         </div>
 
@@ -431,6 +431,20 @@
           </article>
         </div>
       </section>
+      <section class="section" id="admin-vip-users">
+        <div class="container">
+          <div class="section-heading">
+            <span class="eyebrow">VIP</span>
+            <h2>💎 VIP Users</h2>
+            <p>List of users who have activated VIP via Pi payment.</p>
+          </div>
+          <div style="margin-bottom:16px;">
+            <button type="button" class="btn btn-secondary" id="loadVipUsersBtn">Load VIP Users</button>
+          </div>
+          <div id="vipUsersContainer"></div>
+        </div>
+      </section>
+
       <section class="section" id="admin-merchants">
         <div class="container">
           <div class="section-heading">
@@ -573,7 +587,7 @@
     </div>
   </footer>
 
-  <script src="config.js?v=11"></script>
+  <script src="config.js?v=13"></script>
   <script>
     document.addEventListener("DOMContentLoaded", () => {
       const loadPendingListingsBtn = document.getElementById("loadPendingListingsBtn");
@@ -1274,6 +1288,38 @@ const adminMerchantPageSize = 10;
         item.appendChild(row);
         item.appendChild(details);
         return item;
+      }
+
+      // VIP Users
+      const loadVipUsersBtn = document.getElementById("loadVipUsersBtn");
+      const vipUsersContainer = document.getElementById("vipUsersContainer");
+
+      async function loadVipUsers() {
+        if (!vipUsersContainer) return;
+        vipUsersContainer.innerHTML = "<p>Loading VIP users...</p>";
+        try {
+          const response = await fetch(`${apiBase}/api/payments/vip-users`, {
+            headers: { "x-admin-secret": adminSecret ? adminSecret.value : "" }
+          });
+          const data = await response.json();
+          if (!data.ok || !data.users || data.users.length === 0) {
+            vipUsersContainer.innerHTML = "<p>No VIP users found.</p>";
+            return;
+          }
+          vipUsersContainer.innerHTML = data.users.map(u => `
+            <div style="padding:14px; margin-bottom:10px; border-radius:12px; background:rgba(124,58,237,0.08); border:1px solid rgba(124,58,237,0.2);">
+              <strong>💎 ${u.username}</strong>
+              <span style="opacity:0.7; margin-left:12px;">UID: ${u.uid}</span>
+              <span style="opacity:0.7; margin-left:12px;">Expires: ${u.vip_expires_at ? new Date(u.vip_expires_at).toLocaleDateString() : "N/A"}</span>
+            </div>
+          `).join("");
+        } catch (e) {
+          vipUsersContainer.innerHTML = "<p>❌ Failed to load VIP users.</p>";
+        }
+      }
+
+      if (loadVipUsersBtn) {
+        loadVipUsersBtn.addEventListener("click", loadVipUsers);
       }
 
       if (loadPaymentLogsBtn) {
