@@ -86,10 +86,23 @@ app.get("/", (req, res) => {
 });
 
 app.get("/api/health", (req, res) => {
+  const modeInfo = envManager.getModeInfo();
+  const network = process.env.PI_NETWORK || "mainnet";
   res.json({
     ok: true,
     status: "running",
-    mode: envManager.getModeInfo().mode,
+    mode: modeInfo.mode,
+    network,
+    api: network === "testnet"
+      ? "https://api-testnet.minepi.com"
+      : "https://api.minepi.com",
+    features: {
+      pirc2Auth: envManager.get("pirc2AuthEnabled", false),
+      pirc2Payments: envManager.get("pirc2PaymentsEnabled", false),
+      pirc2MerchantPi: envManager.get("pirc2MerchantPiEnabled", false),
+    },
+    version: "1.0.0",
+    timestamp: new Date().toISOString(),
     message: "AtlasPi backend is healthy"
   });
 });
