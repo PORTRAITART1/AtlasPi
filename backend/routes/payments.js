@@ -204,6 +204,27 @@ router.get("/list", (req, res) => {
   );
 });
 
+// GET /api/payments/vip-users (admin)
+router.get("/vip-users", (req, res) => {
+  db.all(
+    `SELECT uid, username, is_vip, vip_expires_at, vip_payment_id, vip_txid, created_at
+     FROM users
+     WHERE is_vip = 1
+     ORDER BY created_at DESC`,
+    [],
+    (err, rows) => {
+      if (err) {
+        return res.status(500).json({ ok: false, error: "DB error" });
+      }
+      return res.json({
+        ok: true,
+        count: rows.length,
+        users: rows
+      });
+    }
+  );
+});
+
 // GET /api/payments/network/info
 router.get("/network/info", (req, res) => {
   const network = process.env.PI_NETWORK || "mainnet";
