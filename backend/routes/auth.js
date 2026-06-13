@@ -77,15 +77,43 @@ router.post("/pi", async (req, res) => {
 
         logger.info(`Auth verified with Pi /me for user ${verifiedUsername} (${me.uid})`);
 
-        return res.json({
-          ok: true,
-          message: "Pi auth verified and logged",
-          user: {
-            uid: me.uid,
-            username: verifiedUsername,
-            wallet_address: wallet_address || null
+        // Upsert user in users table
+        db.run(
+          `INSERT INTO users (uid, username, wallet_address, is_vip, created_at, updated_at)
+           VALUES (?, ?, ?, 0, ?, ?)
+           ON CONFLICT(uid) DO UPDATE SET
+             username = ?,
+             wallet_address = ?,
+             updated_at = ?`,
+          [me.uid, verifiedUsername, wallet_address || "", createdAt, createdAt,
+           verifiedUsername, wallet_address || "", createdAt],
+          (upsertErr) => {
+            if (upsertErr) logger.error("User upsert error: " + upsertErr.message);
           }
-        });
+        );
+
+        // Check VIP status
+        db.get(
+          `SELECT is_vip, vip_expires_at FROM users WHERE uid = ?`,
+          [me.uid],
+          (vipErr, vipRow) => {
+            const now = new Date();
+            const expiry = vipRow && vipRow.vip_expires_at ? new Date(vipRow.vip_expires_at) : null;
+            const isVIP = vipRow && vipRow.is_vip === 1 && expiry && expiry > now;
+
+            return res.json({
+              ok: true,
+              message: "Pi auth verified and logged",
+              user: {
+                uid: me.uid,
+                username: verifiedUsername,
+                wallet_address: wallet_address || null,
+                isVIP: !!isVIP,
+                vipExpiry: vipRow ? vipRow.vip_expires_at : null
+              }
+            });
+          }
+        );
       }
     );
   } catch (error) {
