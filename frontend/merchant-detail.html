@@ -169,11 +169,12 @@
             <span class="merchant-pill" id="merchantBadge">✅ Verified</span>
             <span class="merchant-pill" id="merchantCategoryPill">☕ Food & Drinks</span>
             <span class="merchant-pill" id="merchantLocationPill">📍 Casablanca, Morocco</span>
+            <span class="merchant-pill" id="merchantPiPill" style="display:none; background:rgba(124,58,237,0.2); border-color:rgba(124,58,237,0.4); color:#c4b5fd;">🟣 Accepts Pi</span>
           </div>
 
           <div class="hero-actions">
-            <a href="discover.html" class="btn btn-primary">Back to Discover</a>
-            <a href="payments.html" class="btn btn-secondary">Support AtlasPi</a>
+            <a href="discover.html" class="btn btn-primary">🌍 Back to Discover</a>
+            <a href="vip.html" class="btn btn-secondary" id="merchantVipBtn">💎 Go VIP</a>
           </div>
         </div>
 
@@ -440,6 +441,22 @@
       document.getElementById("merchantAvailability").textContent = merchant.availability;
       document.getElementById("merchantStatusContact").textContent = merchant.status;
       document.getElementById("merchantMapStatusContact").textContent = merchant.mapStatus;
+
+      // Show Pi badge if merchant accepts Pi
+      const piPill = document.getElementById("merchantPiPill");
+      if (piPill && merchant.acceptsPi) {
+        piPill.style.display = "inline-flex";
+      }
+
+      // Add Pay with Pi button if pi payments enabled
+      const actionsEl = document.querySelector(".merchant-actions");
+      if (actionsEl && merchant.piPaymentsEnabled) {
+        const payBtn = document.createElement("a");
+        payBtn.href = "payments.html";
+        payBtn.className = "btn btn-primary";
+        payBtn.textContent = "🟣 Pay with Pi";
+        actionsEl.prepend(payBtn);
+      }
     }
   
     function normalizeBackendMerchant(listing) {
@@ -498,7 +515,10 @@
           listing.whatsapp_business ||
           listing.website_url ||
           "Not provided",
-        availability: "Public merchant profile"
+        availability: "Public merchant profile",
+        acceptsPi: !!listing.accepts_pi,
+        piPaymentsEnabled: !!listing.merchant_pi_payments_enabled,
+        piWallet: listing.merchant_pi_wallet || null
       };
     }
   
