@@ -916,31 +916,27 @@ main,
   color: #fb923c;
 }
 
+/* Nav highlight — active page */
+.nav-highlight {
+  color: #a855f7 !important;
+  font-weight: 700;
+  position: relative;
+}
+
+.nav-highlight::after {
+  content: "";
+  position: absolute;
+  bottom: -3px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, #7c3aed, #3b82f6);
+  border-radius: 2px;
+}
+
 @media (max-width: 1000px) {
   .admin-counters {
     grid-template-columns: repeat(2, 1fr);
-  }
-}
-
-@media (max-width: 640px) {
-  .admin-counters {
-    grid-template-columns: 1fr;
-  }
-}
-
-@media (max-width: 1100px) {
-  .hero-grid,
-  .vision-panel,
-  .feature-grid,
-  .ecosystem-grid,
-  .trust-grid,
-  .timeline,
-  .footer-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .hero-metrics {
-    grid-template-columns: 1fr;
   }
 }
 
