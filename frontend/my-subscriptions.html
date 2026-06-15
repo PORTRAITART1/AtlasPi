@@ -200,7 +200,7 @@
     </div>
   </footer>
 
-  <script src="config.js?v=12"></script>
+  <script src="config.js?v=13"></script>
   <script src="mobile-menu.js"></script>
   <script>
     const API_BASE_URL = window.ATLASPI_CONFIG?.API_BASE_URL || "https://atlaspi-backend.onrender.com";
@@ -216,9 +216,30 @@
       return status;
     }
 
-    async function loadSubscriptions() {
+    async function getPiUID() {
+      // Try Pi SDK first
+      if (window.Pi && typeof window.Pi.authenticate === "function") {
+        try {
+          const auth = await window.Pi.authenticate(["username"], () => {});
+          if (auth && auth.user && auth.user.uid) return auth.user.uid;
+        } catch (e) {
+          console.warn("[Subscriptions] Pi SDK auth failed:", e);
+        }
+      }
+      // Fallback URL param
       const params = new URLSearchParams(window.location.search);
-      const uid = params.get("uid") || "test-user-002";
+      return params.get("uid") || null;
+    }
+
+    async function loadSubscriptions() {
+      const uid = await getPiUID();
+
+      if (!uid) {
+        if (subscriptionsStatus) {
+          subscriptionsStatus.innerHTML = `<p style="margin:0;color:#f59e0b;">⚠️ Please connect with Pi to view your subscriptions.</p>`;
+        }
+        return;
+      }
 
       if (subscriptionsStatus) {
         subscriptionsStatus.innerHTML = `<p style="margin:0;">⏳ Loading subscriptions for <strong>${uid}</strong>...</p>`;
@@ -308,8 +329,8 @@
             </div>
 
             <div class="hero-actions" style="margin-top:20px;">
-              <a href="merchant-plans.html" class="btn btn-primary">View Plans</a>
-              <a href="admin.html" class="btn btn-secondary">Admin Dashboard</a>
+              <a href="merchant-plans.html" class="btn btn-primary">📋 View Plans</a>
+              <a href="vip.html" class="btn btn-secondary">💎 Go VIP</a>
             </div>
           </article>
         `).join("");
