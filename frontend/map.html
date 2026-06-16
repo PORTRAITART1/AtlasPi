@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AtlasPi - Merchant Map</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <style>
+    #merchant-map {
+      width: 100%;
+      height: 520px;
+      border-radius: 18px;
+      border: 1px solid rgba(255,255,255,0.1);
+      margin-top: 24px;
+      z-index: 1;
+    }
+
+    .map-filters {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+    }
+
+    .map-filters input,
+    .map-filters select {
+      padding: 10px 14px;
+      border-radius: 10px;
+      border: 1px solid rgba(255,255,255,0.12);
+      background: rgba(255,255,255,0.04);
+      color: inherit;
+      font-size: 0.9rem;
+    }
+
+    .map-legend {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin-top: 14px;
+      font-size: 0.85rem;
+      opacity: 0.7;
+    }
+
+    .map-legend span {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .map-status {
+      margin-top: 12px;
+      opacity: 0.7;
+      font-size: 0.9rem;
+    }
+
+    @media (max-width: 640px) {
+      #merchant-map { height: 360px; }
+      .map-filters { flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <div class="container header-inner">
+      <a href="index.html" class="brand">
+        <img src="logo-atlaspi.png" alt="AtlasPi logo" class="brand-logo" />
+        <div>
+          <strong>AtlasPi</strong>
+          <span>The Trusted Map of Pi Commerce</span>
+        </div>
+      </a>
+      <button class="menu-toggle" id="menuToggle" aria-label="Toggle menu">☰</button>
+      <nav class="menu-panel" id="menuPanel" hidden>
+        <a href="discover.html">🌍 Discover</a>
+        <a href="map.html" class="nav-highlight">🗺️ Map</a>
+        <a href="payments.html">💳 Payments</a>
+        <a href="vip.html">💎 VIP</a>
+        <a href="support.html">🛟 Support</a>
+        <a href="my-subscriptions.html">📋 Subscriptions</a>
+        <a href="merchant-plans.html">🏪 Plans</a>
+        <a href="profile.html" class="btn btn-nav">👤 Profile</a>
+      </nav>
+    </div>
+  </header>
+
+  <section class="hero" id="map-hero">
+    <div class="container">
+      <div class="section-heading">
+        <span class="eyebrow">Interactive Map</span>
+        <h1>🗺️ <span class="gradient-text">Merchant Map</span></h1>
+        <p class="hero-lead">
+          Explore Pi-ready merchants around the world — live from the AtlasPi backend.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="map-section">
+    <div class="container">
+
+      <div class="map-filters">
+        <input type="text" id="mapSearch"
+          placeholder="🔍 Search merchant..." />
+        <select id="mapCategory">
+          <option value="">All Categories</option>
+          <option value="food">☕ Food & Drinks</option>
+          <option value="electronics">💻 Electronics</option>
+          <option value="fashion">👕 Fashion</option>
+          <option value="services">🛠️ Services</option>
+          <option value="handmade">🧵 Handmade</option>
+          <option value="shop">🏪 Shop</option>
+        </select>
+        <select id="mapPiFilter">
+          <option value="">All Merchants</option>
+          <option value="pi">🟣 Accepts Pi Only</option>
+        </select>
+        <button class="btn btn-secondary" id="mapResetBtn">Reset</button>
+      </div>
+
+      <div id="merchant-map"></div>
+
+      <div class="map-legend">
+        <span>🟣 Accepts Pi</span>
+        <span>🔵 Approved</span>
+        <span>⭐ Verified</span>
+      </div>
+
+      <p class="map-status" id="mapStatus">Loading merchants...</p>
+
+    </div>
+  </section>
+
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <div>
+        <strong>AtlasPi</strong>
+        <p>The Trusted Map of Pi Commerce</p>
+      </div>
+      <nav class="footer-nav">
+        <a href="privacy.html">Privacy</a>
+        <a href="terms.html">Terms</a>
+        <a href="support.html">Support</a>
+      </nav>
+    </div>
+  </footer>
+
+  <script src="config.js?v=13"></script>
+  <script src="notifications.js"></script>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script>
+    const API_BASE_URL = window.ATLASPI_CONFIG?.API_BASE_URL || "https://atlaspi-backend.onrender.com";
+
+    // Init map — centered on world
+    const map = L.map("merchant-map").setView([20, 0], 2);
+
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      attribution: '© <a href="https://openstreetmap.org">OpenStreetMap</a>',
+      maxZoom: 18,
+    }).addTo(map);
+
+    let allMarkers = [];
+    let allMerchants = [];
+
+    function getMarkerColor(merchant) {
+      if (merchant.accepts_pi) return "#7c3aed";
+      if (merchant.verification_status === "verified") return "#f59e0b";
+      return "#3b82f6";
+    }
+
+    function createMarkerIcon(color) {
+      return L.divIcon({
+        className: "",
+        html: `<div style="
+          width:14px; height:14px;
+          background:${color};
+          border-radius:50%;
+          border:2px solid white;
+          box-shadow:0 2px 6px rgba(0,0,0,0.4);
+        "></div>`,
+        iconSize: [14, 14],
+        iconAnchor: [7, 7],
+      });
+    }
+
+    function addMarkers(merchants) {
+      // Clear existing
+      allMarkers.forEach(m => map.removeLayer(m));
+      allMarkers = [];
+
+      let placed = 0;
+
+      merchants.forEach(merchant => {
+        const lat = parseFloat(merchant.latitude);
+        const lng = parseFloat(merchant.longitude);
+
+        if (!lat || !lng || isNaN(lat) || isNaN(lng)) return;
+
+        const color = getMarkerColor(merchant);
+        const icon = createMarkerIcon(color);
+        const name = merchant.listing_public_name || merchant.business_name || "Merchant";
+        const city = merchant.city || "-";
+        const country = merchant.country || "-";
+        const acceptsPi = merchant.accepts_pi ? "🟣 Accepts Pi" : "";
+
+        const marker = L.marker([lat, lng], { icon })
+          .addTo(map)
+          .bindPopup(`
+            <div style="min-width:180px;">
+              <strong>${name}</strong><br/>
+              📍 ${city}, ${country}<br/>
+              ${acceptsPi ? `<span style="color:#7c3aed;">${acceptsPi}</span><br/>` : ""}
+              <a href="merchant-detail.html?id=${merchant.id}"
+                style="color:#7c3aed; font-weight:600;">
+                View Details →
+              </a>
+            </div>
+          `);
+
+        allMarkers.push(marker);
+        placed++;
+      });
+
+      document.getElementById("mapStatus").textContent =
+        `${placed} merchant${placed !== 1 ? "s" : ""} shown on map`;
+
+      if (placed === 0) {
+        document.getElementById("mapStatus").textContent =
+          "No merchants with GPS coordinates found.";
+      }
+    }
+
+    function filterMerchants() {
+      const search = document.getElementById("mapSearch").value.toLowerCase();
+      const category = document.getElementById("mapCategory").value.toLowerCase();
+      const piOnly = document.getElementById("mapPiFilter").value === "pi";
+
+      const filtered = allMerchants.filter(m => {
+        const name = (m.listing_public_name || m.business_name || "").toLowerCase();
+        const cat = (m.category || "").toLowerCase();
+        const matchSearch = !search || name.includes(search);
+        const matchCat = !category || cat.includes(category);
+        const matchPi = !piOnly || m.accepts_pi;
+        return matchSearch && matchCat && matchPi;
+      });
+
+      addMarkers(filtered);
+    }
+
+    async function loadMerchants() {
+      try {
+        const res = await fetch(`${API_BASE_URL}/api/merchant-listings/list`);
+        const data = await res.json();
+
+        if (data.ok && Array.isArray(data.listings)) {
+          allMerchants = data.listings;
+          addMarkers(allMerchants);
+
+          if (window.AtlasPiNotify) {
+            window.AtlasPiNotify.success(
+              `${allMerchants.length} merchants loaded on map`, 3000
+            );
+          }
+        } else {
+          document.getElementById("mapStatus").textContent =
+            "No merchants found.";
+        }
+      } catch (e) {
+        document.getElementById("mapStatus").textContent =
+          "❌ Failed to load merchants.";
+        console.error(e);
+      }
+    }
+
+    // Events
+    document.getElementById("mapSearch").addEventListener("input", filterMerchants);
+    document.getElementById("mapCategory").addEventListener("change", filterMerchants);
+    document.getElementById("mapPiFilter").addEventListener("change", filterMerchants);
+    document.getElementById("mapResetBtn").addEventListener("click", () => {
+      document.getElementById("mapSearch").value = "";
+      document.getElementById("mapCategory").value = "";
+      document.getElementById("mapPiFilter").value = "";
+      addMarkers(allMerchants);
+    });
+
+    loadMerchants();
+  </script>
+  <script src="mobile-menu.js"></script>
+</body>
+</html>
