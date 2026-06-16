@@ -214,6 +214,9 @@
             Search by category, country, or city to explore businesses and profiles
             across the AtlasPi ecosystem.
           </p>
+          <a href="map.html" class="btn btn-secondary" style="margin-top:12px;">
+            🗺️ View on Map
+          </a>
         </div>
 
         <article class="feature-card" style="max-width: 980px; margin: 0 auto;">
@@ -242,6 +245,31 @@
                   <option>Services</option>
                   <option>Fashion</option>
                   <option>Local Shops</option>
+                </select>
+              </div>
+
+              <div>
+                <label for="piFilter"><strong>🟣 Pi Payments</strong></label><br />
+                <select
+                  id="piFilter"
+                  style="width:100%; margin-top:8px; padding:14px; border-radius:12px; border:1px solid rgba(255,255,255,0.12); background:rgba(255,255,255,0.04); color:inherit;"
+                >
+                  <option value="">All Merchants</option>
+                  <option value="pi">🟣 Accepts Pi</option>
+                  <option value="verified">⭐ Verified Only</option>
+                </select>
+              </div>
+
+              <div>
+                <label for="sortFilter"><strong>Sort By</strong></label><br />
+                <select
+                  id="sortFilter"
+                  style="width:100%; margin-top:8px; padding:14px; border-radius:12px; border:1px solid rgba(255,255,255,0.12); background:rgba(255,255,255,0.04); color:inherit;"
+                >
+                  <option value="">Default</option>
+                  <option value="name_asc">Name A → Z</option>
+                  <option value="name_desc">Name Z → A</option>
+                  <option value="country_asc">Country A → Z</option>
                 </select>
               </div>
 
@@ -783,6 +811,10 @@
       const selectedCountry = countryFilter.value;
       const selectedCategory = categoryFilter.value;
       const selectedCity = cityFilter.value;
+      const piFilterEl = document.getElementById("piFilter");
+      const sortFilterEl = document.getElementById("sortFilter");
+      const selectedPi = piFilterEl ? piFilterEl.value : "";
+      const selectedSort = sortFilterEl ? sortFilterEl.value : "";
   
       const cities = getMatchingCities(selectedCountry, selectedCategory);
   
@@ -901,6 +933,12 @@
       renderMerchants(merchants);
       updateCities();
       filterMerchants();
+
+      // Pi + Sort filter events
+      const piFilterEl = document.getElementById("piFilter");
+      const sortFilterEl = document.getElementById("sortFilter");
+      if (piFilterEl) piFilterEl.addEventListener("change", filterMerchants);
+      if (sortFilterEl) sortFilterEl.addEventListener("change", filterMerchants);
   
       if (countryFilter && cityFilter) {
         countryFilter.addEventListener("change", refreshFiltersAndResults);
@@ -918,7 +956,13 @@
         merchantSearch.addEventListener("input", filterMerchants);
       }
   
-      if (searchBtn) {
+      // New filter events
+    const piFilterEl = document.getElementById("piFilter");
+    const sortFilterEl = document.getElementById("sortFilter");
+    if (piFilterEl) piFilterEl.addEventListener("change", filterAndRender);
+    if (sortFilterEl) sortFilterEl.addEventListener("change", filterAndRender);
+
+    if (searchBtn) {
         searchBtn.addEventListener("click", filterMerchants);
       }
     }
