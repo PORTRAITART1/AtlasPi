@@ -643,29 +643,65 @@ const adminMerchantPageSize = 10;
 
           const stats = data.stats || {};
 
+          // Fetch extra stats in parallel
+          let vipCount = 0;
+          let paymentsCount = 0;
+          let supportCount = 0;
+
+          try {
+            const [vipRes, payRes, supRes] = await Promise.all([
+              fetch(`${apiBase}/api/payments/vip-users`),
+              fetch(`${apiBase}/api/payments/list`),
+              fetch(`${apiBase}/api/support/list`, { headers: { "x-admin-secret": secret } })
+            ]);
+            const vipData = await vipRes.json();
+            const payData = await payRes.json();
+            const supData = await supRes.json();
+            if (vipData.ok) vipCount = vipData.count || 0;
+            if (payData.ok) paymentsCount = (payData.payments || []).length;
+            if (supData.ok) supportCount = (supData.requests || supData.support_requests || []).length;
+          } catch (e) {
+            console.warn("Extra stats fetch failed:", e);
+          }
+
           adminCountersContainer.innerHTML = `
             <div class="admin-stats-grid">
               <div class="admin-stats-card">
-                <p>Total</p>
+                <p>🏪 Total Merchants</p>
                 <h3>${stats.total || 0}</h3>
               </div>
-              <div class="admin-stats-card">
-                <p>Pending Review</p>
+              <div class="admin-stats-card" style="border-color:rgba(245,158,11,0.3);">
+                <p>⏳ Pending Review</p>
                 <h3>${stats.pending_review || 0}</h3>
               </div>
-              <div class="admin-stats-card">
-                <p>Approved</p>
+              <div class="admin-stats-card" style="border-color:rgba(34,197,94,0.3);">
+                <p>✅ Approved</p>
                 <h3>${stats.approved || 0}</h3>
               </div>
-              <div class="admin-stats-card">
-                <p>Rejected</p>
+              <div class="admin-stats-card" style="border-color:rgba(220,38,38,0.3);">
+                <p>❌ Rejected</p>
                 <h3>${stats.rejected || 0}</h3>
               </div>
-              <div class="admin-stats-card">
-                <p>Suspended</p>
+              <div class="admin-stats-card" style="border-color:rgba(220,38,38,0.2);">
+                <p>🚫 Suspended</p>
                 <h3>${stats.suspended || 0}</h3>
               </div>
+              <div class="admin-stats-card" style="border-color:rgba(124,58,237,0.4);">
+                <p>💎 VIP Users</p>
+                <h3>${vipCount}</h3>
+              </div>
+              <div class="admin-stats-card" style="border-color:rgba(59,130,246,0.3);">
+                <p>💳 Payments</p>
+                <h3>${paymentsCount}</h3>
+              </div>
+              <div class="admin-stats-card" style="border-color:rgba(16,185,129,0.3);">
+                <p>🛟 Support Requests</p>
+                <h3>${supportCount}</h3>
+              </div>
             </div>
+            <p style="opacity:0.5; font-size:0.8rem; margin-top:12px;">
+              Last updated: ${new Date().toLocaleTimeString()}
+            </p>
           `;
         } catch (error) {
           adminCountersContainer.innerHTML = '<p style="margin:0;color:#dc2626;">❌ Failed to contact backend for admin stats.</p>';
