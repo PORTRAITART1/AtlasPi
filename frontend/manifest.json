@@ -1,0 +1,50 @@
+{
+  "name": "AtlasPi — The Trusted Map of Pi Commerce",
+  "short_name": "AtlasPi",
+  "description": "Discover Pi-ready merchants, activate VIP, and transact with Pi worldwide.",
+  "start_url": "/discover.html",
+  "display": "standalone",
+  "background_color": "#060d18",
+  "theme_color": "#7c3aed",
+  "orientation": "portrait-primary",
+  "lang": "en",
+  "icons": [
+    {
+      "src": "logo-atlaspi.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "logo-atlaspi.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [],
+  "categories": ["finance", "shopping", "utilities"],
+  "shortcuts": [
+    {
+      "name": "Discover Merchants",
+      "short_name": "Discover",
+      "description": "Explore Pi-ready merchants",
+      "url": "/discover.html",
+      "icons": [{ "src": "logo-atlaspi.png", "sizes": "96x96" }]
+    },
+    {
+      "name": "My Profile",
+      "short_name": "Profile",
+      "description": "View your Pi profile",
+      "url": "/profile.html",
+      "icons": [{ "src": "logo-atlaspi.png", "sizes": "96x96" }]
+    },
+    {
+      "name": "VIP",
+      "short_name": "VIP",
+      "description": "Activate VIP with Pi",
+      "url": "/vip.html",
+      "icons": [{ "src": "logo-atlaspi.png", "sizes": "96x96" }]
+    }
+  ]
+}

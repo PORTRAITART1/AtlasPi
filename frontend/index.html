@@ -9,6 +9,11 @@
     content="AtlasPi helps pioneers discover trusted places and services where Pi can be used simply, locally, and confidently."
   />
   <meta name="theme-color" content="#0a1020" />
+  <link rel="manifest" href="manifest.json" />
+  <meta name="theme-color" content="#7c3aed" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="AtlasPi" />
   <link rel="stylesheet" href="style.css" />
   <link rel="stylesheet" href="shared-theme.css" />
   <style>
@@ -587,7 +592,14 @@
     }
   </style>
 </head>
-<body id="top"></body>
+<body id="top">  <script>
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("/sw.js")
+        .then(() => console.log("[AtlasPi] SW registered"))
+        .catch((e) => console.warn("[AtlasPi] SW error:", e));
+    }
+  </script>
+</body>
   <div class="bg-grid"></div>
   <div class="glow glow-1"></div>
   <div class="glow glow-2"></div>
