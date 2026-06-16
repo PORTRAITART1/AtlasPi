@@ -881,48 +881,47 @@
       const selectedCategory = categoryFilter.value;
       const selectedCountry = countryFilter.value;
       const selectedCity = cityFilter.value;
-  
+      const piFilterEl = document.getElementById("piFilter");
+      const sortFilterEl = document.getElementById("sortFilter");
+      const selectedPi = piFilterEl ? piFilterEl.value : "";
+      const selectedSort = sortFilterEl ? sortFilterEl.value : "";
+
       let visibleCount = 0;
-  
+      let visibleCards = [];
+
       getMerchantCards().forEach((card) => {
         const name = (card.dataset.name || "").toLowerCase();
         const category = card.dataset.category || "";
         const country = card.dataset.country || "";
         const city = card.dataset.city || "";
+        const acceptsPi = card.dataset.acceptsPi === "true";
+        const verified = (card.dataset.status || "").toLowerCase() === "verified";
         const fullText = (card.textContent || "").toLowerCase();
-  
-        const matchesKeyword =
-          !keyword ||
-          name.includes(keyword) ||
-          fullText.includes(keyword);
-  
-        const matchesCategory =
-          selectedCategory === "All Categories" ||
-          category === selectedCategory;
-  
-        const matchesCountry =
-          selectedCountry === "All Countries" ||
-          !selectedCountry ||
-          country === selectedCountry;
-  
-        const matchesCity =
-          !selectedCity ||
-          selectedCity === "All Cities" ||
-          city === selectedCity;
-  
-        const shouldShow =
-          matchesKeyword &&
-          matchesCategory &&
-          matchesCountry &&
-          matchesCity;
-  
+
+        const matchesKeyword = !keyword || name.includes(keyword) || fullText.includes(keyword);
+        const matchesCategory = selectedCategory === "All Categories" || category === selectedCategory;
+        const matchesCountry = selectedCountry === "All Countries" || !selectedCountry || country === selectedCountry;
+        const matchesCity = !selectedCity || selectedCity === "All Cities" || city === selectedCity;
+        const matchesPi = !selectedPi || (selectedPi === "pi" && acceptsPi) || (selectedPi === "verified" && verified);
+
+        const shouldShow = matchesKeyword && matchesCategory && matchesCountry && matchesCity && matchesPi;
         card.style.display = shouldShow ? "" : "none";
-  
+
         if (shouldShow) {
           visibleCount += 1;
+          visibleCards.push({ card, name });
         }
       });
-  
+
+      if (selectedSort && visibleCards.length > 1) {
+        const container = visibleCards[0]?.card?.parentElement;
+        if (container) {
+          if (selectedSort === "name_asc") visibleCards.sort((a, b) => a.name.localeCompare(b.name));
+          else if (selectedSort === "name_desc") visibleCards.sort((a, b) => b.name.localeCompare(a.name));
+          visibleCards.forEach(({ card }) => container.appendChild(card));
+        }
+      }
+
       if (noResultsMessage) {
         noResultsMessage.style.display = visibleCount === 0 ? "block" : "none";
       }
@@ -962,11 +961,6 @@
       }
   
       // New filter events
-    const piFilterEl = document.getElementById("piFilter");
-    const sortFilterEl = document.getElementById("sortFilter");
-    if (piFilterEl) piFilterEl.addEventListener("change", filterAndRender);
-    if (sortFilterEl) sortFilterEl.addEventListener("change", filterAndRender);
-
     if (searchBtn) {
         searchBtn.addEventListener("click", filterMerchants);
       }
