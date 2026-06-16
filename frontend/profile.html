@@ -647,6 +647,13 @@
 
             // 4. Render VIP badge
             renderVIPBadge(vipData.isVIP, vipData.vipExpiry);
+            if (window.AtlasPiNotify) {
+              if (vipData.isVIP) {
+                window.AtlasPiNotify.checkVIPExpiry(vipData.vipExpiry);
+              } else {
+                window.AtlasPiNotify.info("Connect with Pi to activate VIP benefits.", 5000);
+              }
+            }
             return;
           }
         } catch (piErr) {
