@@ -18,6 +18,8 @@ router.get("/list", (req, res) => {
       category,
       country,
       city,
+      latitude,
+      longitude,
       accepts_pi,
       merchant_pi_wallet,
       merchant_pi_payments_enabled,
