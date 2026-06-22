@@ -116,6 +116,8 @@ class EnvManager {
       forceHttps: process.env.FORCE_HTTPS === 'true',
       rateLimitWindowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MS) || 900000,
       rateLimitMaxRequests: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS) || 100,
+      authRateLimitMaxRequests: parseInt(process.env.AUTH_RATE_LIMIT_MAX_REQUESTS) || 20,
+      writeRateLimitMaxRequests: parseInt(process.env.WRITE_RATE_LIMIT_MAX_REQUESTS) || 40,
       paymentVerificationRequired: process.env.PAYMENT_VERIFICATION_REQUIRED === 'true',
       paymentWebhookTimeoutSeconds: parseInt(process.env.PAYMENT_WEBHOOK_TIMEOUT_SECONDS) || 30,
     };

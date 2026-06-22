@@ -18,6 +18,10 @@ const app = express();
 const PORT = envManager.get('port', 3000);
 const PI_API_KEY = process.env.PI_API_KEY;
 
+// Behind a reverse proxy (Render / K8s / nginx): trust the first proxy hop so
+// rate limiting keys on the real client IP instead of the proxy's IP.
+app.set('trust proxy', 1);
+
 // Log startup info
 logger.info(`\n${'='.repeat(60)}`);
 logger.info(`AtlasPi Backend Started`);
@@ -58,16 +62,46 @@ app.use(cors({
 app.use(express.json({ limit: "1mb" }));
 app.use(morgan("dev"));
 
-const limiter = rateLimit({
-  windowMs: envManager.get('rateLimitWindowMs', 15 * 60 * 1000),
+const rateLimitMessage = {
+  ok: false,
+  error: "Too many requests. Please try again later."
+};
+
+const windowMs = envManager.get('rateLimitWindowMs', 15 * 60 * 1000);
+
+// Global catch-all limiter. Health checks are exempt so probes never consume it.
+const globalLimiter = rateLimit({
+  windowMs,
   max: envManager.get('rateLimitMaxRequests', 100),
-  message: {
-    ok: false,
-    error: "Too many requests. Please try again later."
-  }
+  message: rateLimitMessage,
+  standardHeaders: true,
+  legacyHeaders: false,
+  skip: (req) => req.path === "/" || req.path === "/api/health"
 });
 
-app.use(limiter);
+// Strict limiter for authentication (brute-force / token stuffing).
+const authLimiter = rateLimit({
+  windowMs,
+  max: envManager.get('authRateLimitMaxRequests', 20),
+  message: rateLimitMessage,
+  standardHeaders: true,
+  legacyHeaders: false
+});
+
+// Limiter for state-changing requests on data routes (writes only; reads pass).
+const writeLimiter = rateLimit({
+  windowMs,
+  max: envManager.get('writeRateLimitMaxRequests', 40),
+  message: rateLimitMessage,
+  standardHeaders: true,
+  legacyHeaders: false
+});
+
+// Applies a limiter only to non-GET (mutating) requests.
+const writesOnly = (limiter) => (req, res, next) =>
+  req.method === "GET" ? next() : limiter(req, res, next);
+
+app.use(globalLimiter);
 
 app.get("/", (req, res) => {
   const modeInfo = envManager.getModeInfo();
@@ -107,14 +141,14 @@ app.get("/api/health", (req, res) => {
   });
 });
 
-app.use("/api/auth", authRoutes);
-app.use("/api/payments", paymentRoutes);
-app.use("/api/pi-payments", piPaymentRoutes);
-app.use("/api/subscriptions", subscriptionRoutes);
-app.use("/api/merchant-listings", merchantListingRoutes);
-app.use("/api/support", supportRoutes);
-app.use("/api/pirc2/services", pirc2ServicesRoutes);
-app.use("/api/pirc2/subscriptions", pirc2SubscriptionsRoutes);
+app.use("/api/auth", authLimiter, authRoutes);
+app.use("/api/payments", writesOnly(writeLimiter), paymentRoutes);
+app.use("/api/pi-payments", writesOnly(writeLimiter), piPaymentRoutes);
+app.use("/api/subscriptions", writesOnly(writeLimiter), subscriptionRoutes);
+app.use("/api/merchant-listings", writesOnly(writeLimiter), merchantListingRoutes);
+app.use("/api/support", writesOnly(writeLimiter), supportRoutes);
+app.use("/api/pirc2/services", writesOnly(writeLimiter), pirc2ServicesRoutes);
+app.use("/api/pirc2/subscriptions", writesOnly(writeLimiter), pirc2SubscriptionsRoutes);
 app.use((err, req, res, next) => {
   logger.error("Unhandled server error: " + err.message);
   res.status(500).json({
