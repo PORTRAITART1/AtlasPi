@@ -17,6 +17,8 @@ WORKDIR /app
 COPY backend/config ./config
 COPY backend/routes ./routes
 COPY backend/utils ./utils
+COPY backend/middlewares ./middlewares
+COPY backend/validation ./validation
 COPY backend/server.js .
 COPY backend/test-secret-rotation.js .
 
