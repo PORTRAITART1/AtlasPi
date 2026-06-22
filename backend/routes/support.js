@@ -2,6 +2,7 @@ import express from "express";
 import db from "../config/db.js";
 import logger from "../utils/logger.js";
 import { v4 as uuidv4 } from "uuid";
+import { requireAdminSecret } from "../middlewares/adminAuth.js";
 
 const router = express.Router();
 
@@ -62,7 +63,7 @@ router.post("/create", (req, res) => {
   }
 });
 
-router.get("/list", (req, res) => {
+router.get("/list", requireAdminSecret, (req, res) => {
   db.all(
     `SELECT id, request_uuid, name, email, support_type, message, status, source, created_at, updated_at
      FROM support_requests

@@ -1,5 +1,6 @@
 import db from "../config/db.js";
 import logger from "./logger.js";
+import { hashToken, isTokenExpired } from "./tokens.js";
 
 export const validateAccessToken = (req, res, next) => {
   const authHeader = req.headers.authorization;
@@ -24,7 +25,7 @@ export const validateAccessToken = (req, res, next) => {
 
   db.get(
     `SELECT * FROM auth_logs WHERE access_token = ? ORDER BY created_at DESC LIMIT 1`,
-    [token],
+    [hashToken(token)],
     (err, row) => {
       if (err) {
         logger.error("Token validation DB error: " + err.message);
@@ -42,11 +43,18 @@ export const validateAccessToken = (req, res, next) => {
         });
       }
 
+      if (isTokenExpired(row.created_at)) {
+        logger.warn(`Access denied: expired token for user ${row.uid}`);
+        return res.status(403).json({
+          ok: false,
+          error: "Access token expired"
+        });
+      }
+
       // Attach user info to request for use in route handlers
       req.user = {
         uid: row.uid,
-        username: row.username,
-        access_token: row.access_token
+        username: row.username
       };
 
       next();

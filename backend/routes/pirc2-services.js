@@ -2,6 +2,7 @@ import express from "express";
 import db from "../config/db.js";
 import logger from "../utils/logger.js";
 import { v4 as uuidv4 } from "uuid";
+import { requireAdminSecret } from "../middlewares/adminAuth.js";
 
 const router = express.Router();
 
@@ -10,19 +11,8 @@ const router = express.Router();
  * Create a local PiRC2 service definition
  * Protected by admin secret
  */
-router.post("/create", (req, res) => {
+router.post("/create", requireAdminSecret, (req, res) => {
   try {
-    const adminSecret = process.env.ADMIN_SECRET || "atlaspi-dev-secret-change-in-prod";
-    const headerSecret = req.headers["x-admin-secret"];
-
-    if (!headerSecret || headerSecret !== adminSecret) {
-      logger.warn("PiRC2 service create rejected: invalid or missing admin secret");
-      return res.status(403).json({
-        ok: false,
-        error: "Unauthorized. Invalid or missing admin secret."
-      });
-    }
-
     const {
       contract_service_id,
       service_code,

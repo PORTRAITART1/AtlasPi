@@ -2,6 +2,7 @@ import express from "express";
 import db from "../config/db.js";
 import logger from "../utils/logger.js";
 import { validateAccessToken } from "../utils/auth.js";
+import { requireAdminSecret } from "../middlewares/adminAuth.js";
 import { v4 as uuidv4 } from "uuid";
 
 const router = express.Router();
@@ -182,7 +183,7 @@ router.post("/complete", (req, res) => {
   }
 });
 
-router.get("/list", (req, res) => {
+router.get("/list", requireAdminSecret, (req, res) => {
   db.all(
     `SELECT * FROM payments ORDER BY id DESC`,
     [],
@@ -205,7 +206,7 @@ router.get("/list", (req, res) => {
 });
 
 // GET /api/payments/vip-users (admin)
-router.get("/vip-users", (req, res) => {
+router.get("/vip-users", requireAdminSecret, (req, res) => {
   db.all(
     `SELECT uid, username, is_vip, vip_expires_at, vip_payment_id, vip_txid, created_at
      FROM users
