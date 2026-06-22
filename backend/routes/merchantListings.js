@@ -1,8 +1,9 @@
 import express from "express";
 import db from "../config/db.js";
 import logger from "../utils/logger.js";
-import { requireAdminSecret } from "../middlewares/adminAuth.js";
+import { requireAdminSecret, isValidAdminSecret } from "../middlewares/adminAuth.js";
 import { validateRequest } from "../middlewares/validateRequest.js";
+import { hashToken, isTokenExpired } from "../utils/tokens.js";
 import {
   merchantListingCreateSchema,
   merchantListingIdParamsSchema,
@@ -490,18 +491,7 @@ router.get("/search", validateRequest({ query: merchantListingSearchQuerySchema 
   });
 });
 
-router.get("/admin-list", (req, res) => {
-  const adminSecret = process.env.ADMIN_SECRET || "atlaspi-dev-secret-change-in-prod";
-  const headerSecret = req.headers["x-admin-secret"];
-
-  if (!headerSecret || headerSecret !== adminSecret) {
-    logger.warn("Admin list access rejected: invalid or missing secret");
-    return res.status(403).json({
-      ok: false,
-      error: "Unauthorized. Invalid or missing admin secret."
-    });
-  }
-
+router.get("/admin-list", requireAdminSecret, (req, res) => {
   db.all(
     `SELECT
       id,
@@ -545,9 +535,7 @@ router.get("/admin-list", (req, res) => {
 router.put("/update/:id", validateRequest({ params: merchantListingIdParamsSchema, body: merchantListingUpdateSchema }), (req, res) => {
   const { id } = req.params;
 
-  const adminSecret = process.env.ADMIN_SECRET || "atlaspi-dev-secret-change-in-prod";
-  const headerSecret = req.headers["x-admin-secret"];
-  const isAdmin = headerSecret && headerSecret === adminSecret;
+  const isAdmin = isValidAdminSecret(req);
 
   const demoUserId = req.headers["x-demo-user-id"];
   const demoAccessToken = req.headers["x-demo-access-token"];
@@ -562,8 +550,8 @@ router.put("/update/:id", validateRequest({ params: merchantListingIdParamsSchem
 
   if (!isAdmin) {
     db.get(
-      `SELECT uid FROM auth_logs WHERE uid = ? AND access_token = ?`,
-      [demoUserId, demoAccessToken],
+      `SELECT uid, created_at FROM auth_logs WHERE uid = ? AND access_token = ? ORDER BY created_at DESC LIMIT 1`,
+      [demoUserId, hashToken(demoAccessToken)],
       (err, authRow) => {
         if (err) {
           logger.error("Update auth verification DB error: " + err.message);
@@ -573,8 +561,8 @@ router.put("/update/:id", validateRequest({ params: merchantListingIdParamsSchem
           });
         }
 
-        if (!authRow) {
-          logger.warn(`Update attempt rejected: invalid demo credentials for user ${demoUserId}`);
+        if (!authRow || isTokenExpired(authRow.created_at)) {
+          logger.warn(`Update attempt rejected: invalid or expired demo credentials for user ${demoUserId}`);
           return res.status(403).json({
             ok: false,
             error: "Unauthorized. Invalid or expired demo authentication."
@@ -824,18 +812,7 @@ function performUpdate(req, res, id) {
   );
 }
 
-router.get("/pending", (req, res) => {
-  const adminSecret = process.env.ADMIN_SECRET || "atlaspi-dev-secret-change-in-prod";
-  const headerSecret = req.headers["x-admin-secret"];
-
-  if (!headerSecret || headerSecret !== adminSecret) {
-    logger.warn(`Pending listings access rejected: invalid or missing secret`);
-    return res.status(403).json({
-      ok: false,
-      error: "Unauthorized. Invalid or missing admin secret."
-    });
-  }
-
+router.get("/pending", requireAdminSecret, (req, res) => {
   db.all(
     `SELECT
       id,
@@ -910,20 +887,9 @@ router.get("/admin-stats", requireAdminSecret, (req, res) => {
     }
   );
 });
-router.post("/moderate/:id", validateRequest({ params: merchantListingIdParamsSchema, body: merchantListingModerateSchema }), (req, res) => {
+router.post("/moderate/:id", requireAdminSecret, validateRequest({ params: merchantListingIdParamsSchema, body: merchantListingModerateSchema }), (req, res) => {
   const { id } = req.params;
   const { listing_status, moderation_reason } = req.body;
-
-  const adminSecret = process.env.ADMIN_SECRET || "atlaspi-dev-secret-change-in-prod";
-  const headerSecret = req.headers["x-admin-secret"];
-
-  if (!headerSecret || headerSecret !== adminSecret) {
-    logger.warn(`Moderation attempt rejected: invalid or missing secret for listing ${id}`);
-    return res.status(403).json({
-      ok: false,
-      error: "Unauthorized. Invalid or missing admin secret."
-    });
-  }
 
   const validStatuses = ["pending_review", "approved", "rejected", "suspended"];
 
@@ -1014,18 +980,8 @@ router.post("/moderate/:id", validateRequest({ params: merchantListingIdParamsSc
 });
 
 // Get moderation history for a listing
-router.get("/moderation-history/:id", validateRequest({ params: merchantListingIdParamsSchema }), (req, res) => {
+router.get("/moderation-history/:id", requireAdminSecret, validateRequest({ params: merchantListingIdParamsSchema }), (req, res) => {
   const { id } = req.params;
-  const adminSecret = process.env.ADMIN_SECRET || "atlaspi-dev-secret-change-in-prod";
-  const headerSecret = req.headers["x-admin-secret"];
-
-  if (!headerSecret || headerSecret !== adminSecret) {
-    logger.warn(`Moderation history access rejected: invalid or missing secret for listing ${id}`);
-    return res.status(403).json({
-      ok: false,
-      error: "Unauthorized. Invalid or missing admin secret."
-    });
-  }
 
   db.all(
     `SELECT

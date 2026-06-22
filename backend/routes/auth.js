@@ -2,6 +2,7 @@ import express from "express";
 import db from "../config/db.js";
 import logger from "../utils/logger.js";
 import axios from "axios";
+import { hashToken } from "../utils/tokens.js";
 
 const router = express.Router();
 
@@ -61,11 +62,12 @@ router.post("/pi", async (req, res) => {
 
     const verifiedUsername = me.username || username;
     const createdAt = new Date().toISOString();
+    const accessTokenHash = hashToken(accessToken);
 
     db.run(
       `INSERT INTO auth_logs (uid, username, wallet_address, access_token, created_at)
        VALUES (?, ?, ?, ?, ?)`,
-      [me.uid, verifiedUsername, wallet_address || "", accessToken, createdAt],
+      [me.uid, verifiedUsername, wallet_address || "", accessTokenHash, createdAt],
       function (err) {
         if (err) {
           logger.error("Database error on auth log insert: " + err.message);
