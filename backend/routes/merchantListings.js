@@ -2,6 +2,14 @@ import express from "express";
 import db from "../config/db.js";
 import logger from "../utils/logger.js";
 import { requireAdminSecret } from "../middlewares/adminAuth.js";
+import { validateRequest } from "../middlewares/validateRequest.js";
+import {
+  merchantListingCreateSchema,
+  merchantListingIdParamsSchema,
+  merchantListingModerateSchema,
+  merchantListingSearchQuerySchema,
+  merchantListingUpdateSchema
+} from "../validation/merchantListings.schemas.js";
 import { v4 as uuidv4 } from "uuid";
 
 const router = express.Router();
@@ -48,7 +56,7 @@ router.get("/list", (req, res) => {
   );
 });
 
-router.get("/detail/:id", (req, res) => {
+router.get("/detail/:id", validateRequest({ params: merchantListingIdParamsSchema }), (req, res) => {
   const { id } = req.params;
 
   db.get(
@@ -126,7 +134,7 @@ router.get("/detail/:id", (req, res) => {
   );
 });
 
-router.post("/create", (req, res) => {
+router.post("/create", validateRequest({ body: merchantListingCreateSchema }), (req, res) => {
   try {
     const {
       owner_user_id,
@@ -413,7 +421,7 @@ router.post("/create", (req, res) => {
   }
 });
 
-router.get("/search", (req, res) => {
+router.get("/search", validateRequest({ query: merchantListingSearchQuerySchema }), (req, res) => {
   const { name, domain, category, country, city } = req.query;
 
   let query = `SELECT
@@ -534,7 +542,7 @@ router.get("/admin-list", (req, res) => {
     }
   );
 });
-router.put("/update/:id", (req, res) => {
+router.put("/update/:id", validateRequest({ params: merchantListingIdParamsSchema, body: merchantListingUpdateSchema }), (req, res) => {
   const { id } = req.params;
 
   const adminSecret = process.env.ADMIN_SECRET || "atlaspi-dev-secret-change-in-prod";
@@ -902,7 +910,7 @@ router.get("/admin-stats", requireAdminSecret, (req, res) => {
     }
   );
 });
-router.post("/moderate/:id", (req, res) => {
+router.post("/moderate/:id", validateRequest({ params: merchantListingIdParamsSchema, body: merchantListingModerateSchema }), (req, res) => {
   const { id } = req.params;
   const { listing_status, moderation_reason } = req.body;
 
@@ -1006,7 +1014,7 @@ router.post("/moderate/:id", (req, res) => {
 });
 
 // Get moderation history for a listing
-router.get("/moderation-history/:id", (req, res) => {
+router.get("/moderation-history/:id", validateRequest({ params: merchantListingIdParamsSchema }), (req, res) => {
   const { id } = req.params;
   const adminSecret = process.env.ADMIN_SECRET || "atlaspi-dev-secret-change-in-prod";
   const headerSecret = req.headers["x-admin-secret"];
