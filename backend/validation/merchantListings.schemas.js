@@ -162,7 +162,16 @@ export const merchantListingCreateSchema = z
     visibility_whatsapp: optionalText("WhatsApp visibility", 30),
     visibility_email: optionalText("Email visibility", 30),
     visibility_website: optionalText("Website visibility", 30),
-    visibility_wallet: optionalText("Wallet visibility", 30)
+    visibility_wallet: optionalText("Wallet visibility", 30),
+
+    latitude: z.preprocess(
+      (v) => (v === undefined || v === null || v === "" ? undefined : Number(v)),
+      z.number().min(-90).max(90).optional()
+    ),
+    longitude: z.preprocess(
+      (v) => (v === undefined || v === null || v === "" ? undefined : Number(v)),
+      z.number().min(-180).max(180).optional()
+    )
   })
   .strict()
   .superRefine((data, ctx) => {
@@ -210,12 +219,13 @@ export const merchantListingUpdateSchema = z
     visibility_email: optionalText("Email visibility", 30),
     visibility_website: optionalText("Website visibility", 30),
     visibility_wallet: optionalText("Wallet visibility", 30),
+
     latitude: z.preprocess(
-      (v) => (v === "" || v === null || v === undefined ? undefined : Number(v)),
+      (v) => (v === undefined || v === null || v === "" ? undefined : Number(v)),
       z.number().min(-90).max(90).optional()
     ),
     longitude: z.preprocess(
-      (v) => (v === "" || v === null || v === undefined ? undefined : Number(v)),
+      (v) => (v === undefined || v === null || v === "" ? undefined : Number(v)),
       z.number().min(-180).max(180).optional()
     )
   })
