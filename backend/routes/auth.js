@@ -2,20 +2,17 @@ import express from "express";
 import db from "../config/db.js";
 import logger from "../utils/logger.js";
 import axios from "axios";
+import { validateBody, validateParams } from "../middlewares/validate.js";
+import {
+  piAuthBodySchema,
+  authProfileParamsSchema
+} from "../validators/auth.validators.js";
 
 const router = express.Router();
 
-router.post("/pi", async (req, res) => {
+router.post("/pi", validateBody(piAuthBodySchema), async (req, res) => {
   try {
     const { uid, username, accessToken, wallet_address } = req.body;
-
-    if (!uid || !username || !accessToken) {
-      logger.error("Auth failed: missing fields");
-      return res.status(400).json({
-        ok: false,
-        error: "Missing required auth fields"
-      });
-    }
 
     let me;
     try {
@@ -125,16 +122,9 @@ router.post("/pi", async (req, res) => {
   }
 });
 
-router.get("/profile/:uid", (req, res) => {
+router.get("/profile/:uid", validateParams(authProfileParamsSchema), (req, res) => {
   try {
     const { uid } = req.params;
-
-    if (!uid) {
-      return res.status(400).json({
-        ok: false,
-        error: "uid is required"
-      });
-    }
 
     db.get(
       `SELECT uid, username, wallet_address, created_at

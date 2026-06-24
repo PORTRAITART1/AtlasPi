@@ -253,27 +253,64 @@
       addMarkers(filtered);
     }
 
+    // Geocode city via Nominatim if no GPS
+    async function geocodeCity(city, country) {
+      try {
+        const q = encodeURIComponent(`${city}, ${country}`);
+        const res = await fetch(
+          `https://nominatim.openstreetmap.org/search?q=${q}&format=json&limit=1`,
+          { headers: { "Accept-Language": "en" } }
+        );
+        const data = await res.json();
+        if (data && data[0]) {
+          return { lat: parseFloat(data[0].lat), lng: parseFloat(data[0].lon) };
+        }
+      } catch (e) {
+        console.warn("[Map] Geocode failed:", e);
+      }
+      return null;
+    }
+
     async function loadMerchants() {
       try {
         const res = await fetch(`${API_BASE_URL}/api/merchant-listings/list`);
         const data = await res.json();
 
         if (data.ok && Array.isArray(data.listings)) {
-          allMerchants = data.listings;
+          // Geocode merchants without GPS
+          const enriched = await Promise.all(
+            data.listings.map(async (m) => {
+              if (!m.latitude && !m.longitude && m.city && m.country) {
+                const coords = await geocodeCity(m.city, m.country);
+                if (coords) {
+                  m.latitude = coords.lat;
+                  m.longitude = coords.lng;
+                  m._geocoded = true;
+                }
+              }
+              return m;
+            })
+          );
+
+          allMerchants = enriched;
           addMarkers(allMerchants);
+
+          const withGPS = enriched.filter(m => m.latitude && m.longitude).length;
 
           if (window.AtlasPiNotify) {
             window.AtlasPiNotify.success(
-              `${allMerchants.length} merchants loaded on map`, 3000
+              `${enriched.length} merchant(s) — ${withGPS} on map`, 3000
             );
           }
-        } else {
+
           document.getElementById("mapStatus").textContent =
-            "No merchants found.";
+            `${withGPS} merchant(s) shown on map`;
+
+        } else {
+          document.getElementById("mapStatus").textContent = "No merchants found.";
         }
       } catch (e) {
-        document.getElementById("mapStatus").textContent =
-          "❌ Failed to load merchants.";
+        document.getElementById("mapStatus").textContent = "❌ Failed to load merchants.";
         console.error(e);
       }
     }

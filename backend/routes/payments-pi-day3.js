@@ -7,6 +7,13 @@ import logger from "../utils/logger.js";
 import envManager from "../config/envManager.js";
 import { v4 as uuidv4 } from "uuid";
 import { PiPaymentIntegration } from "../utils/pi-integration-prep.js";
+import { validateBody, validateParams } from "../middlewares/validate.js";
+import {
+  createPiPaymentRecordSchema,
+  approvePiPaymentSchema,
+  completePiPaymentSchema,
+  verifyPiPaymentParamsSchema
+} from "../validators/piPayments.validators.js";
 
 const router = express.Router();
 
@@ -23,7 +30,7 @@ function isRealCredential(value) {
  * POST /api/payments/create-record-day3
  * Create a payment record. Handles different modes.
  */
-router.post("/create-record-day3", (req, res) => {
+ router.post("/create-record-day3", validateBody(createPiPaymentRecordSchema), (req, res) => {
   const { uid, username, amount, memo, metadata } = req.body;
   const appMode = envManager.get('mode');
 
@@ -87,7 +94,7 @@ router.post("/create-record-day3", (req, res) => {
  * Approves a payment initiated via the REAL Pi Browser SDK.
  * This is called by the frontend after Pi SDK's onReadyForServerApproval.
  */
-router.post("/approve-pi-real", async (req, res) => {
+ router.post("/approve-pi-real", validateBody(approvePiPaymentSchema), async (req, res) => {
   const { paymentId, signature, payload } = req.body; // signature & payload optional for verification
   const appMode = envManager.get('mode');
 
@@ -204,7 +211,7 @@ router.post("/approve-pi-real", async (req, res) => {
  * Completes a payment after Pi SDK provides the transaction ID (txid).
  * This is called by the frontend after Pi SDK's onReadyForServerCompletion.
  */
-router.post("/complete-pi-real", async (req, res) => {
+ router.post("/complete-pi-real", validateBody(completePiPaymentSchema), async (req, res) => {
   const { paymentId, txid, signature, payload } = req.body; // signature & payload optional for verification
   const appMode = envManager.get('mode');
 
@@ -343,7 +350,7 @@ router.post("/complete-pi-real", async (req, res) => {
  * Verifies the status of a payment, especially for real Pi payments.
  * This route is primarily for checking status after the fact.
  */
-router.get("/verify-pi-real/:paymentId", (req, res) => {
+ router.get("/verify-pi-real/:paymentId", validateParams(verifyPiPaymentParamsSchema), (req, res) => {
   const { paymentId } = req.params;
   const appMode = envManager.get('mode');
 

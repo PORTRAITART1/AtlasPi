@@ -1,6 +1,7 @@
 import express from "express";
 import db from "../config/db.js";
 import logger from "../utils/logger.js";
+import { validateAccessToken } from "../utils/auth.js";
 import { v4 as uuidv4 } from "uuid";
 import { validateBody, validateQuery } from "../middlewares/validate.js";
 import {
@@ -15,6 +16,14 @@ const router = express.Router();
 router.post("/create-record", validateBody(createPaymentRecordSchema), (req, res) => {
   try {
     const { uid, username, amount, memo, metadata } = req.body;
+
+    if (!uid || !username || !amount) {
+      logger.error("Payment record creation failed: missing fields");
+      return res.status(400).json({
+        ok: false,
+        error: "uid, username and amount are required"
+      });
+    }
 
     const localPaymentId = uuidv4();
     const now = new Date().toISOString();
@@ -65,6 +74,14 @@ router.post("/approve", validateBody(approvePaymentSchema), (req, res) => {
   try {
     const { localPaymentId, paymentId } = req.body;
 
+    if (!localPaymentId || !paymentId) {
+      logger.error("Approve payment failed: missing ids");
+      return res.status(400).json({
+        ok: false,
+        error: "localPaymentId and paymentId are required"
+      });
+    }
+
     const now = new Date().toISOString();
 
     db.run(
@@ -103,6 +120,14 @@ router.post("/approve", validateBody(approvePaymentSchema), (req, res) => {
 router.post("/complete", validateBody(completePaymentSchema), (req, res) => {
   try {
     const { localPaymentId, paymentId, txid } = req.body;
+
+    if (!localPaymentId || !paymentId || !txid) {
+      logger.error("Complete payment failed: missing fields");
+      return res.status(400).json({
+        ok: false,
+        error: "localPaymentId, paymentId and txid are required"
+      });
+    }
 
     const now = new Date().toISOString();
 
@@ -226,6 +251,10 @@ router.get("/network/info", (req, res) => {
 // GET /api/payments/user/status?uid=xxx
 router.get("/user/status", validateQuery(userStatusQuerySchema), (req, res) => {
   const { uid } = req.query;
+
+  if (!uid) {
+    return res.status(400).json({ ok: false, error: "uid is required" });
+  }
 
   db.get(
     `SELECT uid, username, is_vip, vip_expires_at, vip_payment_id FROM users WHERE uid = ?`,

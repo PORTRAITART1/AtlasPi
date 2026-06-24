@@ -2,10 +2,12 @@ import express from "express";
 import db from "../config/db.js";
 import logger from "../utils/logger.js";
 import { v4 as uuidv4 } from "uuid";
+import { validateBody } from "../middlewares/validate.js";
+import { createSupportRequestSchema } from "../validators/support.validators.js";
 
 const router = express.Router();
 
-router.post("/create", (req, res) => {
+router.post("/create", validateBody(createSupportRequestSchema), (req, res) => {
   try {
     const { name, email, support_type, message } = req.body;
 
