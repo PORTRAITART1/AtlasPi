@@ -206,8 +206,6 @@ router.post("/create", validateRequest({ body: merchantListingCreateSchema }), (
       visibility_whatsapp,
       visibility_email,
       visibility_wallet,
-      latitude,
-      longitude,
       visibility_owner_name,
       visibility_website,
       consent_terms,
@@ -801,7 +799,7 @@ function performUpdate(req, res, id) {
     updates.push("visibility_wallet = ?");
     values.push(visibility_wallet);
   }
-  
+
   if (latitude !== undefined) {
     updates.push("latitude = ?");
     values.push(latitude);
