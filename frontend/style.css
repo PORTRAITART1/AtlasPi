@@ -1399,3 +1399,33 @@ main,
     opacity: 0.75;
   }
 }
+/* ==========================================
+   🔔 Notification Bell Badge
+   ========================================== */
+.nav-notif-btn {
+  position: relative;
+  font-size: 1rem;
+  text-decoration: none;
+  margin-right: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  color: inherit;
+}
+
+.notif-badge {
+  position: absolute;
+  top: 2px;
+  right: 4px;
+  background: #e53935;
+  color: white;
+  font-size: 0.65rem;
+  font-weight: bold;
+  border-radius: 50%;
+  padding: 2px 5px;
+  min-width: 16px;
+  text-align: center;
+  line-height: 1.2;
+}

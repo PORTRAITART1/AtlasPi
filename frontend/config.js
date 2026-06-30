@@ -18,7 +18,7 @@ const determineApiBaseUrl = () => {
 
     // Local development
     if (hostname === 'localhost' || hostname === '127.0.0.1') {
-      return `${protocol}//localhost:3000`;
+      return 'http://localhost:3000';
     }
 
     // Render production

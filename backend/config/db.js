@@ -54,6 +54,21 @@ db.serialize(() => {
     )
   `);
 
+  db.run(`
+  CREATE TABLE IF NOT EXISTS notifications (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_uid TEXT NOT NULL,
+    type TEXT NOT NULL DEFAULT 'system',
+    title TEXT NOT NULL,
+    message TEXT NOT NULL,
+    is_read INTEGER NOT NULL DEFAULT 0,
+    link TEXT,
+    icon TEXT DEFAULT '🔔',
+    created_at TEXT NOT NULL,
+    updated_at TEXT NOT NULL
+  )
+`);
+
   // Migration: Add access_token column to auth_logs if missing
   db.all(`PRAGMA table_info(auth_logs)`, [], (err, columns) => {
     if (err) {
