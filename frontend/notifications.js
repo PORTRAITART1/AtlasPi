@@ -108,7 +108,7 @@
     if (!countEl) return;
 
     try {
-      const url = `/api/notifications/unread-count?uid=${encodeURIComponent(uid)}`;
+      const url = `https://atlaspi-backend.onrender.com/api/notifications/unread-count?uid=${encodeURIComponent(uid)}`;
       console.log("🔎 Fetch notifications:", url);
 
       const res = await fetch(url, {
@@ -144,7 +144,7 @@
     listEl.innerHTML = "Chargement...";
 
     try {
-      const url = `/api/notifications/${encodeURIComponent(uid)}`;
+      const url = `https://atlaspi-backend.onrender.com/api/notifications/${encodeURIComponent(uid)}`;
       console.log("Fetch notification list:", url);
 
       const res = await fetch(url, {
@@ -185,7 +185,7 @@
     const uid = getUid();
   
     try {
-      const url = `/api/notifications/${encodeURIComponent(uid)}/read-all`;
+      const url = `https://atlaspi-backend.onrender.com/api/notifications/${encodeURIComponent(uid)}/read-all`;
       console.log("✅ Mark all notifications as read:", url);
   
       await fetch(url, {
