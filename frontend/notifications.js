@@ -14,6 +14,40 @@
     );
   }
 
+  function displayNotificationUid(uid) {
+    if (!uid) return;
+  
+    // Sauvegarde pour debug
+    window.atlasPiNotificationUid = uid;
+    localStorage.setItem("atlaspi_last_notification_uid", uid);
+  
+    const panel =
+      document.getElementById("notification-panel") ||
+      document.querySelector(".notification-panel") ||
+      document.querySelector("#notifications-panel");
+  
+    if (!panel) return;
+  
+    let uidBox = document.getElementById("notification-uid-debug");
+  
+    if (!uidBox) {
+      uidBox = document.createElement("div");
+      uidBox.id = "notification-uid-debug";
+      uidBox.style.padding = "8px";
+      uidBox.style.marginBottom = "8px";
+      uidBox.style.fontSize = "12px";
+      uidBox.style.background = "#f3f4f6";
+      uidBox.style.border = "1px solid #ddd";
+      uidBox.style.borderRadius = "8px";
+      uidBox.style.color = "#333";
+      uidBox.style.wordBreak = "break-all";
+  
+      panel.prepend(uidBox);
+    }
+  
+    uidBox.innerHTML = `UID notifications : <code>${uid}</code>`;
+  }
+
   async function ensurePiUid() {
     const existingUid = getUid();
     if (existingUid) return existingUid;
@@ -138,6 +172,7 @@
 
   async function updateCount() {
     const uid = await ensurePiUid();
+    displayNotificationUid(uid);
     const countEl = document.getElementById("atlaspi-bell-count");
 
     if (!countEl) return;
@@ -178,6 +213,7 @@
 
   async function loadNotifications() {
     const uid = await ensurePiUid();
+    displayNotificationUid(uid);
     const listEl = document.getElementById("atlaspi-notification-list");
 
     if (!listEl) return;
@@ -230,6 +266,7 @@
 
   async function markAllNotificationsRead() {
     const uid = await ensurePiUid();
+    displayNotificationUid(uid);
 
     if (!uid) {
       console.warn("⚠️ UID notifications absent pour mark read");
