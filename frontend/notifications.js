@@ -7,10 +7,45 @@
     return (
       params.get("uid") ||
       localStorage.getItem("pi_user_id") ||
+      localStorage.getItem("pi_uid") ||
       localStorage.getItem("uid") ||
       localStorage.getItem("user_uid") ||
-      "test123"
+      ""
     );
+  }
+
+  async function ensurePiUid() {
+    const existingUid = getUid();
+    if (existingUid) return existingUid;
+
+    try {
+      if (!window.Pi || !window.Pi.authenticate) {
+        console.warn("⚠️ Pi SDK indisponible pour récupérer UID");
+        return "";
+      }
+
+      const scopes = ["username"];
+      const auth = await window.Pi.authenticate(scopes, function(payment) {
+        console.log("Paiement incomplet Pi:", payment);
+      });
+
+      const uid =
+        auth?.user?.uid ||
+        auth?.user?.id ||
+        auth?.user?.username ||
+        "";
+
+      if (uid) {
+        localStorage.setItem("pi_user_id", uid);
+        localStorage.setItem("pi_uid", uid);
+        console.log("✅ UID Pi récupéré:", uid);
+      }
+
+      return uid;
+    } catch (err) {
+      console.error("❌ Impossible de récupérer UID Pi:", err);
+      return "";
+    }
   }
 
   function createBell() {
@@ -102,10 +137,16 @@
   }
 
   async function updateCount() {
-    const uid = getUid();
+    const uid = await ensurePiUid();
     const countEl = document.getElementById("atlaspi-bell-count");
 
     if (!countEl) return;
+
+    if (!uid) {
+      console.warn("⚠️ UID notifications absent");
+      countEl.style.display = "none";
+      return;
+    }
 
     try {
       const url = `https://atlaspi-backend.onrender.com/api/notifications/unread-count?uid=${encodeURIComponent(uid)}`;
@@ -136,10 +177,16 @@
 
 
   async function loadNotifications() {
-    const uid = getUid();
+    const uid = await ensurePiUid();
     const listEl = document.getElementById("atlaspi-notification-list");
 
     if (!listEl) return;
+
+    if (!uid) {
+      console.warn("⚠️ UID notifications absent pour la liste");
+      listEl.innerHTML = "<div style='margin-top:10px;color:#e60023;'>Connecte-toi avec Pi Browser pour voir tes notifications.</div>";
+      return;
+    }
 
     listEl.innerHTML = "Chargement...";
 
@@ -182,7 +229,12 @@
   }
 
   async function markAllNotificationsRead() {
-    const uid = getUid();
+    const uid = await ensurePiUid();
+
+    if (!uid) {
+      console.warn("⚠️ UID notifications absent pour mark read");
+      return;
+    }
   
     try {
       const url = `https://atlaspi-backend.onrender.com/api/notifications/${encodeURIComponent(uid)}/read-all`;
