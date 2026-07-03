@@ -196,17 +196,15 @@ class PiIntegrationManager {
   }
 
   // -------------------------------------------------------------------------
-  // Demo authentication (unchanged)
+  // Demo authentication disabled in production
   // -------------------------------------------------------------------------
   async authDemo() {
-    console.log("[Pi Auth] Running DEMO authentication flow.");
-    // Simulate a successful demo authentication
-    return new Promise(resolve => {
-      setTimeout(() => {
-        this.user = { uid: 'demo-user-123', username: 'DemoUser', wallet_address: 'DUMMY_WALLET_123' };
-        resolve({ ok: true, user: this.user, mode: 'demo' });
-      }, 500);
-    });
+    console.warn("[Pi Auth] Demo authentication is disabled.");
+    return {
+      ok: false,
+      error: "Veuillez ouvrir AtlasPi dans Pi Browser pour vous connecter.",
+      mode: "pi_required"
+    };
   }
 
   // -------------------------------------------------------------------------

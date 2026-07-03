@@ -33,22 +33,7 @@
     piConnectBtn.addEventListener('click', async function() {
       if (!piStatus) return;
 
-      piStatus.textContent = "⏳ Authenticating with Pi...";
-
-      try {
-        // Create fresh Pi manager for this auth attempt
-        const piManager = window._piManager || new PiIntegrationManager();
-        window._piManager = piManager;
-        
-        const authHandler = new AtlasPiAuthHandler(piManager);
-
-        // Use centralized auth handler
-        const result = await authHandler.handleAuthButtonClick(
-          (authResult) => {
-            // Success callback
-            piStatus.textContent = authHandler.getAuthStatus().isDemoMode
-  ? '✅ Connected in test mode.'
-  : '✅ Connected with your Pi account.';
+      piStatus.textContent = '✅ Connected with your Pi account.';
 
 piStatus.style.color = '#10b981';
 piStatus.style.fontWeight = '600';
@@ -57,7 +42,7 @@ const user = authHandler.getUser();
 if (piUsername) piUsername.textContent = user?.username || '-';
 if (piWallet) {
   piWallet.textContent =
-    user?.wallet_address && user.wallet_address !== 'DUMMY_WALLET_123'
+    user?.wallet_address
       ? user.wallet_address
       : 'Wallet connected';
 }
@@ -71,7 +56,7 @@ if (pioneerUsername) {
 
 if (pioneerWallet) {
   pioneerWallet.textContent =
-    user?.wallet_address && user.wallet_address !== 'DUMMY_WALLET_123'
+    user?.wallet_address
       ? user.wallet_address
       : 'Wallet connected';
 }
