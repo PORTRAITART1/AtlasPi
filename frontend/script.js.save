@@ -55,11 +55,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const consentPrivacyCheckbox = document.getElementById("consentPrivacy");
   const consentPublicDisplayCheckbox = document.getElementById("consentPublicDisplay");
 
-  // Restore UI session if user already logged in
-  if (currentUser) {
-    setTimeout(() => updatePiAuthUI({ user: currentUser }), 0);
-  }
-
   function showMerchantFormStatus(message, type = "info") {
     if (!merchantFormStatus) return;
 
@@ -149,7 +144,8 @@ document.addEventListener("DOMContentLoaded", () => {
           listing_public_name,
           profile_type,
           business_name,
-          public_description_short,
+sed -i 's/  const consentPublicDisplayCheckbox = document.getElementById("consentPublicDisplay");/  const consentPublicDisplayCheckbox = document.getElementById("consentPublicDisplay");\n\n  \/\/ \u2705 Restore UI session if user already logged in\n  if (currentUser) {\n    setTimeout(() => updatePiAuthUI({ user: currentUser }), 0);\n  }/' frontend/script.js
+qq          public_description_short,
           domain,
           category,
           products_services_summary,
@@ -450,3 +446,4 @@ document.addEventListener('click', (e) => {
     }
   }
 });
+

@@ -40,6 +40,7 @@ const allowedOrigins = [
   "http://localhost:3000",
   "http://127.0.0.1:3000",
   "http://localhost:5173",
+  "http://192.168.11.100:3000",
   "http://127.0.0.1:5173",
   envManager.get("frontendUrl"),
   envManager.get("frontendAppUrl"),
@@ -158,7 +159,7 @@ app.use((err, req, res, next) => {
   });
 });
 
-app.listen(PORT, () => {
+app.listen(PORT, '0.0.0.0', () => {
   logger.info(`AtlasPi backend started on port ${PORT}`);
   console.log(`✅ Server running on http://localhost:${PORT}`);
 });
