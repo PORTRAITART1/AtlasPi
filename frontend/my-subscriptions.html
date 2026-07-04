@@ -220,7 +220,19 @@
     }
 
     async function getPiUID() {
-      // Try Pi SDK first
+      // ✅ 1. Session existante depuis localStorage
+      try {
+        const stored = localStorage.getItem('piUser');
+        if (stored) {
+          const user = JSON.parse(stored);
+          if (user && user.uid) {
+            console.log("[Subscriptions] UID from localStorage:", user.uid);
+            return user.uid;
+          }
+        }
+      } catch (e) {}
+
+      // ✅ 2. Fallback Pi SDK
       if (window.Pi && typeof window.Pi.authenticate === "function") {
         try {
           const auth = await window.Pi.authenticate(["username"], () => {});
@@ -229,7 +241,8 @@
           console.warn("[Subscriptions] Pi SDK auth failed:", e);
         }
       }
-      // Fallback URL param
+
+      // ✅ 3. Fallback URL param
       const params = new URLSearchParams(window.location.search);
       return params.get("uid") || null;
     }
