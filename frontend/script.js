@@ -283,8 +283,10 @@ if (merchantListingForm) {
         username: user.username,
         wallet_address: user.wallet_address || ''
       }));
+window.dispatchEvent(new CustomEvent("piUserLoggedIn", { detail: { uid: user.uid, username: user.username } }));
     } else {
       localStorage.removeItem('piUser');
+window.dispatchEvent(new CustomEvent("piUserLoggedOut"));
     }
 
     if (piStatus) {
