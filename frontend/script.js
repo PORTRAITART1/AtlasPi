@@ -271,6 +271,7 @@ if (merchantListingForm) {
   // Auth handler uses the global piManager
   const authHandler = new AtlasPiAuthHandler(piManager);
   window._atlasAuthHandler = authHandler;
+  const pioneerUsername = document.getElementById("pioneerUsername");
   const pioneerWallet = document.getElementById("pioneerWallet");
 
   function updatePiAuthUI(result) {
