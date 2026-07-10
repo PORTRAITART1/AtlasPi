@@ -1,260 +1,148 @@
-// Pi Integration Manager – synchronisation du mode frontend/backend
-// ---------------------------------------------------------------
-// Ce fichier a été mis à jour pour que le mode utilisé côté
-// frontend reflète exactement le mode configuré côté backend
-// (demo, pirc2-sandbox ou pirc2-production).  
-// Aucun autre comportement n'est modifié.
+/**
+ * pi-integration.js
+ * Gestion centralisée de l'intégration Pi SDK
+ * - Détection du mode backend
+ * - Initialisation du SDK Pi
+ * - Authentification
+ * - Persistance de session
+ */
 
 class PiIntegrationManager {
   constructor() {
-    // Valeur par défaut – sera remplacée dès que le backend renvoie son mode
     this.mode = 'demo';
-    this.sdkAvailable = this.detectPiSdk(); // Détection initiale (peut être false jusqu'au chargement du script)
+    this.sdkAvailable = false;
     this.user = null;
-    this.config = this.initConfig();
+    this.backendUrl = 'https://atlaspi-backend.onrender.com';
 
-    console.log(`[Pi Integration] Mode initial (temp): ${this.mode}, SDK Available: ${this.sdkAvailable}`);
-
-    // Récupérer le mode réel depuis le backend dès l'instanciation
-    // (ne bloque pas le constructeur, on gère les erreurs silencieusement)
-    this.fetchBackendMode().catch(() => {
-      console.warn('[Pi Integration] Impossible de récupérer le mode depuis le backend – on garde le mode par défaut');
-    });
+    // ✅ Fix 2 — Initialiser le SDK après récupération du mode
+    this.fetchBackendMode()
+      .then(() => this.initPiSdk())
+      .catch(() => {
+        console.warn('[Pi Integration] Mode fetch failed – keeping default mode');
+      });
   }
 
   // -------------------------------------------------------------------------
-  // SDK loading & initialisation (official Pi SDK)
+  // Récupération du mode backend
   // -------------------------------------------------------------------------
-  async loadPiSdk() {
-    // Si le SDK est déjà présent, on résout immédiatement
-    if (window.Pi) {
+  async fetchBackendMode() {
+    try {
+      const res = await fetch(`${this.backendUrl}/api/mode`);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+      if (data && data.mode) {
+        this.mode = data.mode;
+        console.log(`[Pi Integration] Mode backend récupéré : ${this.mode}`);
+      }
+    } catch (err) {
+      console.warn('[Pi Integration] Impossible de récupérer le mode backend :', err.message);
+    }
+  }
+
+  // -------------------------------------------------------------------------
+  // Initialisation du SDK Pi
+  // -------------------------------------------------------------------------
+  async initPiSdk() {
+    if (typeof window === 'undefined') return;
+
+    if (typeof Pi === 'undefined') {
+      console.warn('[Pi Integration] Pi SDK non disponible – mode DEMO activé');
+      this.sdkAvailable = false;
+      this.mode = 'demo';
       return;
     }
 
-    return new Promise((resolve, reject) => {
-      const script = document.createElement('script');
-      script.src = 'https://sdk.minepi.com/pi-sdk.js';
-      script.async = true;
-      script.onload = () => {
-        console.log('[Pi Integration] Pi SDK script loaded');
-        resolve();
-      };
-      script.onerror = (e) => {
-        console.warn('[Pi Integration] Failed to load Pi SDK script', e);
-        reject(new Error('Failed to load Pi SDK'));
-      };
-      document.head.appendChild(script);
-    });
+    try {
+      const sandbox = this.mode === 'pirc2-sandbox';
+      Pi.init({ version: '2.0', sandbox });
+      this.sdkAvailable = true;
+      console.log(`[Pi Integration] Pi SDK initialisé (sandbox=${sandbox}, mode=${this.mode})`);
+    } catch (err) {
+      console.error('[Pi Integration] Erreur initialisation Pi SDK :', err);
+      this.sdkAvailable = false;
+      this.mode = 'demo';
+    }
   }
 
-  async initPiSdk() {
+  // -------------------------------------------------------------------------
+  // Authentification
+  // -------------------------------------------------------------------------
+  async authenticate(scopes = ['username', 'payments']) {
+    // Vérifier session existante
     try {
-      await this.loadPiSdk();
-
-      // Initialise le SDK – sandbox mode pour le développement / testnet
-      // Le mode réel (sandbox ou production) sera déterminé par le backend,
-      // on ne force donc plus de mode ici.
-      await Pi.init({
-        version: '2.0',
-        sandbox: this.mode === 'pirc2-sandbox'
-      });
-      this.sdkAvailable = true;
-
-      console.log('[Pi Integration] Pi SDK initialised (mainnet) – mode conservé:', this.mode);
-
-      // Synchroniser l’état SDK avec le gestionnaire de paiement
-      if (window.piBrowserPayments) {
-        window.piBrowserPayments.sdkAvailable = true;
-        // Si on veut être sûr que le statut interne est à jour, on peut appeler une méthode de rafraîchissement
-        if (typeof window.piBrowserPayments.refreshSdkStatus === 'function') {
-          window.piBrowserPayments.refreshSdkStatus();
+      const stored = localStorage.getItem('piUser');
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (parsed && parsed.uid) {
+          this.user = parsed;
+          console.log('[Pi Integration] Session restaurée depuis localStorage :', parsed.username);
+          return { ok: true, user: this.user, mode: this.mode, fromCache: true };
         }
-        console.log('[Pi Integration] PiBrowserPayments SDK status synchronised.');
       }
     } catch (e) {
-      console.warn('[Pi Integration] Pi SDK not available or init failed', e);
-      this.sdkAvailable = false;
+      console.warn('[Pi Integration] Erreur lecture localStorage :', e);
     }
+
+    // Mode DEMO
+    if (this.mode === 'demo' || !this.sdkAvailable) {
+      const demoUser = {
+        uid: 'demo-uid-' + Date.now(),
+        username: 'demo_pioneer',
+        wallet_address: null
+      };
+      this.user = demoUser;
+      localStorage.setItem('piUser', JSON.stringify(demoUser));
+      window.dispatchEvent(new CustomEvent('piUserLoggedIn', { detail: demoUser }));
+      console.log('[Pi Integration] Authentification DEMO :', demoUser.username);
+      return { ok: true, user: demoUser, mode: 'demo' };
+    }
+
+    // Authentification Pi SDK réelle
+    return await this.authPiSdk(scopes);
   }
 
   // -------------------------------------------------------------------------
-  // Helper : récupérer le mode depuis le backend (health endpoint)
+  // Authentification via Pi SDK
   // -------------------------------------------------------------------------
-  async fetchBackendMode() {
-    const apiBase = window.ATLASPI_CONFIG?.API_BASE_URL || 'http://localhost:3000';
+  async authPiSdk(scopes = ['username', 'payments']) {
     try {
-      const response = await fetch(`${apiBase}/api/health`);
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}`);
-      }
-      const data = await response.json();
-      if (data && data.mode) {
-        this.mode = data.mode;
-        this.config.mode = data.mode;
-        console.log(`[Pi Integration] Backend mode fetched: ${this.mode}`);
-      } else {
-        console.warn('[Pi Integration] Backend health response does not contain mode');
-      }
-    } catch (err) {
-      console.warn('[Pi Integration] Unable to fetch backend mode:', err);
-    }
-  }
+      const authResult = await Pi.authenticate(scopes, (payment) => {
+        console.warn('[Pi Integration] Paiement incomplet détecté :', payment);
+      });
 
-  // -------------------------------------------------------------------------
-  // Existing detection helpers (kept for backward‑compatibility)
-  // -------------------------------------------------------------------------
-  detectPiSdk() {
-    if (typeof window === 'undefined') return false;
-    const piSdkPresent = window.Pi && typeof window.Pi.authenticate === 'function' && typeof window.Pi.createPayment === 'function';
-    console.log(`[Pi Integration] Pi SDK detected: ${piSdkPresent}`);
-    return piSdkPresent;
-  }
-
-  detectMode() {
-    // 1. Config frontend explicite si disponible
-    if (typeof window !== "undefined" && window.ATLASPI_CONFIG && window.ATLASPI_CONFIG.APP_MODE) {
-      return window.ATLASPI_CONFIG.APP_MODE;
-    }
-
-    // 2. Si Pi SDK est disponible dans le navigateur
-    if (typeof window !== "undefined" && window.Pi) {
-      return "pirc2-production";
-    }
-
-    // 3. Fallback simple
-    return "pirc2-production";
-  }
-
-  initConfig() {
-    // Placeholder for loading configuration
-    return {
-      mode: this.mode,
-      // ... other config properties
-    };
-  }
-
-  /**
-   * Set backend mode info (appelé après le health‑check du backend)
-   * Cette méthode n'est plus utilisée dans le flux normal, mais elle reste
-   * disponible pour des appels manuels éventuels.
-   */
-  setBackendMode(mode) {
-    this.mode = mode;
-    this.config.mode = mode;
-    // Assurer que piBrowserPayments est aussi informé si disponible
-    if (window.piBrowserPayments) {
-      // Re‑détecter la disponibilité du SDK (peut dépendre de l’environnement Pi)
-      window.piBrowserPayments.sdkAvailable = window.piBrowserPayments.detectPiSdk(); 
-      console.log(`[Pi Integration] Updated backend mode to ${mode}. Pi SDK available for payments: ${window.piBrowserPayments.sdkAvailable}`);
-    }
-  }
-
-  // -------------------------------------------------------------------------
-  // Authentication (demo fallback + real Pi SDK)
-  // -------------------------------------------------------------------------
-  async authenticate() {
-    console.log(`[Pi Auth] Starting authentication in mode: ${this.mode}`);
-
-    // Ensure SDK is loaded & initialised
-    if (!this.sdkAvailable) {
-      console.log('[Pi Auth] Pi SDK unavailable, falling back to DEMO auth');
-      return this.authDemo();
-    }
-
-    // SDK is available – use the official flow
-    switch (this.mode) {
-      case 'demo':
-        console.log('[Pi Auth] Using DEMO authentication.');
-        return this.authDemo();
-
-      case 'pi-ready':
-      case 'pirc2-sandbox':
-        console.log('[Pi Auth] Attempting PI‑READY authentication (sandbox) using Pi SDK.');
-        try {
-          const result = await this.authPiSdk();
-          if (result.ok) {
-            return result;
-          } else {
-            console.warn('[Pi Auth] Pi SDK auth failed, falling back to DEMO.');
-            const demoResult = await this.authDemo();
-            return { ...demoResult, fallbackMode: 'pi-ready -> demo' };
-          }
-        } catch (e) {
-          console.error('[Pi Auth] Unexpected error during Pi SDK auth', e);
-          const demoResult = await this.authDemo();
-          return { ...demoResult, fallbackMode: 'pi-ready -> demo (error)' };
-        }
-
-      case 'pirc2-production':
-        console.log('[Pi Auth] Attempting PRODUCTION authentication using Pi SDK.');
-        return this.authPiSdk();
-
-      default:
-        console.warn(`[Pi Auth] Unknown mode: ${this.mode}. Falling back to DEMO auth.`);
-        return this.authDemo();
-    }
-  }
-
-  // -------------------------------------------------------------------------
-  // Demo authentication disabled in production
-  // -------------------------------------------------------------------------
-  async authDemo() {
-    console.warn("[Pi Auth] Demo authentication is disabled.");
-    return {
-      ok: false,
-      error: "Veuillez ouvrir AtlasPi dans Pi Browser pour vous connecter.",
-      mode: "pi_required"
-    };
-  }
-
-  // -------------------------------------------------------------------------
-  // Real Pi SDK authentication (official API)
-  // -------------------------------------------------------------------------
-  async authPiSdk() {
-    console.log("[Pi Auth] Running Pi SDK authentication flow.");
-    if (!this.sdkAvailable) {
-      return { ok: false, error: "Pi SDK not available for authentication.", mode: this.mode };
-    }
-    try {
-      const authResult = await Pi.authenticate(
-        ['username', 'payments', 'wallet_address'], // request the payments scope (minimum required for createPayment)
-        (payment) => {
-          if (payment && payment.identifier && payment.transaction && payment.transaction.txid) {
-            const apiBase = window.ATLASPI_CONFIG?.API_BASE_URL || 'https://atlaspi-backend.onrender.com';
-
-            fetch(`${apiBase}/api/pi-payments/complete-pi-real`, {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json'
-              },
-              body: JSON.stringify({
-                paymentId: payment.identifier,
-                txid: payment.transaction.txid
-              })
-            })
-              .then((res) => res.json())
-              .then((data) => {
-                console.log('[Pi Auth] Incomplete payment completed', data);
-              })
-              .catch((err) => {
-                console.warn('[Pi Auth] Failed to complete incomplete payment', err);
-              });
-          } else {
-            console.warn('[Pi Auth] Incomplete payment found but missing required data', payment);
-          }
-        }
-      );
-      // authResult suit la forme définie dans la documentation Pi
+      // ✅ Fix 1 — Persister la session
       this.user = authResult.user;
+
+      if (this.user) {
+        localStorage.setItem('piUser', JSON.stringify({
+          uid: this.user.uid,
+          username: this.user.username,
+          wallet_address: this.user.wallet_address || null
+        }));
+        // Notifier les autres scripts
+        window.dispatchEvent(new CustomEvent('piUserLoggedIn', { detail: this.user }));
+        console.log('[Pi Integration] Authentification Pi SDK réussie :', this.user.username);
+      }
+
       return { ok: true, user: this.user, mode: this.mode };
     } catch (error) {
-      console.error("[Pi Auth] Pi SDK authentication failed:", error);
-      return { ok: false, error: error.message || "Pi SDK authentication error", mode: this.mode };
+      console.error('[Pi Auth] Pi SDK authentication failed:', error);
+      return { ok: false, error: error.message || 'Pi SDK authentication error', mode: this.mode };
     }
   }
 
   // -------------------------------------------------------------------------
-  // Getters / status helpers (unchanged)
+  // Déconnexion
+  // -------------------------------------------------------------------------
+  logout() {
+    this.user = null;
+    localStorage.removeItem('piUser');
+    window.dispatchEvent(new CustomEvent('piUserLoggedOut'));
+    console.log('[Pi Integration] Utilisateur déconnecté');
+  }
+
+  // -------------------------------------------------------------------------
+  // Getters / status helpers
   // -------------------------------------------------------------------------
   getUser() {
     return this.user;
@@ -272,9 +160,6 @@ class PiIntegrationManager {
     return this.sdkAvailable;
   }
 
-  /**
-   * Get status message for UI
-   */
   getStatusMessage() {
     const sdkAvailable = this.isPiSdkAvailable();
     const mode = this.getMode();
@@ -296,9 +181,6 @@ class PiIntegrationManager {
     }
   }
 
-  /**
-   * Get auth status object (for display in UI)
-   */
   getAuthStatus() {
     return {
       mode: this.mode,
@@ -311,7 +193,7 @@ class PiIntegrationManager {
   }
 }
 
-// Exposer globalement
+// ✅ Exposition globale
 if (typeof window !== 'undefined') {
-  window.piIntegrationManager = new PiIntegrationManager(); // Instancier globalement
+  window.piIntegrationManager = new PiIntegrationManager();
 }
