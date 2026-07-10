@@ -127,9 +127,18 @@
             typeof window.piBrowserPayments.initiatePayment === "function"
           ) {
             // Utilise le système de paiement Pi existant
+            // Lire amount et memo depuis les inputs
+            const amountInput = document.getElementById("payAmount");
+            const memoInput = document.getElementById("payMemo");
+            const rawAmount = amountInput ? amountInput.value : "0.1";
+            const parsedAmount = parseFloat(String(rawAmount).replace(",", "."));
+            const memo = memoInput ? memoInput.value : "AtlasPi VIP subscription";
+
             await window.piBrowserPayments.initiatePayment({
               uid: currentUser.uid,
               username: currentUser.username,
+              amount: parsedAmount,
+              memo: memo,
             });
           } else {
             // Fallback démo
