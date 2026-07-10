@@ -130,9 +130,16 @@
             // Lire amount et memo depuis les inputs
             const amountInput = document.getElementById("payAmount");
             const memoInput = document.getElementById("payMemo");
-            const rawAmount = amountInput ? amountInput.value : "0.1";
+            const rawAmountRaw = amountInput ? amountInput.value.trim() : "";
+            const rawAmount = rawAmountRaw !== "" ? rawAmountRaw : "0.1";
             const parsedAmount = parseFloat(String(rawAmount).replace(",", "."));
-            const memo = memoInput ? memoInput.value : "AtlasPi VIP subscription";
+            if (isNaN(parsedAmount) || parsedAmount <= 0) {
+              console.error("[PaymentInit] Invalid amount detected:", rawAmount);
+              setPaymentStatus("Invalid amount: " + rawAmount, "#ef4444");
+              createPaymentBtn.disabled = false;
+              return;
+            }
+            const memo = memoInput ? (memoInput.value.trim() || "AtlasPi VIP subscription") : "AtlasPi VIP subscription";
 
             await window.piBrowserPayments.initiatePayment({
               uid: currentUser.uid,
