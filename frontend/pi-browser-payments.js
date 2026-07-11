@@ -6,19 +6,15 @@ class PiBrowserPayments {
     this.paymentInProgress = false;
     this.lastPaymentAttempt = null;
     // Utiliser la configuration globale pour l'API Base URL
-    this.apiBase = window.ATLASPI_CONFIG?.API_BASE_URL || 'http://localhost:3000'; // Fallback
+    this.apiBase = window.ATLASPI_CONFIG?.API_BASE_URL || 'https://atlaspi.onrender.com';
 
     console.log(`[PiBrowserPayments] Initialized. SDK Available: ${this.sdkAvailable}`);
   }
 
-  // -------------------------------------------------------------------------
-  // SDK detection (dynamic)
-  // -------------------------------------------------------------------------
   detectPiSdk() {
     if (typeof window === 'undefined') {
       return false;
     }
-    // Vérifie la présence de l'API officielle pour les paiements
     if (window.Pi && typeof window.Pi.createPayment === 'function') {
       console.log('[PiBrowserPayments] ✅ Official Pi SDK detected (window.Pi.createPayment)');
       return true;
@@ -27,28 +23,15 @@ class PiBrowserPayments {
     return false;
   }
 
-  /**
-   * Méthode publique pour obtenir l'état actuel du SDK.
-   * Elle effectue une détection dynamique à chaque appel afin de refléter
-   * les changements de disponibilité (ex. script chargé après l'instanciation).
-   */
   isSdkReady() {
     return this.detectPiSdk();
   }
 
-  /**
-   * Si besoin, on peut rafraîchir la propriété sdkAvailable (pour compatibilité
-   * avec du code qui l'utilise directement). Cette méthode n'est pas obligatoire
-   * pour le flow principal mais permet de garder l'ancienne API fonctionnelle.
-   */
   refreshSdkStatus() {
     this.sdkAvailable = this.isSdkReady();
     console.log(`[PiBrowserPayments] SDK status refreshed: ${this.sdkAvailable}`);
   }
 
-  /**
-   * Déclenche le paiement : Pi réel si SDK dispo, sinon fallback démo.
-   */
   async initiatePayment(paymentConfig) {
     const { amount, memo, metadata } = paymentConfig;
 
@@ -56,8 +39,7 @@ class PiBrowserPayments {
       throw new Error('Invalid amount');
     }
 
-    // Détermine le mode actuel
-    const currentMode = window.piIntegrationManager?.getMode() || 'demo'; // Utilise le manager global si dispo
+    const currentMode = window.piIntegrationManager?.getMode() || 'demo';
     const isPiSdkAvailable = this.isSdkReady();
 
     console.log(`[PiBrowserPayments] Initiating payment. Mode: ${currentMode}, SDK Available: ${isPiSdkAvailable}`);
@@ -70,31 +52,32 @@ class PiBrowserPayments {
       sdkAvailable: isPiSdkAvailable
     };
 
-    // Si le SDK Pi est disponible ET que le mode n'est PAS 'demo'
     if (isPiSdkAvailable) {
       console.log('[PiBrowserPayments] Attempting REAL Pi Browser payment flow...');
       return this.initiateRealPiPayment(paymentConfig);
     } else {
       console.log('[PiBrowserPayments] Falling back to DEMO payment flow...');
-      // Appel au gestionnaire de paiement démo (qui sera appelé via script.js)
-      // On retourne une promesse qui sera résolue par le gestionnaire démo
       return new Promise((resolve, reject) => {
-        // On passe les infos de paiement au gestionnaire démo
-        // Assurez-vous que window.triggerDemoPaymentFlow est défini globalement
         if (window.triggerDemoPaymentFlow) {
           window.triggerDemoPaymentFlow(paymentConfig, resolve, reject);
         } else {
-          console.error("Demo payment flow handler (window.triggerDemoPaymentFlow) not found!");
-          this.paymentInProgress = false;
-          reject(new Error("Demo payment flow handler not found."));
+          // Fallback inline si triggerDemoPaymentFlow n'est pas défini
+          console.warn('[PiBrowserPayments] triggerDemoPaymentFlow not found, using inline demo fallback');
+          setTimeout(() => {
+            this.paymentInProgress = false;
+            resolve({
+              success: true,
+              demo: true,
+              paymentId: 'demo_' + Date.now(),
+              message: 'Demo payment simulated (inline fallback)',
+              timestamp: new Date().toISOString()
+            });
+          }, 1500);
         }
       });
     }
   }
 
-  /**
-   * Flow de paiement Pi Browser OFFICIEL (3 phases)
-   */
   async initiateRealPiPayment(paymentConfig) {
     const { amount, memo, metadata } = paymentConfig;
 
@@ -103,39 +86,33 @@ class PiBrowserPayments {
         console.log('💳 Initiating official 3-phase payment:', paymentConfig);
 
         window.Pi.createPayment(
-  {
-    amount: parseFloat(amount),
-    memo: memo || 'AtlasPi payment',
-    metadata: metadata || {
-      productType: "atlaspi_vip",
-      plan: "vip_monthly",
-      source: "payments_page",
-      amountLabel: "0.1"
-    }
-  },
+          {
+            amount: parseFloat(amount),
+            memo: memo || 'AtlasPi payment',
+            metadata: metadata || {
+              productType: 'atlaspi_vip',
+              plan: 'vip_monthly',
+              source: 'payments_page',
+              amountLabel: '0.1'
+            }
+          },
           {
             onReadyForServerApproval: async (paymentId) => {
               try {
                 console.log('💳 PHASE I: Server approval - paymentId:', paymentId);
 
-                // Appel au backend pour approuver le paiement
-                const approvalResponse = await fetch(`${this.apiBase}/api/pi-payments/approve-pi-real`, { // Nouvelle route backend
+                const approvalResponse = await fetch(`${this.apiBase}/api/pi/approve`, {
                   method: 'POST',
-                  headers: {
-                    'Content-Type': 'application/json',
-                    // Ajouter l'auth si nécessaire (ex: token utilisateur)
-                    // 'Authorization': `Bearer ${localStorage.getItem('pi_access_token') || ''}`
-                  },
+                  headers: { 'Content-Type': 'application/json' },
                   body: JSON.stringify({ paymentId })
                 });
 
                 if (!approvalResponse.ok) {
-                  const errorData = await approvalResponse.json().catch(() => ({})); // Catch potential JSON parse error
+                  const errorData = await approvalResponse.json().catch(() => ({}));
                   throw new Error(`Approval failed: ${approvalResponse.status} - ${errorData.error || errorData.message || 'Unknown error'}`);
                 }
                 const approvalData = await approvalResponse.json();
                 console.log('✅ PHASE I complete: Payment approved by server', approvalData);
-                // Ne pas résoudre ici, attendre la phase III
               } catch (error) {
                 console.error('❌ PHASE I error:', error);
                 this.paymentInProgress = false;
@@ -148,19 +125,14 @@ class PiBrowserPayments {
                 console.log('💳 PHASE II: Blockchain confirmed - txid:', txid);
                 console.log('💳 PHASE III: Server completion starting...');
 
-                // Appel au backend pour compléter le paiement
-                const completionResponse = await fetch(`${this.apiBase}/api/pi-payments/complete-pi-real`, { // Nouvelle route backend
+                const completionResponse = await fetch(`${this.apiBase}/api/pi/complete`, {
                   method: 'POST',
-                  headers: {
-                    'Content-Type': 'application/json',
-                    // Ajouter l'auth si nécessaire
-                    // 'Authorization': `Bearer ${localStorage.getItem('pi_access_token') || ''}`
-                  },
+                  headers: { 'Content-Type': 'application/json' },
                   body: JSON.stringify({ paymentId, txid })
                 });
 
                 if (!completionResponse.ok) {
-                  const errorData = await completionResponse.json().catch(() => ({})); // Catch potential JSON parse error
+                  const errorData = await completionResponse.json().catch(() => ({}));
                   throw new Error(`Completion failed: ${completionResponse.status} - ${errorData.error || errorData.message || 'Unknown error'}`);
                 }
                 const completionData = await completionResponse.json();
@@ -182,7 +154,7 @@ class PiBrowserPayments {
             },
 
             onCancel: (paymentId) => {
-              console.warn('💳 Payment cancelled by user or programmatically. paymentId:', paymentId);
+              console.warn('💳 Payment cancelled by user. paymentId:', paymentId);
               this.paymentInProgress = false;
               reject(new Error(`Payment cancelled (id: ${paymentId})`));
             },
@@ -202,7 +174,6 @@ class PiBrowserPayments {
     });
   }
 
-  // ... (autres méthodes comme getMode, getStatus, etc.)
   getMode() {
     const currentMode = window.piIntegrationManager?.getMode() || 'demo';
     if (this.isSdkReady() && currentMode !== 'demo') {
@@ -219,6 +190,10 @@ class PiBrowserPayments {
     } else {
       return '⚠️ DEMO Payment Mode (Pi SDK not available or in demo mode)';
     }
+  }
+
+  getLastPaymentStatus() {
+    return this.lastPaymentAttempt || { message: 'No payment attempted yet' };
   }
 }
 
