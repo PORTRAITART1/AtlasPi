@@ -486,12 +486,35 @@
   </footer>
   <script src="config.js?v=13"></script>
   <script src="pi-integration.js?v=106"></script>
-  <script src="pi-browser-payments.js?v=120"></script>
+  <!-- Pi Network SDK - must be loaded before AtlasPi payment scripts -->
+  <script src="https://sdk.minepi.com/pi-sdk.js"></script>
+
+  <script>
+  window.ATLASPI_PI_SDK_READY = false;
+
+  try {
+    if (window.Pi && typeof window.Pi.init === "function") {
+      window.Pi.init({
+        version: "2.0",
+        sandbox: true
+      });
+
+      window.ATLASPI_PI_SDK_READY = true;
+      console.log("[AtlasPi] Pi SDK initialized successfully.");
+    } else {
+      console.warn("[AtlasPi] Pi SDK script loaded but window.Pi is not available.");
+    }
+  } catch (error) {
+    console.error("[AtlasPi] Failed to initialize Pi SDK:", error);
+  }
+  </script>
+
+  <script src="pi-browser-payments.js?v=121"></script>
+  <script src="pi-payment-init.js?v=121"></script>
   <script src="auth-handler.js?v=11"></script>
   <script src="auth-config.js?v=13"></script>
   <script src="script.js?v=11"></script>
   <script src="pi-integration-patch.js?v=11"></script>
-  <script src="pi-payment-init.js?v=120"></script>
   <script src="i18n.js"></script>
   <script src="mobile-menu.js"></script>
   <script>
