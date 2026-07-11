@@ -485,7 +485,6 @@
     </div>
   </footer>
   <script src="config.js?v=13"></script>
-  <script src="pi-integration.js?v=106"></script>
   <!-- Pi Network SDK - must be loaded before AtlasPi payment scripts -->
   <script src="https://sdk.minepi.com/pi-sdk.js"></script>
 
@@ -509,11 +508,13 @@
   }
   </script>
 
-  <script src="pi-browser-payments.js?v=121"></script>
-  <script src="pi-payment-init.js?v=121"></script>
+
+  <script src="pi-integration.js?v=123"></script>
+  <script src="pi-browser-payments.js?v=123"></script>
+  <script src="pi-payment-init.js?v=123"></script>
   <script src="auth-handler.js?v=11"></script>
   <script src="auth-config.js?v=13"></script>
-  <script src="script.js?v=11"></script>
+  <script src="script.js?v=123"></script>
   <script src="pi-integration-patch.js?v=11"></script>
   <script src="i18n.js"></script>
   <script src="mobile-menu.js"></script>
@@ -525,5 +526,38 @@
     }
   </script>
   <script src="notifications.js"></script>
+  <script>
+    // Shim: évite "piPaymentHandler.initiatePayment is not a function"
+    (function () {
+      try {
+        // Si le système de payments n'est pas là, on ne fait rien
+        if (!window.piBrowserPayments) return;
+  
+        window.piPaymentHandler = window.piPaymentHandler || {};
+  
+        // N'écrase pas si déjà correctement défini
+        if (typeof window.piPaymentHandler.initiatePayment !== "function") {
+          window.piPaymentHandler.initiatePayment = async function (...args) {
+            // Option 1: API attendue (si dispo)
+            if (typeof window.piBrowserPayments.initiatePayment === "function") {
+              return window.piBrowserPayments.initiatePayment(...args);
+            }
+  
+            // Option 2: fallback basé sur createPayment (si c'est ton modèle)
+            if (typeof window.piBrowserPayments.createPayment === "function") {
+              const [amount, memo, meta] = args;
+              return window.piBrowserPayments.createPayment(amount, memo, meta);
+            }
+  
+            throw new Error("No compatible Pi payments method found (shim).");
+          };
+        }
+      } catch (e) {
+        // Sans console sur Pi Browser, l'UI peut afficher une erreur générale.
+        // On laisse l'erreur remonter.
+        throw e;
+      }
+    })();
+  </script>
 </body>
 </html>
