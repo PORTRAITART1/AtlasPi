@@ -157,9 +157,15 @@
         }
 
       } else {
-        // Fallback démo si SDK pas disponible
-        console.warn("[PaymentInit] piBrowserPayments.createPayment not available → demo flow");
-        await demoPurchaseFlow(currentUser);
+        console.error("[PaymentInit] Pi payment SDK unavailable");
+
+        setPaymentStatus(
+          "❌ Pi payment system is not available. Please open AtlasPi inside Pi Browser and try again.",
+          "#ef4444"
+        );
+
+        if (createPaymentBtn) createPaymentBtn.disabled = false;
+        return;
       }
 
     } catch (err) {
@@ -174,47 +180,7 @@
       if (createPaymentBtn) createPaymentBtn.disabled = false;
     }
   }
-
-  // ─── Demo Flow Fallback ───────────────────────────────────────
-  async function demoPurchaseFlow(user) {
-    setPaymentStatus("🎭 Demo mode: simulating VIP activation...", "#8b5cf6");
-    await new Promise((r) => setTimeout(r, 1500));
-
-    try {
-      const API_BASE =
-        window.ATLASPI_CONFIG?.API_BASE_URL ||
-        "https://atlaspi-backend.onrender.com";
-
-      const resp = await fetch(`${API_BASE}/api/vip/activate`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          uid: user.uid,
-          username: user.username,
-          demo: true,
-          paymentId: "demo_" + Date.now(),
-        }),
-      });
-
-      const data = await resp.json();
-
-      if (data.ok || data.success) {
-        setPaymentStatus("🎉 VIP activated! (Demo)", "#10b981");
-      } else {
-        setPaymentStatus(
-          "⚠️ Demo: " + (data.message || "unknown response"),
-          "#f59e0b"
-        );
-      }
-    } catch (err) {
-      setPaymentStatus("⚠️ Demo completed (backend unreachable)", "#f59e0b");
-    }
-
-    const btn = document.getElementById("createPaymentBtn");
-    if (btn) btn.disabled = false;
-  }
-
-  // ─── Init ─────────────────────────────────────────────────────
+// ─── Init ─────────────────────────────────────────────────────
   async function init() {
     // 1. Vérifie localStorage en premier
     let user = getUserFromStorage();
