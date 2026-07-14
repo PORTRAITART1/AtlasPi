@@ -75,34 +75,47 @@ class PiBrowserPayments {
           metadata: metadata,
         },
         {
-          // Called when payment is ready
+          // Called when payment is ready for server approval
           onReadyForServerApproval: async (paymentId) => {
             console.log("[PiBrowserPayments] Ready for approval:", paymentId);
+
             try {
-              const res = await fetch("/api/payments/approve", {
+              const res = await fetch("/api/pi-payments/approve-pi-real", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ paymentId }),
               });
-              if (!res.ok) throw new Error("Approval failed");
-              console.log("[PiBrowserPayments] Payment approved");
+
+              const data = await res.json().catch(() => ({}));
+
+              if (!res.ok || data.success === false) {
+                throw new Error(data.message || data.error || "Approval failed");
+              }
+
+              console.log("[PiBrowserPayments] Payment approved:", data);
             } catch (err) {
               console.error("[PiBrowserPayments] Approval error:", err);
               reject(err);
             }
           },
 
-          // Called when payment is ready to complete
+          // Called when payment is ready for server completion
           onReadyForServerCompletion: async (paymentId, txid) => {
             console.log("[PiBrowserPayments] Ready for completion:", paymentId, txid);
+
             try {
-              const res = await fetch("/api/payments/complete", {
+              const res = await fetch("/api/pi-payments/complete-pi-real", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ paymentId, txid }),
               });
-              if (!res.ok) throw new Error("Completion failed");
-              const data = await res.json();
+
+              const data = await res.json().catch(() => ({}));
+
+              if (!res.ok || data.success === false) {
+                throw new Error(data.message || data.error || "Completion failed");
+              }
+
               console.log("[PiBrowserPayments] Payment completed:", data);
               resolve({ paymentId, txid, data });
             } catch (err) {
