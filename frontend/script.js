@@ -40,7 +40,7 @@ document.addEventListener("DOMContentLoaded", () => {
       return saved ? JSON.parse(saved) : null;
     } catch(e) { return null; }
   })();
-  let currentPayment = { localPaymentId: null, paymentId: null, txid: null }; // State for demo payment flow
+  let currentPayment = { localPaymentId: null, paymentId: null, txid: null }; // State for Pi payment flow
   let editingMerchantId = null;
 
   // --- Initialization ---
@@ -194,78 +194,17 @@ document.addEventListener("DOMContentLoaded", () => {
     if (completeBtn) completeBtn.style.display = "none";
   }
 
-  if (createPaymentBtn) {
-    createPaymentBtn.addEventListener('click', async () => {
-      try {
-        const amount = payAmount ? payAmount.value : '';
-        const memo = payMemo ? payMemo.value : '';
-        let piPaymentHandler = window.piBrowserPayments;
+  // Payment button click is handled by frontend/pi-payment-init.js.
+  // Avoid attaching a second listener here to prevent duplicate Pi payment flows.
 
-        if (!piPaymentHandler && window.PiBrowserPayments) {
-          piPaymentHandler = new window.PiBrowserPayments();
-          window.piBrowserPayments = piPaymentHandler;
-        }
-
-        if (!piPaymentHandler) {
-          if (paymentStatusElement) {
-            paymentStatusElement.textContent = '❌ Pi payment handler not ready.';
-          }
-          return;
-        }
-
-      if (!amount || Number(amount) <= 0) {
-        if (paymentStatusElement) {
-          paymentStatusElement.textContent = '❌ Please enter a valid amount.';
-        }
-        return;
-      }
-
-      const paymentUser = currentUser || window.piIntegrationManager?.getUser?.();
-
-      if (!paymentUser?.uid || !paymentUser?.username) {
-        if (paymentStatusElement) {
-          paymentStatusElement.textContent = '❌ Connect with Pi before making payment.';
-        }
-        return;
-      }
-
-      if (paymentStatusElement) {
-        paymentStatusElement.textContent = '⏳ Starting Pi payment...';
-      }
-
-      const result = await piPaymentHandler.initiatePayment({
-        uid: paymentUser.uid,
-        username: paymentUser.username,
-        wallet_address: paymentUser.wallet_address || null,
-        amount: Number(amount),
-        memo: memo || 'AtlasPi VIP subscription',
-        metadata: {
-          productType: "atlaspi_vip",
-          plan: "vip_monthly",
-          source: "payments_page",
-          amountLabel: "0.1"
-        }
-      });
-
-      if (paymentStatusElement) {
-        paymentStatusElement.textContent =
-          result?.message || '✅ Payment flow started.';
-      }
-    } catch (error) {
-      if (paymentStatusElement) {
-        paymentStatusElement.textContent = `❌ ${error.message || 'Payment failed.'}`;
-      }
-    }
-  });
-}
 
 if (merchantListingForm) {
   merchantListingForm.addEventListener("submit", createMerchantListing);
 }
 
-  // Initialise the Pi SDK (load script + Pi.init) – non‑blocking, fallback to demo if it fails
-  piManager.initPiSdk().catch(() => {
-    console.warn('Pi SDK could not be loaded – demo fallback will be used');
+  // Initialise the Pi SDK (load script + Pi.init)
+  piManager.initPiSdk().catch((error) => {
+    console.warn('Pi SDK could not be loaded:', error);
   });
 
   // Auth handler uses the global piManager

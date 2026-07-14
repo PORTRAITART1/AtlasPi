@@ -5,7 +5,7 @@
  * - Integrates with PiIntegrationManager
  * - Routes to demo or Pi-ready auth
  * - Maintains backward compatibility with existing demo flows
- * - Provides clear fallback messaging
+ * - Provides clear Pi SDK availability messaging
  */
 
 class AtlasPiAuthHandler {

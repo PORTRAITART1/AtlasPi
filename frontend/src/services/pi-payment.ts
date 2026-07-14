@@ -19,13 +19,13 @@ interface PaymentResult {
   paymentId?: string; // Can be null if payment fails before server approval
   txid?: string;
   message: string;
-  mode?: string; // To indicate the mode used (real, demo)
+  mode?: string; // To indicate the mode used by the real Pi payment flow
 }
 
 class PiPaymentService {
   private static apiClient: AxiosInstance;
   // Use the global configuration for API Base URL
-  private static apiBase = window.ATLASPI_CONFIG?.API_BASE_URL || 'http://localhost:3000'; // Fallback
+  private static apiBase = window.ATLASPI_CONFIG?.API_BASE_URL || 'http://localhost:3000'; // Default local API URL
 
   /**
    * Initializes the API client with authentication token.
@@ -65,13 +65,7 @@ class PiPaymentService {
     return new Promise((resolve, reject) => {
       // Check if the Pi SDK is available
       if (!window.Pi || typeof window.Pi.createPayment !== 'function') {
-        console.warn('[PiPaymentService] Pi SDK not available. Falling back to DEMO payment.');
-        // Call the global demo payment handler
-        if (window.triggerDemoPaymentFlow) {
-          window.triggerDemoPaymentFlow(config, resolve, reject);
-        } else {
-          reject(new Error('Pi SDK not available and no demo payment handler found.'));
-        }
+        reject(new Error('Pi SDK not available. Please open AtlasPi inside Pi Browser and try again.'));
         return;
       }
 

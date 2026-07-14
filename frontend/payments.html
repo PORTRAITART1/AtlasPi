@@ -526,38 +526,5 @@
     }
   </script>
   <script src="notifications.js"></script>
-  <script>
-    // Shim: évite "piPaymentHandler.initiatePayment is not a function"
-    (function () {
-      try {
-        // Si le système de payments n'est pas là, on ne fait rien
-        if (!window.piBrowserPayments) return;
-  
-        window.piPaymentHandler = window.piPaymentHandler || {};
-  
-        // N'écrase pas si déjà correctement défini
-        if (typeof window.piPaymentHandler.initiatePayment !== "function") {
-          window.piPaymentHandler.initiatePayment = async function (...args) {
-            // Option 1: API attendue (si dispo)
-            if (typeof window.piBrowserPayments.initiatePayment === "function") {
-              return window.piBrowserPayments.initiatePayment(...args);
-            }
-  
-            // Option 2: fallback basé sur createPayment (si c'est ton modèle)
-            if (typeof window.piBrowserPayments.createPayment === "function") {
-              const [amount, memo, meta] = args;
-              return window.piBrowserPayments.createPayment(amount, memo, meta);
-            }
-  
-            throw new Error("No compatible Pi payments method found (shim).");
-          };
-        }
-      } catch (e) {
-        // Sans console sur Pi Browser, l'UI peut afficher une erreur générale.
-        // On laisse l'erreur remonter.
-        throw e;
-      }
-    })();
-  </script>
 </body>
 </html>

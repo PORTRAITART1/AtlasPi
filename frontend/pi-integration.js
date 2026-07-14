@@ -180,14 +180,11 @@ class PiIntegrationManager {
     if (typeof window === 'undefined') return;
 
     if (typeof Pi === 'undefined') {
-      console.warn('[Pi Integration] Pi SDK non disponible – mode DEMO activé');
+      console.warn('[Pi Integration] Pi SDK non disponible');
       this.sdkAvailable = false;
 
-      // Important : ne pas écraser un mode backend utile si on veut seulement afficher le statut.
-      // Mais pour l'auth locale hors Pi Browser, on garde le fallback demo.
-      if (!this.mode) {
-        this.mode = 'demo';
-      }
+      // Ne pas basculer automatiquement en demo si le SDK Pi est absent.
+      // Le mode backend courant est conservé si le SDK Pi est absent.
 
       return;
     }
@@ -206,7 +203,7 @@ class PiIntegrationManager {
     } catch (err) {
       console.error('[Pi Integration] Erreur initialisation Pi SDK :', err);
       this.sdkAvailable = false;
-      this.mode = 'demo';
+      // Conserver le mode courant si l'initialisation SDK échoue.
     }
   }
 
@@ -342,12 +339,12 @@ class PiIntegrationManager {
     const mode = this.getMode();
 
     if (!sdkAvailable) {
-      return '⚠️ Pi SDK not available - using DEMO mode fallback';
+      return '⚠️ Pi SDK not available. Please open AtlasPi inside Pi Browser and try again.';
     }
 
     switch (mode) {
       case 'demo':
-        return '✅ DEMO mode - Mock authentication';
+        return '✅ Local development mode';
       case 'pi-ready':
       case 'pirc2-sandbox':
         return '✅ Pi‑READY mode - Ready for Pi SDK authentication (sandbox)';

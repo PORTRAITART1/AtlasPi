@@ -221,34 +221,5 @@
   } else {
     init();
   }
-  // ─── Compatibility shim: block old piPaymentHandler.initiatePayment usage ───
-try {
-  if (!window.piPaymentHandler) window.piPaymentHandler = {};
 
-  console.log(
-    "[VIP DIAG] pi-payment-init.js shim running. piPaymentHandler before= ",
-    window.piPaymentHandler
-  );
-  window.piPaymentHandler.initiatePayment = async function (...args) {
-    const payments = window.piBrowserPayments;
-    if (payments && typeof payments.createPayment === "function") {
-      // Tu peux ajuster mapping selon la signature réelle attendue par le code ancien.
-      // Ici on tente de rester tolérant.
-      // Si ton ancien code passait (amount, memo, meta), on le réutilise.
-      const [amount, memo, meta] = args;
-
-      // Fallbacks
-      const safeAmount = typeof amount === "number" ? amount : parseFloat(amount);
-      const safeMemo = typeof memo === "string" ? memo : "AtlasPi VIP subscription";
-      const safeMeta = meta && typeof meta === "object" ? meta : undefined;
-
-      return payments.createPayment(safeAmount, safeMemo, safeMeta);
-    }
-
-    console.error("[Shim] No piBrowserPayments.createPayment available. Args:", args);
-    throw new Error("Pi payment system unavailable (shim).");
-  };
-} catch (e) {
-  console.warn("[Shim] Failed to apply piPaymentHandler shim:", e);
-}
 })();
