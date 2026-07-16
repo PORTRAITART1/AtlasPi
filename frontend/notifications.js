@@ -97,13 +97,13 @@
 
     bell.style.position = "fixed";
     bell.style.top = "18px";
-    bell.style.right = "18px";
+    bell.style.right = "78px";
     bell.style.width = "54px";
     bell.style.height = "54px";
     bell.style.borderRadius = "50%";
     bell.style.background = "#ffffff";
     bell.style.boxShadow = "0 4px 14px rgba(0,0,0,0.25)";
-    bell.style.zIndex = "999999";
+    bell.style.zIndex = "9999";
     bell.style.display = "flex";
     bell.style.alignItems = "center";
     bell.style.justifyContent = "center";
