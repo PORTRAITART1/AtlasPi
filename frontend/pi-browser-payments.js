@@ -36,7 +36,7 @@ class PiBrowserPayments {
 
     return new Promise((resolve, reject) => {
       Pi.authenticate(
-        ["payments", "username"],
+        ["username", "payments"],
         (incompletePayment) => {
           console.warn("[PiBrowserPayments] Incomplete payment:", incompletePayment);
         }
@@ -64,6 +64,8 @@ class PiBrowserPayments {
     if (isNaN(parsedAmount) || parsedAmount <= 0) {
       throw new Error(`Invalid amount: ${amount}`);
     }
+    // Ensure Pi user is authenticated with payments scope before creating payment
+    await this.authenticate();
 
     console.log(`[PiBrowserPayments] Creating payment: ${parsedAmount} Pi — "${memo}"`);
 
