@@ -98,8 +98,8 @@
     bell.style.position = "fixed";
     bell.style.top = "18px";
     bell.style.right = "78px";
-    bell.style.width = "54px";
-    bell.style.height = "54px";
+    bell.style.width = "40px";
+    bell.style.height = "40px";
     bell.style.borderRadius = "50%";
     bell.style.background = "#ffffff";
     bell.style.boxShadow = "0 4px 14px rgba(0,0,0,0.25)";
@@ -108,21 +108,21 @@
     bell.style.alignItems = "center";
     bell.style.justifyContent = "center";
     bell.style.cursor = "pointer";
-    bell.style.fontSize = "28px";
+    bell.style.fontSize = "20px";
 
     const style = document.createElement("style");
     style.innerHTML = `
       #atlaspi-bell-count {
         position: absolute;
-        top: -6px;
-        right: -6px;
-        min-width: 22px;
-        height: 22px;
+        top: -4px;
+        right: -4px;
+        min-width: 16px;
+        height: 16px;
         padding: 0 5px;
         border-radius: 999px;
         background: #e60023;
         color: white;
-        font-size: 13px;
+        font-size: 10px;
         font-weight: bold;
         display: flex;
         align-items: center;
