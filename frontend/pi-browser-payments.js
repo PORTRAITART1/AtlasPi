@@ -1,5 +1,5 @@
 // frontend/pi-browser-payments.js
-// Handles real Pi SDK payments — no demo mode
+// Handles real Pi SDK payments only
 
 class PiBrowserPayments {
   constructor() {
