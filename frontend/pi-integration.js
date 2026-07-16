@@ -9,7 +9,7 @@
 
 class PiIntegrationManager {
   constructor() {
-    this.mode = 'demo';
+    this.mode = 'uninitialized';
     this.sdkAvailable = false;
     this.user = null;
     this.accessToken = null;
@@ -183,7 +183,7 @@ class PiIntegrationManager {
       console.warn('[Pi Integration] Pi SDK non disponible');
       this.sdkAvailable = false;
 
-      // Ne pas basculer automatiquement en demo si le SDK Pi est absent.
+  // Ne pas créer de session automatique si le SDK Pi est absent.
       // Le mode backend courant est conservé si le SDK Pi est absent.
 
       return;
@@ -224,25 +224,18 @@ class PiIntegrationManager {
       };
     }
 
-    // Mode DEMO / hors Pi Browser
-    if (this.mode === 'demo' || !this.sdkAvailable) {
-      const demoUser = {
-        uid: 'demo-uid-' + Date.now(),
-        username: 'demo_pioneer',
-        wallet_address: null
-      };
+// Pi SDK indisponible : authentification réelle impossible
+if (!this.sdkAvailable || !window.Pi) {
+  console.warn('[Pi Integration] Pi SDK indisponible. Authentification réelle impossible.');
 
-      this.persistSession(demoUser, null);
-
-      console.log('[Pi Integration] Authentification DEMO :', demoUser.username);
-
-      return {
-        ok: true,
-        user: this.user,
-        accessToken: null,
-        mode: 'demo'
-      };
-    }
+  return {
+    ok: false,
+    user: null,
+    accessToken: null,
+    mode: 'unavailable',
+    error: 'Pi SDK indisponible. Ouvrez AtlasPi dans Pi Browser.'
+  };
+}
 
     // Authentification Pi SDK réelle
     return await this.authPiSdk(scopes);
@@ -326,9 +319,7 @@ class PiIntegrationManager {
     return this.mode;
   }
 
-  isDemoMode() {
-    return this.mode === 'demo';
-  }
+
 
   isPiSdkAvailable() {
     return this.sdkAvailable;
@@ -343,8 +334,7 @@ class PiIntegrationManager {
     }
 
     switch (mode) {
-      case 'demo':
-        return '✅ Local development mode';
+
       case 'pi-ready':
       case 'pirc2-sandbox':
         return '✅ Pi‑READY mode - Ready for Pi SDK authentication (sandbox)';
@@ -358,7 +348,6 @@ class PiIntegrationManager {
   getAuthStatus() {
     return {
       mode: this.mode,
-      isDemoMode: this.isDemoMode(),
       sdkAvailable: this.sdkAvailable,
       user: this.getUser(),
       accessToken: this.getAccessToken(),

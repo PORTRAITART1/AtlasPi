@@ -1,94 +1,72 @@
 /**
- * AtlasPi Frontend Auth Configuration (DAY 2 / Pi Integration Setup)
- * 
- * This configuration file defines the authentication mode and behavior
- * for the frontend based on the running environment.
- * 
- * Modes:
- * - demo: Development/testing with mock authentication
- * - pi-ready (pirc2-sandbox): Ready for real Pi SDK testing
- * - pirc2-production: Requires real Pi SDK and production credentials
+ * AtlasPi Frontend Auth Configuration
+ *
+ * This file defines the frontend authentication behavior for Pi SDK usage.
+ * Authentication requires the Pi SDK in browser contexts where Pi auth is needed.
  */
 
 const AtlasPiFrontendAuthConfig = {
   /**
-   * Get current auth configuration
-   * Can be called after backend health check to sync configuration
+   * Get current auth configuration.
+   * Can be called after backend health check to sync configuration.
    */
   getConfig: function(backendMode) {
-    const mode = backendMode || 'demo';
+    const mode = backendMode || 'pi-ready';
 
     switch (mode) {
-      case 'demo':
-        return {
-          mode: 'demo',
-          label: 'DEMO Mode',
-          description: 'Development/testing mode with mock authentication',
-          authType: 'demo',
-          authLabel: 'Demo Authentication',
-          piSdkRequired: false,
-          features: {
-            demoAuth: true,
-            piAuth: false,
-            piPayments: false
-          },
-          uiMessage: '🟢 Running in DEMO mode with mock authentication'
-        };
-
       case 'pi-ready':
       case 'pirc2-sandbox':
         return {
           mode: 'pi-ready',
           label: 'Pi-READY Mode (Sandbox)',
-          description: 'Ready for real Pi SDK testing',
+          description: 'Ready for real Pi SDK authentication testing',
           authType: 'pi-ready',
-          authLabel: 'Pi Authentication (Sandbox Testing)',
+          authLabel: 'Pi Authentication (Sandbox)',
           piSdkRequired: true,
           features: {
-            demoAuth: true,
             piAuth: true,
-            piPayments: false // DAY 3+
+            piPayments: true
           },
-          uiMessage: '🔵 Running in Pi-READY mode (SDK optional for testing)'
+          uiMessage: '🔵 Running in Pi-READY mode - Pi SDK authentication required'
         };
 
       case 'pirc2-production':
         return {
           mode: 'pirc2-production',
           label: 'PRODUCTION Mode',
-          description: 'Production with real Pi SDK and full validation',
+          description: 'Production with real Pi SDK authentication and full validation',
           authType: 'pi-production',
           authLabel: 'Pi Authentication (Production)',
           piSdkRequired: true,
           features: {
-            demoAuth: false,
-            piAuth: true, // Required
-            piPayments: true // Required
+            piAuth: true,
+            piPayments: true
           },
           uiMessage: '🔴 Running in PRODUCTION mode - Pi SDK required'
         };
 
       default:
-        return this.getConfig('demo');
+        return this.getConfig('pi-ready');
     }
   },
 
   /**
-   * Get auth button configuration
+   * Get auth button configuration.
    */
   getAuthButtonConfig: function(mode) {
     const config = this.getConfig(mode);
+    const piAvailable = typeof window !== 'undefined' && !!window.Pi;
 
     return {
       label: config.authLabel,
       tooltip: config.description,
-      disabled: config.piSdkRequired && !window.Pi,
+      disabled: config.piSdkRequired && !piAvailable,
       className: `btn-auth-${config.mode}`
     };
   },
 
   /**
-   * Get auth status message
+   * Get auth status message.
    */
   getAuthStatusMessage: function(mode, sdkAvailable, isAuthenticated) {
     const config = this.getConfig(mode);
@@ -105,11 +83,10 @@ const AtlasPiFrontendAuthConfig = {
   },
 
   /**
-   * Validate auth configuration for current environment
+   * Validate auth configuration for current environment.
    */
   validate: function(mode, sdkAvailable) {
     const config = this.getConfig(mode);
-
     const issues = [];
 
     if (config.piSdkRequired && !sdkAvailable) {
@@ -119,21 +96,14 @@ const AtlasPiFrontendAuthConfig = {
       });
     }
 
-    if (mode === 'pirc2-production' && !sdkAvailable) {
-      issues.push({
-        severity: 'error',
-        message: 'Production mode requires Pi SDK to be loaded'
-      });
-    }
-
     return {
-      valid: issues.filter(i => i.severity === 'error').length === 0,
-      issues: issues
+      valid: issues.length === 0,
+      issues,
+      config
     };
   }
 };
 
-// Export
 if (typeof window !== 'undefined') {
   window.AtlasPiFrontendAuthConfig = AtlasPiFrontendAuthConfig;
 }
