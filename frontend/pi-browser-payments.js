@@ -1,17 +1,18 @@
 // frontend/pi-browser-payments.js
 // Handles real Pi SDK payments only
 
+const BACKEND_URL = "https://atlaspi-backend.onrender.com";
+
 class PiBrowserPayments {
   constructor() {
     this.sdkReady = false;
-    this.mode = "production"; // default
+    this.mode = "production";
     this.init();
   }
 
   async init() {
     try {
-      // Fetch backend mode
-      const res = await fetch("/api/mode");
+      const res = await fetch(`${BACKEND_URL}/api/mode`);
       if (res.ok) {
         const data = await res.json();
         this.mode = data.mode || "production";
@@ -35,18 +36,23 @@ class PiBrowserPayments {
     }
 
     return new Promise((resolve, reject) => {
-      Pi.authenticate(
-        ["username", "payments"],
-        (incompletePayment) => {
-          console.warn("[PiBrowserPayments] Incomplete payment:", incompletePayment);
-        }
-      ).then((auth) => {
-        console.log("[PiBrowserPayments] Auth success:", auth);
-        resolve(auth);
-      }).catch((err) => {
-        console.error("[PiBrowserPayments] Auth failed:", err);
+      try {
+        Pi.authenticate(
+          ["username", "payments"],
+          (incompletePayment) => {
+            console.warn("[PiBrowserPayments] Incomplete payment:", incompletePayment);
+          }
+        ).then((auth) => {
+          console.log("[PiBrowserPayments] Auth success:", auth);
+          resolve(auth);
+        }).catch((err) => {
+          console.error("[PiBrowserPayments] Auth failed:", err);
+          reject(err);
+        });
+      } catch (err) {
+        console.error("[PiBrowserPayments] Auth exception:", err);
         reject(err);
-      });
+      }
     });
   }
 
@@ -56,15 +62,12 @@ class PiBrowserPayments {
       throw new Error("Pi SDK not available. Please open in Pi Browser.");
     }
 
-    // Ensure amount is a proper float
-    const parsedAmount = parseFloat(
-      String(amount).replace(",", ".")
-    );
+    const parsedAmount = parseFloat(String(amount).replace(",", "."));
 
     if (isNaN(parsedAmount) || parsedAmount <= 0) {
       throw new Error(`Invalid amount: ${amount}`);
     }
-    // Ensure Pi user is authenticated with payments scope before creating payment
+
     await this.authenticate();
 
     console.log(`[PiBrowserPayments] Creating payment: ${parsedAmount} Pi — "${memo}"`);
@@ -77,12 +80,10 @@ class PiBrowserPayments {
           metadata: metadata,
         },
         {
-          // Called when payment is ready for server approval
           onReadyForServerApproval: async (paymentId) => {
             console.log("[PiBrowserPayments] Ready for approval:", paymentId);
-
             try {
-              const res = await fetch("/api/pi-payments/approve-pi-real", {
+              const res = await fetch(`${BACKEND_URL}/api/pi/approve`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ paymentId }),
@@ -101,12 +102,10 @@ class PiBrowserPayments {
             }
           },
 
-          // Called when payment is ready for server completion
           onReadyForServerCompletion: async (paymentId, txid) => {
             console.log("[PiBrowserPayments] Ready for completion:", paymentId, txid);
-
             try {
-              const res = await fetch("/api/pi-payments/complete-pi-real", {
+              const res = await fetch(`${BACKEND_URL}/api/pi/complete`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ paymentId, txid }),
@@ -126,13 +125,11 @@ class PiBrowserPayments {
             }
           },
 
-          // Called on cancellation
           onCancel: (paymentId) => {
             console.warn("[PiBrowserPayments] Payment cancelled:", paymentId);
             reject(new Error("Payment cancelled by user"));
           },
 
-          // Called on error
           onError: (error, payment) => {
             console.error("[PiBrowserPayments] Payment error:", error, payment);
             reject(error);
@@ -143,6 +140,5 @@ class PiBrowserPayments {
   }
 }
 
-// Export global instance
 window.PiBrowserPayments = PiBrowserPayments;
 window.piBrowserPayments = new PiBrowserPayments();
