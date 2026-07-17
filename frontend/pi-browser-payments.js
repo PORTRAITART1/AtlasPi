@@ -83,7 +83,7 @@ class PiBrowserPayments {
           onReadyForServerApproval: async (paymentId) => {
             console.log("[PiBrowserPayments] Ready for approval:", paymentId);
             try {
-              const res = await fetch(`${BACKEND_URL}/api/pi/approve`, {
+              const res = await fetch(`${BACKEND_URL}/api/pi-payments/approve-pi-real`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ paymentId }),
@@ -105,7 +105,7 @@ class PiBrowserPayments {
           onReadyForServerCompletion: async (paymentId, txid) => {
             console.log("[PiBrowserPayments] Ready for completion:", paymentId, txid);
             try {
-              const res = await fetch(`${BACKEND_URL}/api/pi/complete`, {
+              const res = await fetch(`${BACKEND_URL}/api/pi-payments/complete-pi-real`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ paymentId, txid }),
