@@ -11,16 +11,6 @@ class PiBrowserPayments {
   }
 
   async init() {
-    try {
-      const res = await fetch(`${BACKEND_URL}/api/mode`);
-      if (res.ok) {
-        const data = await res.json();
-        this.mode = data.mode || "production";
-      }
-    } catch (e) {
-      console.warn("[PiBrowserPayments] Could not fetch mode:", e);
-    }
-
     this.sdkReady = typeof Pi !== "undefined";
     console.log(`[PiBrowserPayments] SDK ready: ${this.sdkReady}, mode: ${this.mode}`);
   }
@@ -35,25 +25,33 @@ class PiBrowserPayments {
       return null;
     }
 
-    return new Promise((resolve, reject) => {
-      try {
-        Pi.authenticate(
-          ["username", "payments"],
-          (incompletePayment) => {
-            console.warn("[PiBrowserPayments] Incomplete payment:", incompletePayment);
+    try {
+      const auth = await Pi.authenticate(
+        ["username", "payments"],
+        async (incompletePayment) => {
+          if (incompletePayment) {
+            console.warn("[PiBrowserPayments] Incomplete payment found, completing:", incompletePayment.identifier);
+            try {
+              await fetch(`${BACKEND_URL}/api/pi-payments/complete-pi-real`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  paymentId: incompletePayment.identifier,
+                  txid: incompletePayment.transaction?.txid || "incomplete"
+                }),
+              });
+            } catch (e) {
+              console.error("[PiBrowserPayments] Failed to handle incomplete payment:", e);
+            }
           }
-        ).then((auth) => {
-          console.log("[PiBrowserPayments] Auth success:", auth);
-          resolve(auth);
-        }).catch((err) => {
-          console.error("[PiBrowserPayments] Auth failed:", err);
-          reject(err);
-        });
-      } catch (err) {
-        console.error("[PiBrowserPayments] Auth exception:", err);
-        reject(err);
-      }
-    });
+        }
+      );
+      console.log("[PiBrowserPayments] Auth success:", auth);
+      return auth;
+    } catch (err) {
+      console.error("[PiBrowserPayments] Auth failed:", err);
+      throw err;
+    }
   }
 
   async createPayment(amount, memo, metadata = {}) {
@@ -91,14 +89,14 @@ class PiBrowserPayments {
 
               const data = await res.json().catch(() => ({}));
 
-              if (!res.ok || data.success === false) {
-                throw new Error(data.message || data.error || "Approval failed");
+              if (!res.ok) {
+                console.error("[PiBrowserPayments] Approval HTTP error:", res.status, data);
+              } else {
+                console.log("[PiBrowserPayments] Payment approved ✅:", data);
               }
 
-              console.log("[PiBrowserPayments] Payment approved:", data);
             } catch (err) {
-              console.error("[PiBrowserPayments] Approval error:", err);
-              reject(err);
+              console.error("[PiBrowserPayments] Approval fetch error:", err);
             }
           },
 
@@ -113,12 +111,13 @@ class PiBrowserPayments {
 
               const data = await res.json().catch(() => ({}));
 
-              if (!res.ok || data.success === false) {
-                throw new Error(data.message || data.error || "Completion failed");
+              if (!res.ok) {
+                throw new Error(data.error || `Complete failed: ${res.status}`);
               }
 
-              console.log("[PiBrowserPayments] Payment completed:", data);
+              console.log("[PiBrowserPayments] Payment completed ✅:", data);
               resolve({ paymentId, txid, data });
+
             } catch (err) {
               console.error("[PiBrowserPayments] Completion error:", err);
               reject(err);
