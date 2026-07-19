@@ -190,7 +190,7 @@ class PiIntegrationManager {
     }
 
     try {
-      const sandbox = this.mode === 'pirc2-sandbox' || this.mode === 'pi-ready';
+      const sandbox = this.mode === 'pirc2-sandbox';
 
       Pi.init({
         version: '2.0',
@@ -336,8 +336,9 @@ if (!this.sdkAvailable || !window.Pi) {
     switch (mode) {
 
       case 'pi-ready':
+        return '✅ Pi‑READY mode - Ready for Pi SDK authentication';
       case 'pirc2-sandbox':
-        return '✅ Pi‑READY mode - Ready for Pi SDK authentication (sandbox)';
+        return '✅ SANDBOX mode - Ready for Pi SDK authentication (sandbox)';
       case 'pirc2-production':
         return '✅ PRODUCTION mode - Requires real Pi SDK and credentials';
       default:

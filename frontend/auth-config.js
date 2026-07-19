@@ -11,23 +11,37 @@ const AtlasPiFrontendAuthConfig = {
    * Can be called after backend health check to sync configuration.
    */
   getConfig: function(backendMode) {
-    const mode = backendMode || 'pi-ready';
+    const mode = backendMode || 'pirc2-production';
 
     switch (mode) {
       case 'pi-ready':
-      case 'pirc2-sandbox':
         return {
           mode: 'pi-ready',
-          label: 'Pi-READY Mode (Sandbox)',
+          label: 'Pi-READY Mode',
           description: 'Ready for real Pi SDK authentication testing',
           authType: 'pi-ready',
-          authLabel: 'Pi Authentication (Sandbox)',
+          authLabel: 'Pi Authentication',
           piSdkRequired: true,
           features: {
             piAuth: true,
             piPayments: true
           },
           uiMessage: '🔵 Running in Pi-READY mode - Pi SDK authentication required'
+        };
+
+      case 'pirc2-sandbox':
+        return {
+          mode: 'pirc2-sandbox',
+          label: 'SANDBOX Mode',
+          description: 'Sandbox mode for real Pi SDK authentication testing',
+          authType: 'pi-sandbox',
+          authLabel: 'Pi Authentication (Sandbox)',
+          piSdkRequired: true,
+          features: {
+            piAuth: true,
+            piPayments: true
+          },
+          uiMessage: '🟡 Running in SANDBOX mode - Pi SDK authentication required'
         };
 
       case 'pirc2-production':
@@ -46,7 +60,7 @@ const AtlasPiFrontendAuthConfig = {
         };
 
       default:
-        return this.getConfig('pi-ready');
+        return this.getConfig('pirc2-production');
     }
   },
 
