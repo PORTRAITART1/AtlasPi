@@ -153,7 +153,7 @@ class PiIntegrationManager {
   // -------------------------------------------------------------------------
   async fetchBackendMode() {
     try {
-      const res = await fetch(`${this.backendUrl}/api/mode`);
+      const res = await fetch(`${this.backendUrl}/api/payments/network/info`);
 
       if (!res.ok) {
         throw new Error(`HTTP ${res.status}`);
