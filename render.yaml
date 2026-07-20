@@ -14,9 +14,7 @@ services:
       - key: VITE_PI_API
         value: "https://api.minepi.com"
       - key: VITE_APP_ID
-        fromService:
-          type: env
-          name: VITE_APP_ID
+        value: "atlaspi"
       - key: VITE_API_BASE
         value: "https://atlaspi-backend.onrender.com"
       - key: NODE_ENV
@@ -26,24 +24,45 @@ services:
   - type: web
     name: atlaspi-backend
     runtime: node
+    rootDir: backend
     buildCommand: "npm ci"
     startCommand: "npm start"
     plan: free
     region: oregon
     healthCheckPath: /api/health
-    port: 3001
+    port: 3000
     envVars:
       - key: NODE_ENV
         value: "production"
       - key: PORT
-        value: "3001"
-      - key: PI_SERVER_API_KEY
-        fromService:
-          type: env
-          name: PI_SERVER_API_KEY
+        value: "3000"
+      - key: APP_MODE
+        value: "pirc2-production"
       - key: PI_NETWORK
-        value: "testnet"
-      - key: VITE_PI_API
-        value: "https://api-testnet.minepi.com"
+        value: "mainnet"
+      - key: PI_SANDBOX
+        value: "false"
+      - key: PI_API_BASE_URL
+        value: "https://api.minepi.com"
+      - key: FRONTEND_URL
+        value: "https://atlaspi.onrender.com"
+      - key: PIRC2_AUTH_ENABLED
+        value: "true"
+      - key: PIRC2_PAYMENTS_ENABLED
+        value: "true"
+      - key: PIRC2_MERCHANT_PI_ENABLED
+        value: "true"
       - key: LOG_LEVEL
         value: "info"
+      - key: DEBUG_MODE
+        value: "false"
+      - key: PI_API_KEY
+        sync: false
+      - key: DATABASE_URL
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: SESSION_SECRET
+        sync: false
+      - key: ADMIN_SECRET
+        sync: false
