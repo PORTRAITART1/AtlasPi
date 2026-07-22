@@ -219,7 +219,8 @@ router.get("/network/info", (req, res) => {
     network,
     api,
     hasServerKey: !!process.env.PI_API_KEY,
-    mode: process.env.APP_MODE || "pirc2-production"
+    mode: process.env.APP_MODE || "pirc2-production",
+    sandbox: process.env.PI_SANDBOX === 'true'
   });
 });
 

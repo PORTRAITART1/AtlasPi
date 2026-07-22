@@ -17,8 +17,11 @@ import notificationsRouter from "./routes/notifications.js";
 import supportRoutes from "./routes/support.js";
 import envManager from "./config/envManager.js";
 import pirc2SubscriptionsRoutes from "./routes/pirc2-subscriptions.js";
+import authPiRoutes from "./routes/auth-pi.js";
+import session from "express-session";
 
 const app = express();
+app.set("trust proxy", 1);
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -41,7 +44,20 @@ logger.info(`${"=".repeat(60)}\n`);
 
 app.use(helmet());
 
-// ✅ CORS Configuration
+// ✅ Session configuration
+app.use(session({
+  secret: process.env.JWT_SECRET || "atlaspi-session-secret",
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    secure: process.env.NODE_ENV === "production",
+    httpOnly: true,
+    sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+    maxAge: 24 * 60 * 60 * 1000
+  }
+}));
+
+// ✅ CORS Configuration - Pi Browser + Pi Network compatible
 const allowedOrigins = [
   "http://localhost:3000",
   "http://127.0.0.1:3000",
@@ -53,7 +69,10 @@ const allowedOrigins = [
   process.env.FRONTEND_URL,
   process.env.FRONTEND_APP_URL,
   "https://atlaspi-frontend.onrender.com",
-  "https://atlaspicdb0125.pinet.com"
+  "https://atlaspicdb0125.pinet.com",
+  "https://app-cdn.minepi.com",
+  "https://minepi.com",
+  "https://pi.app"
 ].filter(Boolean);
 
 // ✅ Supprime les doublons
@@ -61,8 +80,17 @@ const uniqueAllowedOrigins = [...new Set(allowedOrigins)];
 
 app.use(cors({
   origin: function (origin, callback) {
-    // Autorise curl, Postman, apps mobiles, ou requêtes sans Origin
+    // Autorise curl, Postman, apps mobiles, Pi Browser, ou requêtes sans Origin
     if (!origin) {
+      return callback(null, true);
+    }
+
+    // ✅ Autorise toutes les origines Pi Network / Pi Browser
+    if (
+      origin.includes("minepi.com") ||
+      origin.includes("pi.app") ||
+      origin.includes("pinet.com")
+    ) {
       return callback(null, true);
     }
 
@@ -83,7 +111,12 @@ app.use(cors({
     "X-Demo-User-Id",
     "x-demo-user-id",
     "X-Demo-Access-Token",
-    "x-demo-access-token"
+    "x-demo-access-token",
+    "X-Pi-App-Api-Key",
+    "x-pi-app-api-key",
+    "X-Requested-With",
+    "Accept",
+    "Origin"
   ],
   credentials: true
 }));
@@ -146,6 +179,7 @@ app.get("/api/health", (req, res) => {
 });
 
 app.use("/api/auth", authRoutes);
+app.use("/api/auth/pi", authPiRoutes);
 app.use("/api/payments", paymentRoutes);
 app.use("/api/pi-payments", piPaymentRoutes);
 app.use("/api/subscriptions", subscriptionRoutes);
