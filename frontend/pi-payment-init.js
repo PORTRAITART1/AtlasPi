@@ -116,7 +116,7 @@
       setPaymentStatus("❌ Please connect with Pi first.", "#ef4444");
       setButtonState(false);
       return;
-    sed -n '128,145p' ./frontend/pi-payment-init.js
+
     if (isNaN(parsedAmount) || parsedAmount <= 0) {
       console.error("[PaymentInit] Invalid amount:", rawAmount);
       setPaymentStatus("⚠️ Invalid amount: " + rawAmount, "#ef4444");
@@ -236,10 +236,12 @@
   }
 
   // ─── Démarrage ────────────────────────────────────────────────
+  
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", init);
   } else {
     init();
   }
-
+}
 })();
+
