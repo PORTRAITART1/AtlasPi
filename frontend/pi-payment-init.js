@@ -116,15 +116,7 @@
       setPaymentStatus("❌ Please connect with Pi first.", "#ef4444");
       setButtonState(false);
       return;
-    }
-
-    // Lecture amount et memo
-    const amountInput = document.getElementById("payAmount");
-    const memoInput = document.getElementById("payMemo");
-    const rawAmount = amountInput ? amountInput.value.trim() : "0.1";
-    // ✅ FIX: Force le format décimal
-    const parsedAmount = parseFloat(String(rawAmount).replace(",", "."));
-
+    sed -n '128,145p' ./frontend/pi-payment-init.js
     if (isNaN(parsedAmount) || parsedAmount <= 0) {
       console.error("[PaymentInit] Invalid amount:", rawAmount);
       setPaymentStatus("⚠️ Invalid amount: " + rawAmount, "#ef4444");
@@ -144,13 +136,41 @@
       if (payments && typeof payments.createPayment === "function") {
         // ✅ FIX: Appel correct avec la bonne signature
         console.log(`[PaymentInit] Calling createPayment(${parsedAmount}, "${memo}")`);
-        await payments.createPayment(parsedAmount, memo, {
-          uid: currentUser.uid,
-          username: currentUser.username,
-          type: "vip_activation",
-        });
-
-        setPaymentStatus("🎉 VIP activated successfully!", "#10b981");
+        await payments.createPayment(
+          parsedAmount,
+          memo,
+          {
+            uid: currentUser.uid,
+            username: currentUser.username,
+            type: "vip_activation",
+          },
+          {
+            onReadyForServerApproval: function(paymentId) {
+              console.log("[PaymentInit] Server approval ready:", paymentId);
+            },
+            onReadyForServerCompletion: function(paymentId, txid) {
+              console.log("[PaymentInit] Payment completed:", paymentId, txid);
+              setPaymentStatus("🎉 VIP activated successfully!", "#10b981");
+              const btn = document.getElementById("createPaymentBtn");
+              if (btn) {
+                btn.textContent = "✅ VIP Active";
+                btn.disabled = true;
+              }
+            },
+            onCancel: function(paymentId) {
+              console.log("[PaymentInit] Payment cancelled:", paymentId);
+              setPaymentStatus("❌ Payment cancelled.", "#6b7280");
+              const btn = document.getElementById("createPaymentBtn");
+              if (btn) btn.disabled = false;
+            },
+            onError: function(error, paymentId) {
+              console.error("[PaymentInit] Payment error:", error, paymentId);
+              setPaymentStatus(`❌ Payment failed: ${error.message || "Unknown error"}`, "#ef4444");
+              const btn = document.getElementById("createPaymentBtn");
+              if (btn) btn.disabled = false;
+            }
+          }
+        );
         if (createPaymentBtn) {
           createPaymentBtn.textContent = "✅ VIP Active";
           createPaymentBtn.disabled = true;
