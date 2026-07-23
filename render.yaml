@@ -37,11 +37,11 @@ services:
       - key: PORT
         value: "3000"
       - key: APP_MODE
-        value: "pirc2-production"
+        value: "pirc2-sandbox"
       - key: PI_NETWORK
         value: "mainnet"
       - key: PI_SANDBOX
-        value: "false"
+        value: "true"
       - key: PI_API_BASE_URL
         value: "https://api.minepi.com"
       - key: FRONTEND_URL
@@ -55,7 +55,7 @@ services:
       - key: LOG_LEVEL
         value: "info"
       - key: DEBUG_MODE
-        value: "false"
+        value: "true"
       - key: PI_API_KEY
         sync: false
       - key: DATABASE_URL
