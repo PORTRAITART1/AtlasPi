@@ -1,5 +1,4 @@
 const path = require("path");
-const path = require("path");
 const { fileURLToPath } = require("url");
 const express = require("express");
 const cors = require("cors");
