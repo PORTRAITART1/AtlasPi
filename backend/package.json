@@ -3,7 +3,6 @@
   "version": "1.0.0",
   "description": "Secure backend for AtlasPi with payment storage and logging",
   "main": "server.cjs",
-  "type": "module",
   "scripts": {
     "start": "node server.cjs",
     "dev": "node server.js"
