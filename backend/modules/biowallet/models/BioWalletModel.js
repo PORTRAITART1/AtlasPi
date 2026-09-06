@@ -1,7 +1,6 @@
 const Database = require('better-sqlite3');
 const path = require('path');
 const fs = require('fs');
-const path = require('path');
 
 // ✅ Créer automatiquement le dossier data s'il n'existe pas
 const dataDir = path.join(__dirname, '../../../data');
