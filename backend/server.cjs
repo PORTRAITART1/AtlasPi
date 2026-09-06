@@ -30,7 +30,7 @@ console.log("__dirname:", __dirname);
 console.log("Frontend path:", path.join(__dirname, "../frontend"));
 console.log("==================");
 
-const PORT = envManager.get("port", 3000);
+process.env.PORT || 3000
 const PI_API_KEY = process.env.PI_API_KEY;
 
 // Log startup info
@@ -62,8 +62,8 @@ const allowedOrigins = [
     "http://localhost:5173",
     "http://192.168.11.100:3000",
     "http://127.0.0.1:5173",
-    envManager.get("frontendUrl"),
-    envManager.get("frontendAppUrl"),
+    process.env.FRONTEND_URL,
+    process.env.FRONTEND_APP_URL,
     process.env.FRONTEND_URL,
     process.env.FRONTEND_APP_URL,
     "https://atlaspi-frontend.onrender.com",
@@ -122,8 +122,8 @@ app.use(morgan("dev"));
 app.use(express.static(path.join(__dirname, "../frontend")));
 
 const limiter = rateLimit({
-    windowMs: envManager.get("rateLimitWindowMs", 15 * 60 * 1000),
-    max: envManager.get("rateLimitMaxRequests", 100),
+    windowMs: process.env.RATE_LIMIT_WINDOW_MS || 15 * 60 * 1000,
+    max: process.env.RATE_LIMIT_MAX_REQUESTS || 100,
     message: {
         ok: false,
         error: "Too many requests. Please try again later."
@@ -140,9 +140,9 @@ app.get("/", (req, res) => {
         mode: modeInfo.mode,
         description: modeInfo.description,
         features: {
-            pirc2Auth: envManager.get("pirc2AuthEnabled", false),
-            pirc2Payments: envManager.get("pirc2PaymentsEnabled", false),
-            pirc2MerchantPi: envManager.get("pirc2MerchantPiEnabled", false)
+            pirc2Auth: process.env.PIRC2_AUTH_ENABLED === "true" || false,
+            pirc2Payments: process.env.PIRC2_PAYMENTS_ENABLED === "true" || false,
+            pirc2MerchantPi: process.env.PIRC2_MERCHANT_PI_ENABLED === "true" || false
         }
     });
 });
@@ -159,9 +159,9 @@ app.get("/api/health", (req, res) => {
             ? "https://api-testnet.minepi.com"
             : "https://api.minepi.com",
         features: {
-            pirc2Auth: envManager.get("pirc2AuthEnabled", false),
-            pirc2Payments: envManager.get("pirc2PaymentsEnabled", false),
-            pirc2MerchantPi: envManager.get("pirc2MerchantPiEnabled", false)
+            pirc2Auth: process.env.PIRC2_AUTH_ENABLED === "true" || false,
+            pirc2Payments: process.env.PIRC2_PAYMENTS_ENABLED === "true" || false,
+            pirc2MerchantPi: process.env.PIRC2_MERCHANT_PI_ENABLED === "true" || false
         },
         version: "1.0.0",
         timestamp: new Date().toISOString(),
