@@ -303,6 +303,19 @@ function isRealCredential(value) {
               return res.status(500).json({ ok: false, error: 'Database error' });
             }
 
+            // ── VIP activation (recovery path) ──────────────────────────
+            const vipExpiresRecovery = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
+            if (req.body && req.body.uid) {
+              db.run(
+                `UPDATE users SET is_vip = 1, vip_expires_at = ? WHERE uid = ?`,
+                [vipExpiresRecovery, req.body.uid],
+                (vipErr) => {
+                  if (vipErr) logger.error(`[VIP] Recovery VIP update failed: ${vipErr.message}`);
+                  else logger.info(`[VIP] Recovery VIP activated for uid: ${req.body.uid}`);
+                }
+              );
+            }
+            // ────────────────────────────────────────────────────────────────
             return res.json({
               ok: true,
               success: true,
@@ -340,7 +353,30 @@ function isRealCredential(value) {
         response.txidType = 'mock';
       }
 
-      return res.json(response);
+      // ── VIP activation (normal path) ────────────────────────────────────
+      db.get(
+        `SELECT uid FROM payments WHERE pi_payment_id = ? OR local_payment_id = ?`,
+        [paymentId, paymentId],
+        (vipQueryErr, paymentRow) => {
+          if (vipQueryErr) {
+            logger.error(`[VIP] Error fetching uid for VIP: ${vipQueryErr.message}`);
+          } else if (paymentRow && paymentRow.uid) {
+            const vipExpires = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
+            db.run(
+              `UPDATE users SET is_vip = 1, vip_expires_at = ? WHERE uid = ?`,
+              [vipExpires, paymentRow.uid],
+              (vipErr) => {
+                if (vipErr) logger.error(`[VIP] VIP update failed: ${vipErr.message}`);
+                else logger.info(`[VIP] VIP activated for uid: ${paymentRow.uid} until ${vipExpires}`);
+              }
+            );
+          } else {
+            logger.warn(`[VIP] No uid found for paymentId: ${paymentId}, VIP not activated`);
+          }
+          return res.json(response);
+        }
+      );
+      // ────────────────────────────────────────────────────────────────────
     }
   );
 });

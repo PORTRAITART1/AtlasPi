@@ -53,7 +53,7 @@
     }
     try {
       setStatus('🔄 Initialisation du SDK Pi...', 'loading');
-      let sandboxMode = false;
+      let sandboxMode = true;
       try {
         const r = await fetch(`${BACKEND_URL}/api/payments/network/info`);
         if (r.ok) {

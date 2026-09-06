@@ -1374,8 +1374,8 @@
     <input type="checkbox" id="consentPublicDisplay" />
     I authorize AtlasPi to display the public fields of this listing according to my selected visibility settings.
   </label>
-</div>
-<article class="feature-card vip-plan-card">
+ </div>
+ <article class="feature-card vip-plan-card">
   <div class="feature-icon">💎</div>
   <h3>AtlasPi VIP</h3>
   <p class="vip-plan-subtext">
@@ -1397,8 +1397,8 @@
   <p class="vip-plan-future">
     Future-ready for advanced Pi-powered visibility and trusted ecosystem growth.
   </p>
-</article>
-<div class="feature-card listing-cta-card" style="margin-top: 20px; margin-bottom: 20px;">
+ </article>
+ <div class="feature-card listing-cta-card" style="margin-top: 20px; margin-bottom: 20px;">
   <div class="feature-icon">📣</div>
   <h3>Why create your listing?</h3>
   <p style="margin-bottom: 14px;">
@@ -1409,7 +1409,7 @@
     <p style="margin: 0;">• Build trust with a complete profile</p>
     <p style="margin: 0;">• Prepare for AtlasPi map and premium features</p>
   </div>
-</div>
+  </div>
 
             <button type="submit" class="btn btn-primary">
               Create Merchant Listing
@@ -1473,7 +1473,7 @@
       style="width: 100%; padding: 10px; margin-top: 6px;"
     />
   </div>
-</div>
+  </div>
 
   <div style="display: flex; gap: 10px; flex-wrap: wrap;">
   <button type="button" class="btn btn-secondary" id="loadMerchantListingsBtn">
@@ -1483,14 +1483,14 @@
   <button type="button" class="btn btn-secondary" id="clearMerchantSearchBtn">
     Clear Search
   </button>
-</div>
+  </div>
 
   <p id="merchantListStatus" style="margin-top: 12px;">
     No merchant listings loaded yet.
   </p>
 
   <div id="merchantListingsList" style="margin-top: 12px;"></div>
-</div>
+  </div>
           </form>
         </div>
       </div>
@@ -1589,7 +1589,7 @@
     </div>
   </footer>
 
-    <a
+  <a
     href="#top"
     id="backToTopBtn"
     title="Back to top"
@@ -1616,43 +1616,48 @@
     ↑
   </a>
 
+  <!-- ✅ 1. Config globale -->
   <script src="config.js?v=13"></script>
-  <!-- Pi Network SDK - must be loaded before AtlasPi payment scripts -->
+
+  <!-- ✅ 2. SDK Pi Network (chargé EN PREMIER, avant tout script Pi) -->
   <script src="https://sdk.minepi.com/pi-sdk.js"></script>
 
+  <!-- ✅ 3. Initialisation SDK Pi (inline, juste après le SDK) -->
   <script>
-  window.ATLASPI_PI_SDK_READY = false;
-
-  try {
-    if (window.Pi && typeof window.Pi.init === "function") {
-      window.Pi.init({
-        version: "2.0",
-        sandbox: false
-      });
-
-      window.ATLASPI_PI_SDK_READY = true;
-      console.log("[AtlasPi] Pi SDK initialized successfully.");
-    } else {
-      console.warn("[AtlasPi] Pi SDK script loaded but window.Pi is not available.");
+    window.ATLASPI_PI_SDK_READY = false;
+    try {
+      if (window.Pi && typeof window.Pi.init === "function") {
+        window.Pi.init({ version: "2.0", sandbox: false });
+        window.ATLASPI_PI_SDK_READY = true;
+        console.log("[AtlasPi] Pi SDK initialized successfully.");
+      } else {
+        console.warn("[AtlasPi] Pi SDK script loaded but window.Pi is not available.");
+      }
+    } catch (error) {
+      console.error("[AtlasPi] Failed to initialize Pi SDK:", error);
     }
-  } catch (error) {
-    console.error("[AtlasPi] Failed to initialize Pi SDK:", error);
-  }
   </script>
 
-
-  <script src="pi-integration.js?v=128"></script>
-  <script src="pi-payment-init.js?v=128"></script>
-  <script src="pi-browser-payments.js?v=128"></script>
-  <script src="pi-auth.js?v=1"></script>
-  <script src="auth-handler.js?v=12"></script>
+  <!-- ✅ 4. Configuration auth -->
   <script src="auth-config.js?v=13"></script>
-  <script src="script.js?v=123"></script>
+
+  <!-- ✅ 5. Intégration Pi + Auth -->
+  <script src="pi-integration.js?v=128"></script>
+  <script src="pi-auth.js?v=1"></script>
+
+  <!-- ✅ 6. Paiements Pi -->
+  <script src="pi-browser-payments.js?v=128"></script>
+  <script src="pi-payment-init.js?v=128"></script>
+
+  <!-- ✅ 7. Handlers UI -->
+  <script src="auth-handler.js?v=12"></script>
   <script src="pi-integration-patch.js?v=12"></script>
   <script src="toggle-admin.js?v=12"></script>
+
+  <!-- ✅ 8. Utilitaires -->
   <script src="i18n.js"></script>
   <script src="notifications.js?v=108"></script>
+  <script src="script.js?v=123"></script>
+
 </body>
 </html>
-
-
