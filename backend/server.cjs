@@ -1,4 +1,5 @@
 const path = require("path");
+const path = require("path");
 const { fileURLToPath } = require("url");
 const express = require("express");
 const cors = require("cors");
@@ -24,8 +25,6 @@ const bioWalletRoutes = require('./modules/biowallet/routes/BioWalletRoutes');
 const app = express();
 app.set("trust proxy", 1);
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 
 console.log("=== DEBUG PATH ===");
 console.log("__dirname:", __dirname);
