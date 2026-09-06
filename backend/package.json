@@ -5,7 +5,7 @@
   "main": "server.cjs",
   "scripts": {
     "start": "node server.cjs",
-    "dev": "node server.js"
+    "dev": "node server.js",
     "postinstall": "mkdir -p data"
   },
   "dependencies": {
