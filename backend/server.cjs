@@ -36,8 +36,8 @@ const PI_API_KEY = process.env.PI_API_KEY;
 // Log startup info
 logger.info(`\n${"=".repeat(60)}`);
 logger.info("AtlasPi Backend Started");
-logger.info(`Mode: ${envManager.getModeInfo().mode.toUpperCase()}`);
-logger.info(`Description: ${envManager.getModeInfo().description}`);
+logger.info(`Mode: ${process.env.APP_MODE || 'PIRC2-SANDBOX'}`);
+logger.info(`Description: ${process.env.APP_MODE || 'Sandbox mode'}`);
 logger.info(`${"=".repeat(60)}\n`);
 
 app.use(helmet());
