@@ -40,10 +40,10 @@ logger.info(`Mode: ${process.env.APP_MODE || 'PIRC2-SANDBOX'}`);
 logger.info(`Description: ${process.env.APP_MODE || 'Sandbox mode'}`);
 logger.info(`${"=".repeat(60)}\n`);
 
-app.use(helmet());
+// app.use(helmet());
 
 // Session configuration
-app.use(session({
+// app.use(session({
     secret: process.env.JWT_SECRET || "atlaspi-session-secret",
     resave: false,
     saveUninitialized: false,
@@ -76,7 +76,7 @@ const allowedOrigins = [
 // Supprime les doublons
 const uniqueAllowedOrigins = [...new Set(allowedOrigins)];
 
-app.use(cors({
+// app.use(cors({
     origin: function (origin, callback) {
         // Autorise curl, Postman, apps mobiles, Pi Browser, ou requêtes sans Origin
         if (!origin) {
@@ -115,11 +115,11 @@ app.use(cors({
     credentials: true
 }));
 
-app.use(express.json({ limit: "1mb" }));
-app.use(morgan("dev"));
+// app.use(express.json({ limit: "1mb" }));
+// app.use(morgan("dev"));
 
 // Frontend statique après CORS
-app.use(express.static(path.join(__dirname, "../frontend")));
+// app.use(express.static(path.join(__dirname, "../frontend")));
 
 const limiter = rateLimit({
     windowMs: process.env.RATE_LIMIT_WINDOW_MS || 15 * 60 * 1000,
@@ -129,7 +129,7 @@ const limiter = rateLimit({
         error: "Too many requests. Please try again later."
     }
 });
-app.use(limiter);
+// app.use(limiter);
 
 app.get("/", (req, res) => {
     const modeInfo = envManager.getModeInfo();
@@ -170,16 +170,16 @@ app.get("/api/health", (req, res) => {
 });
 
 // Routes
-app.use("/api/auth", authRoutes);
-app.use("/api/auth/pi", authPiRoutes);
-app.use("/api/payments", paymentRoutes);
-app.use("/api/pi-payments", piPaymentRoutes);
-app.use("/api/subscriptions", subscriptionRoutes);
-app.use("/api/merchant-listings", merchantListingRoutes);
-app.use("/api/notifications", notificationsRouter);
-app.use("/api/support", supportRoutes);
-app.use("/api/pirc2/services", pirc2ServicesRoutes);
-app.use("/api/pirc2/subscriptions", pirc2SubscriptionsRoutes);
+// app.use("/api/auth", authRoutes);
+// app.use("/api/auth/pi", authPiRoutes);
+// app.use("/api/payments", paymentRoutes);
+// app.use("/api/pi-payments", piPaymentRoutes);
+// app.use("/api/subscriptions", subscriptionRoutes);
+// app.use("/api/merchant-listings", merchantListingRoutes);
+// app.use("/api/notifications", notificationsRouter);
+// app.use("/api/support", supportRoutes);
+// app.use("/api/pirc2/services", pirc2ServicesRoutes);
+// app.use("/api/pirc2/subscriptions", pirc2SubscriptionsRoutes);
 
 // ⚠️ BioWallet désactivé temporairement
 // app.use('/api/wallet', bioWalletRoutes);
