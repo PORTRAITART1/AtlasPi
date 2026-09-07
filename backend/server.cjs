@@ -44,15 +44,15 @@ logger.info(`${"=".repeat(60)}\n`);
 
 // Session configuration
 // app.use(session({
-    secret: process.env.JWT_SECRET || "atlaspi-session-secret",
-    resave: false,
-    saveUninitialized: false,
-    cookie: {
-        secure: process.env.NODE_ENV === "production",
-        httpOnly: true,
-        sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+//     secret: process.env.JWT_SECRET || "atlaspi-session-secret",
+//     resave: false,
+//     saveUninitialized: false,
+//     cookie: {
+//         secure: process.env.NODE_ENV === "production",
+//         httpOnly: true,
+//         sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
         maxAge: 24 * 60 * 60 * 1000
-    }
+//     }
 }));
 
 // CORS Configuration - Pi Browser + Pi Network compatible
@@ -81,7 +81,7 @@ const uniqueAllowedOrigins = [...new Set(allowedOrigins)];
         // Autorise curl, Postman, apps mobiles, Pi Browser, ou requêtes sans Origin
         if (!origin) {
             return callback(null, true);
-        }
+    //     }
         // Autorise toutes les origines Pi Network / Pi Browser
         if (
             origin.includes("minepi.com") ||
@@ -89,13 +89,13 @@ const uniqueAllowedOrigins = [...new Set(allowedOrigins)];
             origin.includes("pinet.com")
         ) {
             return callback(null, true);
-        }
+    //     }
         if (uniqueAllowedOrigins.includes(origin)) {
             return callback(null, true);
-        }
+    //     }
         console.warn("[CORS BLOCKED]", origin);
         return callback(new Error("Not allowed by CORS"));
-    },
+//     },
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     allowedHeaders: [
         "Content-Type",
@@ -127,7 +127,7 @@ const limiter = rateLimit({
     message: {
         ok: false,
         error: "Too many requests. Please try again later."
-    }
+//     }
 });
 // app.use(limiter);
 
@@ -143,8 +143,8 @@ app.get("/", (req, res) => {
             pirc2Auth: process.env.PIRC2_AUTH_ENABLED === "true" || false,
             pirc2Payments: process.env.PIRC2_PAYMENTS_ENABLED === "true" || false,
             pirc2MerchantPi: process.env.PIRC2_MERCHANT_PI_ENABLED === "true" || false
-        }
-    });
+    //     }
+//     });
 });
 
 app.get("/api/health", (req, res) => {
@@ -162,11 +162,11 @@ app.get("/api/health", (req, res) => {
             pirc2Auth: process.env.PIRC2_AUTH_ENABLED === "true" || false,
             pirc2Payments: process.env.PIRC2_PAYMENTS_ENABLED === "true" || false,
             pirc2MerchantPi: process.env.PIRC2_MERCHANT_PI_ENABLED === "true" || false
-        },
+    //     },
         version: "1.0.0",
         timestamp: new Date().toISOString(),
         message: "AtlasPi backend is healthy"
-    });
+//     });
 });
 
 // Routes
@@ -190,7 +190,7 @@ app.use((err, req, res, next) => {
     res.status(500).json({
         ok: false,
         error: "Internal server error"
-    });
+//     });
 });
 
 app.listen(PORT, '0.0.0.0', () => {
