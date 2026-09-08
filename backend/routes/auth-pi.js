@@ -1,4 +1,3 @@
-cat > backend/routes/auth-pi.js << 'EOF'
 const express = require("express");
 const axios = require("axios");
 const logger = require("../utils/logger.js");
@@ -21,7 +20,6 @@ router.post("/", async (req, res) => {
             });
         }
 
-        // Vérifier le token via l'API Pi Network
         const piApiUrl = process.env.PI_API_BASE || "https://api.minepi.com";
         const response = await axios.get(`${piApiUrl}/v2/users/me`, {
             headers: {
@@ -36,7 +34,6 @@ router.post("/", async (req, res) => {
             });
         }
 
-        // Vérifier que l'userId correspond
         const piUser = response.data.user;
         if (piUser.uid !== userId) {
             return res.status(401).json({
@@ -60,7 +57,6 @@ router.post("/", async (req, res) => {
 
     } catch (error) {
         if (error.response) {
-            // Erreur de l'API Pi Network
             logger.error("Pi Network API error:", error.response.status, error.response.data);
             return res.status(401).json({
                 ok: false,
@@ -126,4 +122,3 @@ router.get("/verify", async (req, res) => {
 });
 
 module.exports = router;
-EOF
