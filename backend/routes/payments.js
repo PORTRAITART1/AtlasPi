@@ -1,265 +1,189 @@
-import express from "express";
-import db from "../config/db.js";
-import logger from "../utils/logger.js";
-import { v4 as uuidv4 } from "uuid";
-import { validateBody, validateQuery } from "../middlewares/validate.js";
-import {
+const express = require("express");
+const db = require("../config/db.js");
+const logger = require("../utils/logger.js");
+const { v4: uuidv4 } = require("uuid");
+const { validateBody, validateQuery } = require("../middlewares/validate.js");
+const {
   createPaymentRecordSchema,
   approvePaymentSchema,
   completePaymentSchema,
   userStatusQuerySchema
-} from "../validators/payments.validators.js";
+} = require("../validators/payments.validators.js");
 
 const router = express.Router();
 
-router.post("/create-record", validateBody(createPaymentRecordSchema), (req, res) => {
+/**
+ * POST /api/payments/create-record
+ * Crée un enregistrement de paiement local
+ */
+router.post("/create-record", validateBody(createPaymentRecordSchema), async (req, res) => {
   try {
     const { uid, username, amount, memo, metadata } = req.body;
 
     const localPaymentId = uuidv4();
     const now = new Date().toISOString();
 
-    db.run(
-      `INSERT INTO payments
-      (local_payment_id, uid, username, amount, memo, status, metadata, created_at, updated_at)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      [
-        localPaymentId,
-        uid,
-        username,
-        amount,
-        memo || "",
-        "created",
-        JSON.stringify(metadata || {}),
-        now,
-        now
-      ],
-      function (err) {
-        if (err) {
-          logger.error("DB insert payment error: " + err.message);
-          return res.status(500).json({
-            ok: false,
-            error: "Database error"
-          });
-        }
+    // Vérifier si l'utilisateur existe déjà
+    let user = db.prepare("SELECT * FROM users WHERE uid = ?").get(uid);
+    if (!user) {
+      // Créer l'utilisateur
+      const stmt = db.prepare("INSERT INTO users (uid, username, created_at) VALUES (?, ?, ?)");
+      stmt.run(uid, username, now);
+    }
 
-        logger.info(`Payment record created: ${localPaymentId}`);
+    // Créer l'enregistrement de paiement local
+    const stmt = db.prepare(`
+      INSERT INTO payments 
+      (local_payment_id, uid, username, amount, memo, metadata, status, created_at)
+      VALUES (?, ?, ?, ?, ?, ?, 'pending', ?)
+    `);
+    stmt.run(localPaymentId, uid, username, amount, memo, JSON.stringify(metadata), now);
 
-        return res.json({
-          ok: true,
-          localPaymentId,
-          status: "created"
-        });
-      }
-    );
-  } catch (error) {
-    logger.error("Create payment record error: " + error.message);
-    return res.status(500).json({
-      ok: false,
-      error: error.message
+    logger.info(`✅ Payment record created: ${localPaymentId} for user ${uid}`);
+
+    res.status(201).json({
+      ok: true,
+      localPaymentId,
+      status: 'pending',
+      message: 'Payment record created successfully'
     });
+
+  } catch (error) {
+    logger.error("Error creating payment record:", error);
+    res.status(500).json({ ok: false, error: "Internal server error" });
   }
 });
 
-router.post("/approve", validateBody(approvePaymentSchema), (req, res) => {
+/**
+ * POST /api/payments/approve
+ * Approuve un paiement (côté backend après vérification)
+ */
+router.post("/approve", validateBody(approvePaymentSchema), async (req, res) => {
   try {
-    const { localPaymentId, paymentId } = req.body;
+    const { localPaymentId, piPaymentId, status } = req.body;
 
     const now = new Date().toISOString();
+    const stmt = db.prepare(`
+      UPDATE payments 
+      SET pi_payment_id = ?, status = ?, approved_at = ?
+      WHERE local_payment_id = ? AND status = 'pending'
+    `);
+    const result = stmt.run(piPaymentId, status, now, localPaymentId);
 
-    db.run(
-      `UPDATE payments
-       SET pi_payment_id = ?, status = ?, updated_at = ?
-       WHERE local_payment_id = ?`,
-      [paymentId, "approved", now, localPaymentId],
-      function (err) {
-        if (err) {
-          logger.error("Approve update DB error: " + err.message);
-          return res.status(500).json({
-            ok: false,
-            error: "Database error"
-          });
-        }
+    if (result.changes === 0) {
+      return res.status(404).json({
+        ok: false,
+        error: "Payment not found or already processed"
+      });
+    }
 
-        logger.info(`Payment approved: local=${localPaymentId}, pi=${paymentId}`);
+    logger.info(`✅ Payment approved: ${localPaymentId} -> ${piPaymentId}`);
 
-        return res.json({
-          ok: true,
-          status: "approved",
-          localPaymentId,
-          paymentId
-        });
-      }
-    );
-  } catch (error) {
-    logger.error("Approve route error: " + error.message);
-    return res.status(500).json({
-      ok: false,
-      error: error.message
+    res.json({
+      ok: true,
+      message: "Payment approved successfully"
     });
+
+  } catch (error) {
+    logger.error("Error approving payment:", error);
+    res.status(500).json({ ok: false, error: "Internal server error" });
   }
 });
 
-router.post("/complete", validateBody(completePaymentSchema), (req, res) => {
+/**
+ * POST /api/payments/complete
+ * Marque un paiement comme complété
+ */
+router.post("/complete", validateBody(completePaymentSchema), async (req, res) => {
   try {
-    const { localPaymentId, paymentId, txid } = req.body;
+    const { localPaymentId, piTransactionId } = req.body;
 
     const now = new Date().toISOString();
+    const stmt = db.prepare(`
+      UPDATE payments 
+      SET status = 'completed', pi_transaction_id = ?, completed_at = ?
+      WHERE local_payment_id = ? AND status IN ('pending', 'approved')
+    `);
+    const result = stmt.run(piTransactionId, now, localPaymentId);
 
-    db.run(
-      `UPDATE payments
-       SET pi_payment_id = ?, txid = ?, status = ?, updated_at = ?
-       WHERE local_payment_id = ?`,
-      [paymentId, txid, "completed", now, localPaymentId],
-      function (err) {
-        if (err) {
-          logger.error("Complete update DB error: " + err.message);
-          return res.status(500).json({
-            ok: false,
-            error: "Database error"
-          });
-        }
+    if (result.changes === 0) {
+      return res.status(404).json({
+        ok: false,
+        error: "Payment not found or already completed"
+      });
+    }
 
-        logger.info(`Payment completed: local=${localPaymentId}, txid=${txid}`);
+    logger.info(`✅ Payment completed: ${localPaymentId} -> ${piTransactionId}`);
 
-        // ✅ Activate VIP if uid provided
-        const { uid, username } = req.body;
-        if (uid) {
-          const vipExpiry = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
-          const nowVip = new Date().toISOString();
-          db.run(
-            `INSERT INTO users (uid, username, is_vip, vip_expires_at, vip_payment_id, vip_txid, created_at, updated_at)
-             VALUES (?, ?, 1, ?, ?, ?, ?, ?)
-             ON CONFLICT(uid) DO UPDATE SET
-               is_vip = 1,
-               vip_expires_at = ?,
-               vip_payment_id = ?,
-               vip_txid = ?,
-               updated_at = ?`,
-            [uid, username || 'unknown', vipExpiry, paymentId, txid, nowVip, nowVip,
-             vipExpiry, paymentId, txid, nowVip],
-            (vipErr) => {
-              if (vipErr) logger.error('VIP activation error: ' + vipErr.message);
-              else logger.info(`VIP activated for ${uid} until ${vipExpiry}`);
-            }
-          );
-        }
-
-        return res.json({
-          ok: true,
-          status: "completed",
-          localPaymentId,
-          paymentId,
-          txid,
-          vipActivated: !!uid
-        });
-      }
-    );
-  } catch (error) {
-    logger.error("Complete route error: " + error.message);
-    return res.status(500).json({
-      ok: false,
-      error: error.message
+    res.json({
+      ok: true,
+      message: "Payment completed successfully"
     });
+
+  } catch (error) {
+    logger.error("Error completing payment:", error);
+    res.status(500).json({ ok: false, error: "Internal server error" });
   }
 });
 
-router.get("/list", (req, res) => {
-  db.all(
-    `SELECT * FROM payments ORDER BY id DESC`,
-    [],
-    (err, rows) => {
-      if (err) {
-        logger.error("List payments DB error: " + err.message);
-        return res.status(500).json({
-          ok: false,
-          error: "Database error"
-        });
-      }
+/**
+ * GET /api/payments/status
+ * Récupère le statut d'un paiement
+ */
+router.get("/status", validateQuery(userStatusQuerySchema), async (req, res) => {
+  try {
+    const { localPaymentId } = req.query;
 
-      return res.json({
-        ok: true,
-        count: rows.length,
-        payments: rows
+    const payment = db.prepare(`
+      SELECT * FROM payments WHERE local_payment_id = ?
+    `).get(localPaymentId);
+
+    if (!payment) {
+      return res.status(404).json({
+        ok: false,
+        error: "Payment not found"
       });
     }
-  );
-});
 
-// GET /api/payments/vip-users (admin)
-router.get("/vip-users", (req, res) => {
-  db.all(
-    `SELECT uid, username, is_vip, vip_expires_at, vip_payment_id, vip_txid, created_at
-     FROM users
-     WHERE is_vip = 1
-     ORDER BY created_at DESC`,
-    [],
-    (err, rows) => {
-      if (err) {
-        return res.status(500).json({ ok: false, error: "DB error" });
+    res.json({
+      ok: true,
+      payment: {
+        localPaymentId: payment.local_payment_id,
+        status: payment.status,
+        amount: payment.amount,
+        createdAt: payment.created_at,
+        piPaymentId: payment.pi_payment_id,
+        piTransactionId: payment.pi_transaction_id
       }
-      return res.json({
-        ok: true,
-        count: rows.length,
-        users: rows
-      });
-    }
-  );
+    });
+
+  } catch (error) {
+    logger.error("Error getting payment status:", error);
+    res.status(500).json({ ok: false, error: "Internal server error" });
+  }
 });
 
-// GET /api/payments/network/info
-router.get("/network/info", (req, res) => {
-  const network = process.env.PI_NETWORK || "mainnet";
-  const api = network === "testnet"
-    ? "https://api-testnet.minepi.com"
-    : "https://api.minepi.com";
+/**
+ * GET /api/payments/user/:uid
+ * Récupère tous les paiements d'un utilisateur
+ */
+router.get("/user/:uid", async (req, res) => {
+  try {
+    const { uid } = req.params;
 
-  return res.json({
-    ok: true,
-    network,
-    api,
-    hasServerKey: !!process.env.PI_API_KEY,
-    mode: process.env.APP_MODE || "pirc2-production",
-    sandbox: process.env.PI_SANDBOX === 'true'
-  });
+    const payments = db.prepare(`
+      SELECT * FROM payments WHERE uid = ? ORDER BY created_at DESC
+    `).all(uid);
+
+    res.json({
+      ok: true,
+      payments
+    });
+
+  } catch (error) {
+    logger.error("Error getting user payments:", error);
+    res.status(500).json({ ok: false, error: "Internal server error" });
+  }
 });
 
-// GET /api/payments/user/status?uid=xxx
-router.get("/user/status", validateQuery(userStatusQuerySchema), (req, res) => {
-  const { uid } = req.query;
-
-  db.get(
-    `SELECT uid, username, is_vip, vip_expires_at, vip_payment_id FROM users WHERE uid = ?`,
-    [uid],
-    (err, row) => {
-      if (err) {
-        return res.status(500).json({ ok: false, error: "DB error" });
-      }
-
-      if (!row) {
-        return res.json({
-          ok: true,
-          uid,
-          isVIP: false,
-          vipExpiry: null,
-          message: "User not found — not VIP"
-        });
-      }
-
-      const now = new Date();
-      const expiry = row.vip_expires_at ? new Date(row.vip_expires_at) : null;
-      const isVIPActive = row.is_vip === 1 && expiry && expiry > now;
-
-      return res.json({
-        ok: true,
-        uid: row.uid,
-        username: row.username,
-        isVIP: isVIPActive,
-        vipExpiry: row.vip_expires_at,
-        message: isVIPActive ? "✅ VIP active" : "❌ VIP not active"
-      });
-    }
-  );
-});
-
-export default router;
+module.exports = router;
