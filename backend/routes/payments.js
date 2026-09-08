@@ -12,6 +12,51 @@ const {
 
 const router = express.Router();
 
+// ✅ Créer les tables si elles n'existent pas
+function initTables() {
+  try {
+    // Table users
+    db.exec(`
+      CREATE TABLE IF NOT EXISTS users (
+        uid TEXT PRIMARY KEY,
+        username TEXT,
+        created_at TEXT
+      )
+    `);
+
+    // Table payments
+    db.exec(`
+      CREATE TABLE IF NOT EXISTS payments (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        local_payment_id TEXT UNIQUE NOT NULL,
+        uid TEXT NOT NULL,
+        username TEXT,
+        amount INTEGER NOT NULL,
+        memo TEXT,
+        metadata TEXT,
+        status TEXT DEFAULT 'pending',
+        pi_payment_id TEXT,
+        pi_transaction_id TEXT,
+        created_at TEXT,
+        approved_at TEXT,
+        completed_at TEXT,
+        FOREIGN KEY (uid) REFERENCES users(uid)
+      )
+    `);
+
+    // Index pour améliorer les performances
+    db.exec(`CREATE INDEX IF NOT EXISTS idx_payments_uid ON payments(uid)`);
+    db.exec(`CREATE INDEX IF NOT EXISTS idx_payments_status ON payments(status)`);
+
+    logger.info("✅ Payment tables initialized successfully");
+  } catch (error) {
+    logger.error("❌ Error initializing payment tables:", error);
+  }
+}
+
+// Initialiser les tables au chargement
+initTables();
+
 /**
  * POST /api/payments/create-record
  * Crée un enregistrement de paiement local
