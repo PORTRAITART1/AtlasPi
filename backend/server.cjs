@@ -2,6 +2,7 @@ const path = require("path");
 const express = require("express");
 const logger = require("./utils/logger.js");
 const authPiRoutes = require("./routes/auth-pi.js");
+const paymentRoutes = require("./routes/payments.js");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -20,6 +21,7 @@ console.log("==================");
 
 // Routes
 app.use("/api/auth/pi", authPiRoutes);
+app.use("/api/payments", paymentRoutes);
 
 // Simple routes
 app.get("/", (req, res) => {
@@ -29,7 +31,8 @@ app.get("/", (req, res) => {
         status: "running",
         version: "1.0.0",
         routes: {
-            auth_pi: "/api/auth/pi"
+            auth_pi: "/api/auth/pi",
+            payments: "/api/payments"
         }
     });
 });
