@@ -1,9 +1,13 @@
 const path = require("path");
 const express = require("express");
 const logger = require("./utils/logger.js");
+const authPiRoutes = require("./routes/auth-pi.js");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+// Middlewares
+app.use(express.json());
 
 // Log startup info
 logger.info(`\n${"=".repeat(60)}`);
@@ -14,13 +18,19 @@ console.log("=== DEBUG PATH ===");
 console.log("__dirname:", __dirname);
 console.log("==================");
 
+// Routes
+app.use("/api/auth/pi", authPiRoutes);
+
 // Simple routes
 app.get("/", (req, res) => {
     res.json({
         ok: true,
         app: "AtlasPi API",
         status: "running",
-        version: "1.0.0"
+        version: "1.0.0",
+        routes: {
+            auth_pi: "/api/auth/pi"
+        }
     });
 });
 
