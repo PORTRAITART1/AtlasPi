@@ -12,12 +12,16 @@ const {
 
 const router = express.Router();
 
-// ✅ Créer les tables si elles n'existent pas
+// ✅ Initialiser les tables avec suppression + recréation
 function initTables() {
   try {
-    // Table users (updated_at peut être NULL)
+    // Supprimer les tables existantes (pour recréer avec le bon schéma)
+    db.exec(`DROP TABLE IF EXISTS payments`);
+    db.exec(`DROP TABLE IF EXISTS users`);
+
+    // Recréer users (updated_at peut être NULL)
     db.exec(`
-      CREATE TABLE IF NOT EXISTS users (
+      CREATE TABLE users (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         uid TEXT NOT NULL UNIQUE,
         username TEXT NOT NULL,
@@ -31,9 +35,9 @@ function initTables() {
       )
     `);
 
-    // Table payments
+    // Recréer payments
     db.exec(`
-      CREATE TABLE IF NOT EXISTS payments (
+      CREATE TABLE payments (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         local_payment_id TEXT UNIQUE NOT NULL,
         uid TEXT NOT NULL,
@@ -52,16 +56,19 @@ function initTables() {
     `);
 
     // Index
-    db.exec(`CREATE INDEX IF NOT EXISTS idx_payments_uid ON payments(uid)`);
-    db.exec(`CREATE INDEX IF NOT EXISTS idx_payments_status ON payments(status)`);
+    db.exec(`CREATE INDEX idx_payments_uid ON payments(uid)`);
+    db.exec(`CREATE INDEX idx_payments_status ON payments(status)`);
 
-    logger.info("✅ Payment tables initialized successfully");
+    logger.info("✅ Payment tables recreated successfully");
   } catch (error) {
     logger.error("❌ Error initializing payment tables:", error);
   }
 }
 
+// Exécuter l'initialisation
 initTables();
+
+// Routes
 
 router.post("/create-record", validateBody(createPaymentRecordSchema), async (req, res) => {
   try {
@@ -70,10 +77,10 @@ router.post("/create-record", validateBody(createPaymentRecordSchema), async (re
     const localPaymentId = uuidv4();
     const now = new Date().toISOString();
 
-    // Vérifier si l'utilisateur existe déjà
+    // Vérifier si l'utilisateur existe
     let user = db.prepare("SELECT * FROM users WHERE uid = ?").get(uid);
     if (!user) {
-      // Créer l'utilisateur avec updated_at NULL (ou on ne le met pas)
+      // Créer l'utilisateur (sans updated_at)
       const stmt = db.prepare("INSERT INTO users (uid, username, created_at) VALUES (?, ?, ?)");
       stmt.run(uid, username, now);
     }
@@ -100,10 +107,6 @@ router.post("/create-record", validateBody(createPaymentRecordSchema), async (re
     res.status(500).json({ ok: false, error: "Internal server error" });
   }
 });
-
-// ... (les autres routes restent identiques, mais on les garde pour complétude)
-// Pour gagner du temps, on va les réinjecter
-// (Je les ajoute ci-dessous rapidement)
 
 router.post("/approve", validateBody(approvePaymentSchema), async (req, res) => {
   try {
