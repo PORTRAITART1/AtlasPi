@@ -1,4 +1,3 @@
-cat > backend/routes/payments.js << 'EOF'
 const express = require("express");
 const db = require("../config/db.js");
 const logger = require("../utils/logger.js");
@@ -16,7 +15,7 @@ const router = express.Router();
 // ✅ Créer les tables si elles n'existent pas
 function initTables() {
   try {
-    // Table users (avec updated_at)
+    // Table users (avec toutes les colonnes nécessaires)
     db.exec(`
       CREATE TABLE IF NOT EXISTS users (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -52,7 +51,7 @@ function initTables() {
       )
     `);
 
-    // Index
+    // Index pour améliorer les performances
     db.exec(`CREATE INDEX IF NOT EXISTS idx_payments_uid ON payments(uid)`);
     db.exec(`CREATE INDEX IF NOT EXISTS idx_payments_status ON payments(status)`);
 
@@ -79,7 +78,7 @@ router.post("/create-record", validateBody(createPaymentRecordSchema), async (re
     // Vérifier si l'utilisateur existe déjà
     let user = db.prepare("SELECT * FROM users WHERE uid = ?").get(uid);
     if (!user) {
-      // Créer l'utilisateur avec updated_at
+      // Créer l'utilisateur avec created_at ET updated_at
       const stmt = db.prepare("INSERT INTO users (uid, username, created_at, updated_at) VALUES (?, ?, ?, ?)");
       stmt.run(uid, username, now, now);
     }
@@ -107,12 +106,14 @@ router.post("/create-record", validateBody(createPaymentRecordSchema), async (re
   }
 });
 
-// ... (les autres routes: approve, complete, status, user/:uid restent identiques)
-// Pour gagner du temps, je vais les recopier rapidement.
-
+/**
+ * POST /api/payments/approve
+ * Approuve un paiement (côté backend après vérification)
+ */
 router.post("/approve", validateBody(approvePaymentSchema), async (req, res) => {
   try {
     const { localPaymentId, piPaymentId, status } = req.body;
+
     const now = new Date().toISOString();
     const stmt = db.prepare(`
       UPDATE payments 
@@ -120,20 +121,35 @@ router.post("/approve", validateBody(approvePaymentSchema), async (req, res) => 
       WHERE local_payment_id = ? AND status = 'pending'
     `);
     const result = stmt.run(piPaymentId, status, now, localPaymentId);
+
     if (result.changes === 0) {
-      return res.status(404).json({ ok: false, error: "Payment not found or already processed" });
+      return res.status(404).json({
+        ok: false,
+        error: "Payment not found or already processed"
+      });
     }
+
     logger.info(`✅ Payment approved: ${localPaymentId} -> ${piPaymentId}`);
-    res.json({ ok: true, message: "Payment approved successfully" });
+
+    res.json({
+      ok: true,
+      message: "Payment approved successfully"
+    });
+
   } catch (error) {
     logger.error("Error approving payment:", error);
     res.status(500).json({ ok: false, error: "Internal server error" });
   }
 });
 
+/**
+ * POST /api/payments/complete
+ * Marque un paiement comme complété
+ */
 router.post("/complete", validateBody(completePaymentSchema), async (req, res) => {
   try {
     const { localPaymentId, piTransactionId } = req.body;
+
     const now = new Date().toISOString();
     const stmt = db.prepare(`
       UPDATE payments 
@@ -141,24 +157,46 @@ router.post("/complete", validateBody(completePaymentSchema), async (req, res) =
       WHERE local_payment_id = ? AND status IN ('pending', 'approved')
     `);
     const result = stmt.run(piTransactionId, now, localPaymentId);
+
     if (result.changes === 0) {
-      return res.status(404).json({ ok: false, error: "Payment not found or already completed" });
+      return res.status(404).json({
+        ok: false,
+        error: "Payment not found or already completed"
+      });
     }
+
     logger.info(`✅ Payment completed: ${localPaymentId} -> ${piTransactionId}`);
-    res.json({ ok: true, message: "Payment completed successfully" });
+
+    res.json({
+      ok: true,
+      message: "Payment completed successfully"
+    });
+
   } catch (error) {
     logger.error("Error completing payment:", error);
     res.status(500).json({ ok: false, error: "Internal server error" });
   }
 });
 
+/**
+ * GET /api/payments/status
+ * Récupère le statut d'un paiement
+ */
 router.get("/status", validateQuery(userStatusQuerySchema), async (req, res) => {
   try {
     const { localPaymentId } = req.query;
-    const payment = db.prepare(`SELECT * FROM payments WHERE local_payment_id = ?`).get(localPaymentId);
+
+    const payment = db.prepare(`
+      SELECT * FROM payments WHERE local_payment_id = ?
+    `).get(localPaymentId);
+
     if (!payment) {
-      return res.status(404).json({ ok: false, error: "Payment not found" });
+      return res.status(404).json({
+        ok: false,
+        error: "Payment not found"
+      });
     }
+
     res.json({
       ok: true,
       payment: {
@@ -170,17 +208,30 @@ router.get("/status", validateQuery(userStatusQuerySchema), async (req, res) => 
         piTransactionId: payment.pi_transaction_id
       }
     });
+
   } catch (error) {
     logger.error("Error getting payment status:", error);
     res.status(500).json({ ok: false, error: "Internal server error" });
   }
 });
 
+/**
+ * GET /api/payments/user/:uid
+ * Récupère tous les paiements d'un utilisateur
+ */
 router.get("/user/:uid", async (req, res) => {
   try {
     const { uid } = req.params;
-    const payments = db.prepare(`SELECT * FROM payments WHERE uid = ? ORDER BY created_at DESC`).all(uid);
-    res.json({ ok: true, payments });
+
+    const payments = db.prepare(`
+      SELECT * FROM payments WHERE uid = ? ORDER BY created_at DESC
+    `).all(uid);
+
+    res.json({
+      ok: true,
+      payments
+    });
+
   } catch (error) {
     logger.error("Error getting user payments:", error);
     res.status(500).json({ ok: false, error: "Internal server error" });
@@ -188,4 +239,3 @@ router.get("/user/:uid", async (req, res) => {
 });
 
 module.exports = router;
-EOF
