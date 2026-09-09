@@ -1,11 +1,42 @@
 const path = require("path");
 const express = require("express");
+const cors = require("cors");
 const logger = require("./utils/logger.js");
 const authPiRoutes = require("./routes/auth-pi.js");
 const paymentRoutes = require("./routes/payments.js");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+// ✅ Configuration CORS
+const allowedOrigins = [
+    'https://atlaspi.onrender.com',
+    'https://atlaspi-backend.onrender.com',
+    'http://localhost:3000',
+    'http://localhost:5173',
+    'https://app-cdn.minepi.com',
+    'https://minepi.com',
+    'https://pi.app'
+];
+
+app.use(cors({
+    origin: function (origin, callback) {
+        // Permettre les requêtes sans origin (comme curl, postman)
+        if (!origin) return callback(null, true);
+        if (allowedOrigins.includes(origin)) {
+            return callback(null, true);
+        }
+        // Autoriser toutes les origines Pi Network
+        if (origin.includes('minepi.com') || origin.includes('pi.app') || origin.includes('pinet.com')) {
+            return callback(null, true);
+        }
+        console.warn('[CORS] Blocked origin:', origin);
+        return callback(new Error('Not allowed by CORS'));
+    },
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
+}));
 
 // Middlewares
 app.use(express.json());
