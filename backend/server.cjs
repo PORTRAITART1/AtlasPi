@@ -8,9 +8,10 @@ const paymentRoutes = require("./routes/payments.js");
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// ✅ Configuration CORS
+// ✅ Configuration CORS (avec atlaspi-frontend)
 const allowedOrigins = [
     'https://atlaspi.onrender.com',
+    'https://atlaspi-frontend.onrender.com',  // ← AJOUTÉ
     'https://atlaspi-backend.onrender.com',
     'http://localhost:3000',
     'http://localhost:5173',
