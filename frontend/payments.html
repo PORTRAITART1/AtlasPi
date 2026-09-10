@@ -486,7 +486,7 @@
   </footer>
   <script src="config.js?v=13"></script>
   <!-- Pi Network SDK - must be loaded before AtlasPi payment scripts -->
-  <script src="https://sdk.minepi.com/pi-sdk.js"></script>
+  <script src="https://sdk.minepi.com/pi-sdk.js"></script>nn  <!-- ✅ Initialisation SDK Pi -->n  <script>n    window.ATLASPI_PI_SDK_READY = false;n    try {n      if (window.Pi && typeof window.Pi.init === "function") {n        window.Pi.init({ version: "2.0", sandbox: false });n        window.ATLASPI_PI_SDK_READY = true;n        console.log("[AtlasPi] Pi SDK initialized successfully.");n      } else {n        console.warn("[AtlasPi] Pi SDK script loaded but window.Pi is not available.");n      }n    } catch (error) {n      console.error("[AtlasPi] Failed to initialize Pi SDK:", error);n    }n  </script>
 
 // Avant (cassé)
 sandbox: false
