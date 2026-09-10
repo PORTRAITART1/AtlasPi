@@ -4,7 +4,7 @@
  * et le déclenchement du paiement Pi.
  */
 
- (function () {
+(function () {
   "use strict";
 
   // ─── Helpers ──────────────────────────────────────────────────
@@ -69,14 +69,9 @@
   // ─── Silent Auth via Pi SDK ───────────────────────────────────
   function trySilentAuth() {
     return new Promise((resolve) => {
-      // ✅ FIX: Vérifie juste Pi et authenticate, sans _piSdkReady
-      if (
-        window.Pi &&
-        typeof window.Pi.authenticate === "function"
-      ) {
+      if (window.Pi && typeof window.Pi.authenticate === "function") {
         console.log("[PaymentInit] Trying Pi SDK silent auth...");
 
-        // ✅ FIX: Callback direct, pas dans un objet
         window.Pi.authenticate(
           ["username", "payments"],
           (incompletePayment) => {
@@ -116,6 +111,14 @@
       setPaymentStatus("❌ Please connect with Pi first.", "#ef4444");
       setButtonState(false);
       return;
+    }
+
+    // Lire le montant et le memo
+    const amountInput = document.getElementById("payAmount");
+    const memoInput = document.getElementById("payMemo");
+
+    const rawAmount = amountInput ? amountInput.value.trim() : "1";
+    const parsedAmount = parseFloat(rawAmount);
 
     if (isNaN(parsedAmount) || parsedAmount <= 0) {
       console.error("[PaymentInit] Invalid amount:", rawAmount);
@@ -134,7 +137,6 @@
       const payments = window.piBrowserPayments;
 
       if (payments && typeof payments.createPayment === "function") {
-        // ✅ FIX: Appel correct avec la bonne signature
         console.log(`[PaymentInit] Calling createPayment(${parsedAmount}, "${memo}")`);
         await payments.createPayment(
           parsedAmount,
@@ -178,49 +180,42 @@
 
       } else {
         console.error("[PaymentInit] Pi payment SDK unavailable");
-
         setPaymentStatus(
           "❌ Pi payment system is not available. Please open AtlasPi inside Pi Browser and try again.",
           "#ef4444"
         );
-
         if (createPaymentBtn) createPaymentBtn.disabled = false;
         return;
       }
 
     } catch (err) {
       console.error("[PaymentInit] Payment error:", err);
-
       if (err.message && err.message.toLowerCase().includes("cancel")) {
         setPaymentStatus("❌ Payment cancelled.", "#6b7280");
       } else {
         setPaymentStatus(`❌ Payment failed: ${err.message || "Unknown error"}`, "#ef4444");
       }
-
       if (createPaymentBtn) createPaymentBtn.disabled = false;
     }
   }
-// ─── Init ─────────────────────────────────────────────────────
+
+  // ─── Init ─────────────────────────────────────────────────────
   async function init() {
-    // 1. Vérifie localStorage en premier
     let user = getUserFromStorage();
 
     if (user) {
       console.log("[PaymentInit] User found in localStorage:", user.username);
       updateUIForUser(user);
     } else {
-      // 2. Tente silent auth Pi SDK
       user = await trySilentAuth();
       updateUIForUser(user);
     }
 
-    // 3. Attache le bouton VIP
     const createPaymentBtn = document.getElementById("createPaymentBtn");
     if (createPaymentBtn) {
       createPaymentBtn.addEventListener("click", handlePaymentClick);
     }
 
-    // 4. Écoute login/logout depuis script.js
     window.addEventListener("piUserLoggedIn", (e) => {
       console.log("[PaymentInit] piUserLoggedIn received");
       const newUser = e.detail || getUserFromStorage();
@@ -235,13 +230,9 @@
     console.log("[PaymentInit] Init complete");
   }
 
-  // ─── Démarrage ────────────────────────────────────────────────
-  
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", init);
   } else {
     init();
   }
-}
 })();
-
