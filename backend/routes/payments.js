@@ -12,14 +12,11 @@ const {
 
 const router = express.Router();
 
-// ✅ Initialiser les tables avec suppression + recréation
+// ✅ Créer les tables SEULEMENT si elles n'existent pas
 function initTables() {
   try {
-    // Supprimer les tables existantes (pour recréer avec le bon schéma)
-
-    // Recréer users (updated_at peut être NULL)
     db.exec(`
-      CREATE TABLE users (
+      CREATE TABLE IF NOT EXISTS users (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         uid TEXT NOT NULL UNIQUE,
         username TEXT NOT NULL,
@@ -33,9 +30,8 @@ function initTables() {
       )
     `);
 
-    // Recréer payments
     db.exec(`
-      CREATE TABLE payments (
+      CREATE TABLE IF NOT EXISTS payments (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         local_payment_id TEXT UNIQUE NOT NULL,
         uid TEXT NOT NULL,
@@ -53,43 +49,33 @@ function initTables() {
       )
     `);
 
-    // Index
-    db.exec(`CREATE INDEX idx_payments_uid ON payments(uid)`);
-    db.exec(`CREATE INDEX idx_payments_status ON payments(status)`);
+    db.exec(`CREATE INDEX IF NOT EXISTS idx_payments_uid ON payments(uid)`);
+    db.exec(`CREATE INDEX IF NOT EXISTS idx_payments_status ON payments(status)`);
 
-    logger.info("✅ Payment tables recreated successfully");
+    logger.info("✅ Payment tables verified (no drop)");
   } catch (error) {
     logger.error("❌ Error initializing payment tables:", error);
   }
 }
 
-// Exécuter l'initialisation
 initTables();
-
-// Routes
 
 router.post("/create-record", validateBody(createPaymentRecordSchema), async (req, res) => {
   try {
     const { uid, username, amount, memo, metadata } = req.body;
-
     const localPaymentId = uuidv4();
     const now = new Date().toISOString();
 
-    // Vérifier si l'utilisateur existe
     let user = db.prepare("SELECT * FROM users WHERE uid = ?").get(uid);
     if (!user) {
-      // Créer l'utilisateur (sans updated_at)
-      const stmt = db.prepare("INSERT INTO users (uid, username, created_at) VALUES (?, ?, ?)");
-      stmt.run(uid, username, now);
+      db.prepare("INSERT INTO users (uid, username, created_at) VALUES (?, ?, ?)").run(uid, username, now);
     }
 
-    // Créer l'enregistrement de paiement
-    const stmt = db.prepare(`
+    db.prepare(`
       INSERT INTO payments 
       (local_payment_id, uid, username, amount, memo, metadata, status, created_at)
       VALUES (?, ?, ?, ?, ?, ?, 'pending', ?)
-    `);
-    stmt.run(localPaymentId, uid, username, amount, memo, JSON.stringify(metadata), now);
+    `).run(localPaymentId, uid, username, amount, memo, JSON.stringify(metadata), now);
 
     logger.info(`✅ Payment record created: ${localPaymentId} for user ${uid}`);
 
@@ -99,7 +85,6 @@ router.post("/create-record", validateBody(createPaymentRecordSchema), async (re
       status: 'pending',
       message: 'Payment record created successfully'
     });
-
   } catch (error) {
     logger.error("Error creating payment record:", error);
     res.status(500).json({ ok: false, error: "Internal server error" });
@@ -110,15 +95,15 @@ router.post("/approve", validateBody(approvePaymentSchema), async (req, res) => 
   try {
     const { localPaymentId, piPaymentId, status } = req.body;
     const now = new Date().toISOString();
-    const stmt = db.prepare(`
-      UPDATE payments 
-      SET pi_payment_id = ?, status = ?, approved_at = ?
+    const result = db.prepare(`
+      UPDATE payments SET pi_payment_id = ?, status = ?, approved_at = ?
       WHERE local_payment_id = ? AND status = 'pending'
-    `);
-    const result = stmt.run(piPaymentId, status, now, localPaymentId);
+    `).run(piPaymentId, status, now, localPaymentId);
+
     if (result.changes === 0) {
       return res.status(404).json({ ok: false, error: "Payment not found or already processed" });
     }
+
     logger.info(`✅ Payment approved: ${localPaymentId} -> ${piPaymentId}`);
     res.json({ ok: true, message: "Payment approved successfully" });
   } catch (error) {
@@ -131,15 +116,15 @@ router.post("/complete", validateBody(completePaymentSchema), async (req, res) =
   try {
     const { localPaymentId, piTransactionId } = req.body;
     const now = new Date().toISOString();
-    const stmt = db.prepare(`
-      UPDATE payments 
-      SET status = 'completed', pi_transaction_id = ?, completed_at = ?
+    const result = db.prepare(`
+      UPDATE payments SET status = 'completed', pi_transaction_id = ?, completed_at = ?
       WHERE local_payment_id = ? AND status IN ('pending', 'approved')
-    `);
-    const result = stmt.run(piTransactionId, now, localPaymentId);
+    `).run(piTransactionId, now, localPaymentId);
+
     if (result.changes === 0) {
       return res.status(404).json({ ok: false, error: "Payment not found or already completed" });
     }
+
     logger.info(`✅ Payment completed: ${localPaymentId} -> ${piTransactionId}`);
     res.json({ ok: true, message: "Payment completed successfully" });
   } catch (error) {
@@ -152,9 +137,7 @@ router.get("/status", validateQuery(userStatusQuerySchema), async (req, res) => 
   try {
     const { localPaymentId } = req.query;
     const payment = db.prepare(`SELECT * FROM payments WHERE local_payment_id = ?`).get(localPaymentId);
-    if (!payment) {
-      return res.status(404).json({ ok: false, error: "Payment not found" });
-    }
+    if (!payment) return res.status(404).json({ ok: false, error: "Payment not found" });
     res.json({ ok: true, payment });
   } catch (error) {
     logger.error("Error getting payment status:", error);
