@@ -2,14 +2,18 @@ const Database = require('better-sqlite3');
 const path = require('path');
 const fs = require('fs');
 
-// Créer le dossier data s'il n'existe pas
-const dataDir = path.join(__dirname, '../data');
-if (!fs.existsSync(dataDir)) {
-    fs.mkdirSync(dataDir, { recursive: true });
+// ✅ Détecter le disque persistant /var/data (Render)
+const persistentDataDir =
+  process.env.SQLITE_DATA_DIR ||
+  (fs.existsSync("/var/data") ? "/var/data" : path.join(__dirname, "../data"));
+
+// Créer le dossier s'il n'existe pas
+if (!fs.existsSync(persistentDataDir)) {
+    fs.mkdirSync(persistentDataDir, { recursive: true });
 }
 
-const dbPath = path.join(dataDir, 'atlaspi.db');
-console.log("📦 SQLite DB path:", dbPath);
+const dbPath = path.join(persistentDataDir, 'atlaspi.db');
+console.log("�� SQLite DB path:", dbPath);
 
 const db = new Database(dbPath);
 
@@ -47,12 +51,10 @@ db.exec(`
     vip_payment_id TEXT,
     vip_txid TEXT,
     created_at TEXT NOT NULL,
-    updated_at TEXT NOT NULL
+    updated_at TEXT
   )
 `);
 
-// Ajoute d'autres tables si nécessaires (auth_logs, notifications, etc.)
-// Pour simplifier, on crée uniquement l'essentiel pour les paiements
 console.log("✅ Tables created/verified");
 
 module.exports = db;
