@@ -16,8 +16,6 @@ const router = express.Router();
 function initTables() {
   try {
     // Supprimer les tables existantes (pour recréer avec le bon schéma)
-    db.exec(`DROP TABLE IF EXISTS payments`);
-    db.exec(`DROP TABLE IF EXISTS users`);
 
     // Recréer users (updated_at peut être NULL)
     db.exec(`
