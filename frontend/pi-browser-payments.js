@@ -1,18 +1,16 @@
 // frontend/pi-browser-payments.js
-// Handles real Pi SDK payments only
 
 const BACKEND_URL = "https://atlaspi-backend.onrender.com";
 
 class PiBrowserPayments {
   constructor() {
     this.sdkReady = false;
-    this.mode = "production";
     this.init();
   }
 
   async init() {
     this.sdkReady = typeof Pi !== "undefined";
-    console.log(`[PiBrowserPayments] SDK ready: ${this.sdkReady}, mode: ${this.mode}`);
+    console.log(`[PiBrowserPayments] SDK ready: ${this.sdkReady}`);
   }
 
   isInPiBrowser() {
@@ -20,17 +18,13 @@ class PiBrowserPayments {
   }
 
   async authenticate() {
-    if (!this.isInPiBrowser()) {
-      console.warn("[PiBrowserPayments] Not in Pi Browser");
-      return null;
-    }
-
+    if (!this.isInPiBrowser()) return null;
     try {
       const auth = await Pi.authenticate(
         ["username", "payments"],
         async (incompletePayment) => {
           if (incompletePayment) {
-            console.warn("[PiBrowserPayments] Incomplete payment found, completing:", incompletePayment.identifier);
+            console.warn("[PiBrowserPayments] Incomplete payment:", incompletePayment.identifier);
             try {
               await fetch(`${BACKEND_URL}/api/pi-payments/complete-pi-real`, {
                 method: "POST",
@@ -41,96 +35,97 @@ class PiBrowserPayments {
                 }),
               });
             } catch (e) {
-              console.error("[PiBrowserPayments] Failed to handle incomplete payment:", e);
+              console.error("[PiBrowserPayments] Incomplete handle error:", e);
             }
           }
         }
       );
-      console.log("[PiBrowserPayments] Auth success:", auth);
       return auth;
     } catch (err) {
-      console.error("[PiBrowserPayments] Auth failed:", err);
       throw err;
     }
   }
 
-  async createPayment(amount, memo, metadata = {}) {
+  // ✅ NOUVELLE SIGNATURE : accepte un objet callbacks en 4ème paramètre
+  async createPayment(amount, memo, metadata = {}, callbacks = {}) {
     if (!this.isInPiBrowser()) {
-      console.error("[PiBrowserPayments] Pi SDK not available");
       throw new Error("Pi SDK not available. Please open in Pi Browser.");
     }
 
     const parsedAmount = parseFloat(String(amount).replace(",", "."));
-
     if (isNaN(parsedAmount) || parsedAmount <= 0) {
       throw new Error(`Invalid amount: ${amount}`);
     }
 
     await this.authenticate();
 
-    console.log(`[PiBrowserPayments] Creating payment: ${parsedAmount} Pi — "${memo}"`);
+    console.log(`[PiBrowserPayments] Creating payment: ${parsedAmount} Pi`);
 
     return new Promise((resolve, reject) => {
       Pi.createPayment(
-        {
-          amount: parsedAmount,
-          memo: memo,
-          metadata: metadata,
-        },
+        { amount: parsedAmount, memo: memo, metadata: metadata },
         {
           onReadyForServerApproval: async (paymentId) => {
-            console.log("[PiBrowserPayments] Ready for approval:", paymentId);
+            console.log("[PiBrowserPayments] onReadyForServerApproval:", paymentId);
+            if (callbacks.onApproving) callbacks.onApproving(paymentId);
+
             try {
               const res = await fetch(`${BACKEND_URL}/api/pi-payments/approve-pi-real`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ paymentId }),
               });
-
               const data = await res.json().catch(() => ({}));
 
               if (!res.ok) {
-                console.error("[PiBrowserPayments] Approval HTTP error:", res.status, data);
+                console.error("[PiBrowserPayments] Approval error:", res.status, data);
+                if (callbacks.onError) callbacks.onError(new Error(data.error || `HTTP ${res.status}`));
               } else {
-                console.log("[PiBrowserPayments] Payment approved ✅:", data);
+                console.log("[PiBrowserPayments] Approved ✅");
+                if (callbacks.onApproved) callbacks.onApproved(paymentId, data);
               }
-
             } catch (err) {
               console.error("[PiBrowserPayments] Approval fetch error:", err);
+              if (callbacks.onError) callbacks.onError(err);
             }
           },
 
           onReadyForServerCompletion: async (paymentId, txid) => {
-            console.log("[PiBrowserPayments] Ready for completion:", paymentId, txid);
+            console.log("[PiBrowserPayments] onReadyForServerCompletion:", paymentId, txid);
+            if (callbacks.onCompleting) callbacks.onCompleting(paymentId, txid);
+
             try {
               const res = await fetch(`${BACKEND_URL}/api/pi-payments/complete-pi-real`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ paymentId, txid }),
               });
-
               const data = await res.json().catch(() => ({}));
 
               if (!res.ok) {
                 throw new Error(data.error || `Complete failed: ${res.status}`);
               }
 
-              console.log("[PiBrowserPayments] Payment completed ✅:", data);
+              console.log("[PiBrowserPayments] Completed ✅");
+              if (callbacks.onCompleted) callbacks.onCompleted(paymentId, txid, data);
               resolve({ paymentId, txid, data });
 
             } catch (err) {
               console.error("[PiBrowserPayments] Completion error:", err);
+              if (callbacks.onError) callbacks.onError(err);
               reject(err);
             }
           },
 
           onCancel: (paymentId) => {
-            console.warn("[PiBrowserPayments] Payment cancelled:", paymentId);
+            console.warn("[PiBrowserPayments] Cancelled:", paymentId);
+            if (callbacks.onCancel) callbacks.onCancel(paymentId);
             reject(new Error("Payment cancelled by user"));
           },
 
           onError: (error, payment) => {
-            console.error("[PiBrowserPayments] Payment error:", error, payment);
+            console.error("[PiBrowserPayments] Error:", error);
+            if (callbacks.onError) callbacks.onError(error);
             reject(error);
           },
         }
