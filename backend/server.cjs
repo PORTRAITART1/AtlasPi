@@ -4,6 +4,7 @@ const logger = require("./utils/logger.js");
 const authPiRoutes = require("./routes/auth-pi.js");
 const paymentRoutes = require("./routes/payments.js");
 const piPaymentRoutes = require("./routes/payments-pi.js");
+const { seedMerchants } = require("./seed/merchants.js");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -52,6 +53,13 @@ app.get("/api/health", (req, res) => {
     res.json({ ok: true, status: "running", mode: process.env.APP_MODE || "pirc2-sandbox", timestamp: new Date().toISOString() });
 });
 
+// ✅ Seed des marchands de démonstration (une seule fois)
+try {
+const db = require("./config/db.js");
+seedMerchants(db);
+} catch (e) {
+console.error("Seed error:", e.message);
+}
 app.get("/healthz", (req, res) => res.status(200).send("OK"));
 
 app.listen(PORT, '0.0.0.0', () => {
