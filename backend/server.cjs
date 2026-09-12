@@ -1,5 +1,6 @@
 const express = require("express");
 const cors = require("cors");
+const helmet = require("helmet");
 const logger = require("./utils/logger.js");
 const authPiRoutes = require("./routes/auth-pi.js");
 const paymentRoutes = require("./routes/payments.js");
@@ -21,6 +22,7 @@ const allowedOrigins = [
     'https://pi.app'
 ];
 
+app.use(helmet());
 app.use(cors({
     origin: function (origin, callback) {
         if (!origin) return callback(null, true);
