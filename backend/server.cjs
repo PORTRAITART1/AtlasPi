@@ -40,6 +40,7 @@ app.use(express.json());
 
 logger.info(`\n${"=".repeat(60)}`);
 logger.info("AtlasPi Backend Started");
+logger.info(`PI_API_KEY configured: ${process.env.PI_API_KEY ? "✅ YES" : "❌ NO"}`);
 logger.info(`${"=".repeat(60)}\n`);
 
 app.use("/api/auth/pi", authPiRoutes);
