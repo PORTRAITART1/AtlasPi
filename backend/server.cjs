@@ -1,6 +1,7 @@
 const express = require("express");
 const cors = require("cors");
 const helmet = require("helmet");
+const rateLimit = require("express-rate-limit");
 const logger = require("./utils/logger.js");
 const authPiRoutes = require("./routes/auth-pi.js");
 const paymentRoutes = require("./routes/payments.js");
@@ -45,6 +46,15 @@ logger.info("AtlasPi Backend Started");
 logger.info(`PI_API_KEY configured: ${process.env.PI_API_KEY ? "✅ YES" : "❌ NO"}`);
 logger.info(`${"=".repeat(60)}\n`);
 
+// ✅ Rate limiting : 100 requêtes / 15 min par IP
+const limiter = rateLimit({
+windowMs: 15 * 60 * 1000,
+max: 100,
+message: { ok: false, error: "Trop de requêtes. Réessayez plus tard." },
+standardHeaders: true,
+legacyHeaders: false,
+});
+app.use("/api/", limiter);
 app.use("/api/auth/pi", authPiRoutes);
 app.use("/api/payments", paymentRoutes);
 app.use("/api/pi-payments", piPaymentRoutes);
