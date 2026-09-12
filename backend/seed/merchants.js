@@ -168,3 +168,156 @@ function seedMerchants(db) {
 }
 
 module.exports = { seedMerchants };
+
+// ============================================
+// MARCHANDS INTERNATIONAUX (Europe, Amériques, Asie, Océanie)
+// ============================================
+const INTERNATIONAL_MERCHANTS = [
+  {
+    name: "Paris Café Lumière", business: "Café Lumière SARL", city: "Paris", country: "France",
+    lat: 48.8566, lng: 2.3522, category: "Restaurant", domain: "Food & Beverage",
+    desc: "Café parisien traditionnel. Croissants et café de spécialité.",
+    phone: "+33 1 23 45 67 89", email: "contact@cafelumiere.fr"
+  },
+  {
+    name: "London Tech Shop", business: "London Tech Ltd", city: "London", country: "United Kingdom",
+    lat: 51.5074, lng: -0.1278, category: "Technologie", domain: "Services",
+    desc: "Réparation et vente de matériel électronique à Londres.",
+    phone: "+44 20 1234 5678", email: "info@londontech.co.uk"
+  },
+  {
+    name: "Berlin Buchhandlung", business: "Berlin Books GmbH", city: "Berlin", country: "Germany",
+    lat: 52.5200, lng: 13.4050, category: "Librairie", domain: "Retail",
+    desc: "Librairie indépendante à Berlin. Livres en allemand et anglais.",
+    phone: "+49 30 1234 5678", email: "hallo@berlinbooks.de"
+  },
+  {
+    name: "Madrid Tapas", business: "Tapas Madrid SL", city: "Madrid", country: "Spain",
+    lat: 40.4168, lng: -3.7038, category: "Restaurant", domain: "Food & Beverage",
+    desc: "Tapas espagnols authentiques au cœur de Madrid.",
+    phone: "+34 91 123 4567", email: "reservas@tapasmadrid.es"
+  },
+  {
+    name: "Roma Gelato", business: "Gelateria Roma", city: "Rome", country: "Italy",
+    lat: 41.9028, lng: 12.4964, category: "Glacier", domain: "Food & Beverage",
+    desc: "Gelato artisanal italien. Saveurs traditionnelles.",
+    phone: "+39 06 1234 5678", email: "ciao@gelatoroma.it"
+  },
+  {
+    name: "New York Pizza Co", business: "NY Pizza LLC", city: "New York", country: "USA",
+    lat: 40.7128, lng: -74.0060, category: "Restaurant", domain: "Food & Beverage",
+    desc: "Pizza new-yorkaise authentique. Livraison à Manhattan.",
+    phone: "+1 212 123 4567", email: "orders@nypizza.com"
+  },
+  {
+    name: "Toronto Maple Store", business: "Maple Goods Inc", city: "Toronto", country: "Canada",
+    lat: 43.6532, lng: -79.3832, category: "Souvenirs", domain: "Retail",
+    desc: "Produits canadiens authentiques. Sirop d'érable et souvenirs.",
+    phone: "+1 416 123 4567", email: "hello@maplestore.ca"
+  },
+  {
+    name: "Mexico City Tacos", business: "Tacos CDMX", city: "Mexico City", country: "Mexico",
+    lat: 19.4326, lng: -99.1332, category: "Restaurant", domain: "Food & Beverage",
+    desc: "Tacos mexicains traditionnels. Saveurs authentiques.",
+    phone: "+52 55 1234 5678", email: "hola@tacoscdmx.mx"
+  },
+  {
+    name: "São Paulo Coffee", business: "Café Brasil Ltda", city: "São Paulo", country: "Brazil",
+    lat: -23.5505, lng: -46.6333, category: "Café", domain: "Food & Beverage",
+    desc: "Café brésilien de spécialité. Torréfaction locale.",
+    phone: "+55 11 1234 5678", email: "contato@cafebrasil.br"
+  },
+  {
+    name: "Buenos Aires Tango", business: "Tango BA", city: "Buenos Aires", country: "Argentina",
+    lat: -34.6037, lng: -58.3816, category: "Culture", domain: "Loisirs",
+    desc: "École de tango argentin. Cours et spectacles.",
+    phone: "+54 11 1234 5678", email: "info@tangoba.ar"
+  },
+  {
+    name: "Tokyo Sushi", business: "Sushi Tokyo KK", city: "Tokyo", country: "Japan",
+    lat: 35.6762, lng: 139.6503, category: "Restaurant", domain: "Food & Beverage",
+    desc: "Sushi traditionnel japonais. Produits frais du marché.",
+    phone: "+81 3 1234 5678", email: "info@sushitokyo.jp"
+  },
+  {
+    name: "Singapore Tech Hub", business: "SG Tech Pte Ltd", city: "Singapore", country: "Singapore",
+    lat: 1.3521, lng: 103.8198, category: "Technologie", domain: "Services",
+    desc: "Startup hub et coworking à Singapour.",
+    phone: "+65 6123 4567", email: "hello@sgtech.sg"
+  },
+  {
+    name: "Mumbai Spices", business: "Mumbai Masala", city: "Mumbai", country: "India",
+    lat: 19.0760, lng: 72.8777, category: "Épices", domain: "Retail",
+    desc: "Épices indiennes authentiques. Mélanges traditionnels.",
+    phone: "+91 22 1234 5678", email: "orders@mumbaimasala.in"
+  },
+  {
+    name: "Sydney Surf Shop", business: "Sydney Surf Co", city: "Sydney", country: "Australia",
+    lat: -33.8688, lng: 151.2093, category: "Sport", domain: "Loisirs",
+    desc: "Équipement de surf et cours à Sydney.",
+    phone: "+61 2 1234 5678", email: "info@sydneysurf.au"
+  },
+  {
+    name: "Auckland Coffee", business: "NZ Coffee Ltd", city: "Auckland", country: "New Zealand",
+    lat: -36.8485, lng: 174.7633, category: "Café", domain: "Food & Beverage",
+    desc: "Café néo-zélandais de spécialité. Torréfaction artisanale.",
+    phone: "+64 9 123 4567", email: "hello@nzcoffee.nz"
+  }
+];
+
+// Remplacer la fonction seedMerchants pour inclure les deux listes
+function seedAllMerchants(db) {
+  const ALL_MERCHANTS = [...DEMO_MERCHANTS, ...INTERNATIONAL_MERCHANTS];
+  
+  try {
+    const count = db.prepare("SELECT COUNT(*) as c FROM merchant_listings").get();
+    if (count && count.c >= ALL_MERCHANTS.length) {
+      console.log(`ℹ️  Marchands déjà présents (${count.c}) — pas de seed`);
+      return;
+    }
+
+    const now = new Date().toISOString();
+    const insert = db.prepare(`
+      INSERT INTO merchant_listings (
+        listing_uuid, owner_user_id, listing_public_name, profile_type,
+        business_name, owner_display_name, public_description_short,
+        domain, category, products_services_summary,
+        country, city, latitude, longitude,
+        phone_business, email_business, website_url,
+        accepts_pi, pi_description,
+        verification_status, verification_badge_public,
+        consent_data_accuracy, consent_publication_rights, consent_third_party_rights,
+        consent_terms, consent_privacy, consent_listing_policy,
+        consent_public_display, consent_review_and_moderation,
+        consent_legal_cooperation_notice, consent_timestamp,
+        terms_version_accepted, privacy_version_accepted, listing_policy_version_accepted,
+        listing_status, merchant_pi_payments_enabled, created_at, updated_at
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `);
+
+    let inserted = 0;
+    for (const m of ALL_MERCHANTS) {
+      // Vérifier si le marchand existe déjà (par nom)
+      const existing = db.prepare("SELECT id FROM merchant_listings WHERE listing_public_name = ?").get(m.name);
+      if (existing) continue;
+
+      const uid = "demo_" + uuidv4().slice(0, 8);
+      insert.run(
+        uuidv4(), uid, m.name, "business", m.business, m.name, m.desc,
+        m.domain, m.category, m.desc, m.country, m.city, m.lat, m.lng,
+        m.phone, m.email, null, 1, "Nous acceptons Pi Network !",
+        "verified", "verified",
+        1, 1, 1, 1, 1, 1, 1, 1, 1,
+        now, "1.0", "1.0", "1.0",
+        "approved", 1, now, now
+      );
+      inserted++;
+    }
+
+    console.log(`✅ ${inserted} nouveaux marchands ajoutés (total: ${ALL_MERCHANTS.length})`);
+  } catch (err) {
+    console.error("❌ Erreur seed marchands:", err.message);
+  }
+}
+
+module.exports = { seedMerchants: seedAllMerchants };
