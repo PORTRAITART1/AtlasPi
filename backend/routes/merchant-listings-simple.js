@@ -42,7 +42,7 @@ router.get("/list", (req, res) => {
     res.json({
       ok: true,
       count: rows.length,
-      merchants: rows
+      listings: rows
     });
   } catch (err) {
     logger.error("[MerchantListings] Error:", err.message);
