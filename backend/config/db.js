@@ -58,3 +58,77 @@ db.exec(`
 console.log("✅ Tables created/verified");
 
 module.exports = db;
+
+// ============================================
+// TABLE merchant_listings (pour la carte)
+// ============================================
+db.exec(`
+  CREATE TABLE IF NOT EXISTS merchant_listings (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    listing_uuid TEXT NOT NULL UNIQUE,
+    owner_user_id TEXT NOT NULL,
+    listing_public_name TEXT NOT NULL,
+    profile_type TEXT NOT NULL,
+    business_name TEXT NOT NULL,
+    brand_name TEXT,
+    owner_display_name TEXT,
+    public_description_short TEXT NOT NULL,
+    public_description_full TEXT,
+    domain TEXT NOT NULL,
+    category TEXT NOT NULL,
+    sub_category TEXT,
+    products_services_summary TEXT NOT NULL,
+    products_services_detailed TEXT,
+    keywords TEXT,
+    country TEXT NOT NULL,
+    region TEXT,
+    city TEXT NOT NULL,
+    district TEXT,
+    address_line_1 TEXT,
+    address_line_2 TEXT,
+    postal_code TEXT,
+    latitude REAL,
+    longitude REAL,
+    location_link TEXT,
+    access_instructions TEXT,
+    phone_business TEXT,
+    whatsapp_business TEXT,
+    email_business TEXT,
+    website_url TEXT,
+    accepts_pi INTEGER NOT NULL DEFAULT 0,
+    pi_description TEXT,
+    visibility_district TEXT NOT NULL DEFAULT 'members_only',
+    visibility_address TEXT NOT NULL DEFAULT 'private',
+    visibility_location_link TEXT NOT NULL DEFAULT 'members_only',
+    visibility_phone TEXT NOT NULL DEFAULT 'members_only',
+    visibility_whatsapp TEXT NOT NULL DEFAULT 'members_only',
+    visibility_email TEXT NOT NULL DEFAULT 'members_only',
+    visibility_wallet TEXT NOT NULL DEFAULT 'members_only',
+    visibility_owner_name TEXT NOT NULL DEFAULT 'private',
+    visibility_website TEXT NOT NULL DEFAULT 'public',
+    verification_status TEXT NOT NULL DEFAULT 'pending',
+    verification_badge_public TEXT NOT NULL DEFAULT 'none',
+    consent_data_accuracy INTEGER NOT NULL DEFAULT 1,
+    consent_publication_rights INTEGER NOT NULL DEFAULT 1,
+    consent_third_party_rights INTEGER NOT NULL DEFAULT 1,
+    consent_terms INTEGER NOT NULL DEFAULT 1,
+    consent_privacy INTEGER NOT NULL DEFAULT 1,
+    consent_listing_policy INTEGER NOT NULL DEFAULT 1,
+    consent_public_display INTEGER NOT NULL DEFAULT 1,
+    consent_review_and_moderation INTEGER NOT NULL DEFAULT 1,
+    consent_legal_cooperation_notice INTEGER NOT NULL DEFAULT 1,
+    consent_timestamp TEXT NOT NULL DEFAULT '',
+    terms_version_accepted TEXT NOT NULL DEFAULT '1.0',
+    privacy_version_accepted TEXT NOT NULL DEFAULT '1.0',
+    listing_policy_version_accepted TEXT NOT NULL DEFAULT '1.0',
+    listing_status TEXT NOT NULL DEFAULT 'pending_review',
+    merchant_pi_wallet TEXT,
+    merchant_pi_payments_enabled INTEGER NOT NULL DEFAULT 0,
+    moderation_reason TEXT,
+    created_at TEXT NOT NULL,
+    updated_at TEXT NOT NULL,
+    submitted_at TEXT
+  )
+`);
+
+console.log("✅ merchant_listings table ready");
