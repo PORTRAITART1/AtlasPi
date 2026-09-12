@@ -4,6 +4,7 @@ const logger = require("./utils/logger.js");
 const authPiRoutes = require("./routes/auth-pi.js");
 const paymentRoutes = require("./routes/payments.js");
 const piPaymentRoutes = require("./routes/payments-pi.js");
+const merchantListingsSimpleRoutes = require("./routes/merchant-listings-simple.js");
 const { seedMerchants } = require("./seed/merchants.js");
 
 const app = express();
@@ -44,6 +45,7 @@ logger.info(`${"=".repeat(60)}\n`);
 app.use("/api/auth/pi", authPiRoutes);
 app.use("/api/payments", paymentRoutes);
 app.use("/api/pi-payments", piPaymentRoutes);
+app.use("/api/merchant-listings", merchantListingsSimpleRoutes);
 
 app.get("/", (req, res) => {
     res.json({ ok: true, app: "AtlasPi API", status: "running", version: "1.0.0" });
