@@ -270,6 +270,29 @@
       return null;
     }
 
+function populateCategoryFilter(merchants) {
+const select = document.getElementById("mapCategory");
+if (!select) return;
+
+const categories = new Set();
+merchants.forEach(m => {
+if (m.category) categories.add(m.category);
+});
+
+const sorted = Array.from(categories).sort();
+
+select.innerHTML = "<option value=\"\">All Categories</option>";
+sorted.forEach(cat => {
+const opt = document.createElement("option");
+opt.value = cat.toLowerCase();
+opt.textContent = cat;
+select.appendChild(opt);
+});
+
+console.log(`[Map] ${sorted.length} categories loaded`);
+}
+
+
     async function loadMerchants() {
       try {
         const res = await fetch(`${API_BASE_URL}/api/merchant-listings/list`);
@@ -292,6 +315,7 @@
           );
 
           allMerchants = enriched;
+          populateCategoryFilter(allMerchants);
           addMarkers(allMerchants);
 
           const withGPS = enriched.filter(m => m.latitude && m.longitude).length;
