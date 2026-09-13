@@ -105,6 +105,7 @@
     <div class="container">
 
       <div class="map-filters">
+        <input type="text" id="mapCity" placeholder="🏙️ Search by city..." />
         <input type="text" id="mapSearch"
           placeholder="🔍 Search merchant..." />
         <select id="mapCategory">
@@ -237,6 +238,7 @@
 
     function filterMerchants() {
       const search = document.getElementById("mapSearch").value.toLowerCase();
+      const cityFilter = (document.getElementById("mapCity")?.value || "").toLowerCase();
       const category = document.getElementById("mapCategory").value.toLowerCase();
       const piOnly = document.getElementById("mapPiFilter").value === "pi";
 
@@ -246,7 +248,8 @@
         const matchSearch = !search || name.includes(search);
         const matchCat = !category || cat.includes(category);
         const matchPi = !piOnly || m.accepts_pi;
-        return matchSearch && matchCat && matchPi;
+        const matchCity = !cityFilter || (m.city || "").toLowerCase().includes(cityFilter);
+        return matchSearch && matchCat && matchPi && matchCity;
       });
 
       addMarkers(filtered);
@@ -341,10 +344,12 @@ console.log(`[Map] ${sorted.length} categories loaded`);
     // Events
     document.getElementById("mapSearch").addEventListener("input", filterMerchants);
     document.getElementById("mapCategory").addEventListener("change", filterMerchants);
+    document.getElementById("mapCity").addEventListener("input", filterMerchants);
     document.getElementById("mapPiFilter").addEventListener("change", filterMerchants);
     document.getElementById("mapResetBtn").addEventListener("click", () => {
       document.getElementById("mapSearch").value = "";
       document.getElementById("mapCategory").value = "";
+      document.getElementById("mapCity").value = "";
       document.getElementById("mapPiFilter").value = "";
       addMarkers(allMerchants);
     });
