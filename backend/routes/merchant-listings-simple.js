@@ -70,3 +70,119 @@ router.get("/detail/:id", (req, res) => {
 });
 
 module.exports = router;
+
+/**
+ * POST /api/merchant-listings/create
+ * Crée une nouvelle inscription marchand
+ */
+const { v4: uuidv4 } = require("uuid");
+
+router.post("/create", (req, res) => {
+  try {
+    const {
+      owner_user_id,
+      listing_public_name,
+      business_name,
+      owner_display_name,
+      public_description_short,
+      domain,
+      category,
+      products_services_summary,
+      country,
+      city,
+      address_line_1,
+      latitude,
+      longitude,
+      phone_business,
+      email_business,
+      website_url,
+      merchant_pi_wallet,
+      merchant_pi_payments_enabled,
+      accepts_pi,
+      pi_description,
+      consent_terms,
+      consent_privacy,
+      consent_public_display
+    } = req.body;
+
+    // Validation minimale
+    if (!owner_user_id || !listing_public_name || !business_name || !city || !country) {
+      return res.status(400).json({
+        ok: false,
+        error: "Champs obligatoires manquants : owner_user_id, listing_public_name, business_name, city, country"
+      });
+    }
+
+    if (!consent_terms || !consent_privacy || !consent_public_display) {
+      return res.status(400).json({
+        ok: false,
+        error: "Tous les consentements sont obligatoires"
+      });
+    }
+
+    const now = new Date().toISOString();
+    const listingUuid = uuidv4();
+
+    db.prepare(`
+      INSERT INTO merchant_listings (
+        listing_uuid, owner_user_id, listing_public_name, profile_type,
+        business_name, owner_display_name, public_description_short,
+        domain, category, products_services_summary,
+        country, city, address_line_1, latitude, longitude,
+        phone_business, email_business, website_url,
+        accepts_pi, pi_description,
+        verification_status, verification_badge_public,
+        consent_data_accuracy, consent_publication_rights, consent_third_party_rights,
+        consent_terms, consent_privacy, consent_listing_policy,
+        consent_public_display, consent_review_and_moderation,
+        consent_legal_cooperation_notice, consent_timestamp,
+        terms_version_accepted, privacy_version_accepted, listing_policy_version_accepted,
+        listing_status, merchant_pi_wallet, merchant_pi_payments_enabled,
+        created_at, updated_at
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `).run(
+      listingUuid,
+      owner_user_id,
+      listing_public_name,
+      "business",
+      business_name,
+      owner_display_name || listing_public_name,
+      public_description_short || "",
+      domain || "Services",
+      category || "Autre",
+      products_services_summary || public_description_short || "",
+      country,
+      city,
+      address_line_1 || null,
+      latitude ? parseFloat(latitude) : null,
+      longitude ? parseFloat(longitude) : null,
+      phone_business || null,
+      email_business || null,
+      website_url || null,
+      accepts_pi ? 1 : 0,
+      pi_description || null,
+      "pending",
+      "none",
+      1, 1, 1, 1, 1, 1, 1, 1, 1,
+      now,
+      "1.0", "1.0", "1.0",
+      "pending_review",
+      merchant_pi_wallet || null,
+      merchant_pi_payments_enabled ? 1 : 0,
+      now, now
+    );
+
+    logger.info(`✅ [MerchantListings] New listing created: ${listingUuid}`);
+
+    res.status(201).json({
+      ok: true,
+      message: "Merchant listing created successfully. En attente de modération.",
+      listing_uuid: listingUuid,
+      status: "pending_review"
+    });
+
+  } catch (err) {
+    logger.error("[MerchantListings] Create error:", err.message);
+    res.status(500).json({ ok: false, error: "Internal server error" });
+  }
+});
