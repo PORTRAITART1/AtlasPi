@@ -129,4 +129,21 @@ router.get("/verify", async (req, res) => {
     }
 });
 
+
+// ✅ Route pour voir le compteur de vrais utilisateurs
+router.get("/tracker/stats", (req, res) => {
+  try {
+    const { getCount, getUnreadNotifications, TARGET_COUNT } = require("../utils/realUsersTracker.js");
+    res.json({
+      ok: true,
+      count: getCount(),
+      target: TARGET_COUNT,
+      progress: `${getCount()}/${TARGET_COUNT}`,
+      notifications: getUnreadNotifications()
+    });
+  } catch (err) {
+    res.status(500).json({ ok: false, error: err.message });
+  }
+});
+
 module.exports = router;
