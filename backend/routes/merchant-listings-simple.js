@@ -69,7 +69,6 @@ router.get("/detail/:id", (req, res) => {
   }
 });
 
-module.exports = router;
 
 /**
  * POST /api/merchant-listings/create
@@ -186,3 +185,102 @@ router.post("/create", (req, res) => {
     res.status(500).json({ ok: false, error: "Internal server error" });
   }
 });
+
+/**
+ * GET /api/merchant-listings/pending
+ * Liste des marchands en attente de modération
+ */
+router.get("/pending", (req, res) => {
+  try {
+    const rows = db.prepare(`
+      SELECT * FROM merchant_listings
+      WHERE listing_status = 'pending_review'
+      ORDER BY created_at DESC
+    `).all();
+    res.json({ ok: true, listings: rows });
+  } catch (err) {
+    logger.error("[MerchantListings] Pending error:", err.message);
+    res.status(500).json({ ok: false, error: "Internal server error" });
+  }
+});
+
+/**
+ * GET /api/merchant-listings/admin-stats
+ * Statistiques pour le dashboard admin
+ */
+router.get("/admin-stats", (req, res) => {
+  try {
+    const pending = db.prepare("SELECT COUNT(*) as c FROM merchant_listings WHERE listing_status = 'pending_review'").get();
+    const approved = db.prepare("SELECT COUNT(*) as c FROM merchant_listings WHERE listing_status = 'approved'").get();
+    const rejected = db.prepare("SELECT COUNT(*) as c FROM merchant_listings WHERE listing_status = 'rejected'").get();
+    const total = db.prepare("SELECT COUNT(*) as c FROM merchant_listings").get();
+
+    res.json({
+      ok: true,
+      stats: {
+        pending_review: pending ? pending.c : 0,
+        approved: approved ? approved.c : 0,
+        rejected: rejected ? rejected.c : 0,
+        total: total ? total.c : 0
+      }
+    });
+  } catch (err) {
+    logger.error("[MerchantListings] Admin stats error:", err.message);
+    res.status(500).json({ ok: false, error: "Internal server error" });
+  }
+});
+
+/**
+ * GET /api/merchant-listings/admin-list
+ * Liste complète pour l'admin
+ */
+router.get("/admin-list", (req, res) => {
+  try {
+    const rows = db.prepare(`
+      SELECT * FROM merchant_listings
+      ORDER BY created_at DESC
+      LIMIT 200
+    `).all();
+    res.json({ ok: true, listings: rows });
+  } catch (err) {
+    logger.error("[MerchantListings] Admin list error:", err.message);
+    res.status(500).json({ ok: false, error: "Internal server error" });
+  }
+});
+
+/**
+ * POST /api/merchant-listings/moderate/:id
+ * Approuve ou rejette un marchand
+ */
+router.post("/moderate/:id", (req, res) => {
+  try {
+    const { id } = req.params;
+    const { listing_status, moderation_reason } = req.body;
+
+    if (!listing_status || !["approved", "rejected", "pending_review"].includes(listing_status)) {
+      return res.status(400).json({
+        ok: false,
+        error: "listing_status invalide. Valeurs acceptées: approved, rejected, pending_review"
+      });
+    }
+
+    const now = new Date().toISOString();
+    const result = db.prepare(`
+      UPDATE merchant_listings
+      SET listing_status = ?, moderation_reason = ?, updated_at = ?
+      WHERE id = ?
+    `).run(listing_status, moderation_reason || null, now, id);
+
+    if (result.changes === 0) {
+      return res.status(404).json({ ok: false, error: "Marchand non trouvé" });
+    }
+
+    logger.info(`✅ [MerchantListings] Listing ${id} -> ${listing_status}`);
+    res.json({ ok: true, message: `Statut mis à jour: ${listing_status}` });
+  } catch (err) {
+    logger.error("[MerchantListings] Moderate error:", err.message);
+    res.status(500).json({ ok: false, error: "Internal server error" });
+  }
+});
+
+module.exports = router;
