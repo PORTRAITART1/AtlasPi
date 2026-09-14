@@ -1,6 +1,7 @@
 const express = require("express");
 const axios = require("axios");
 const logger = require("../utils/logger.js");
+const { trackRealUser } = require("../utils/realUsersTracker.js");
 
 const router = express.Router();
 
@@ -43,6 +44,13 @@ router.post("/", async (req, res) => {
         }
 
         logger.info(`✅ Pi authentication successful for user: ${userId}`);
+
+// ✅ Tracker le vrai utilisateur
+const tracking = trackRealUser(piUser.uid, piUser.username);
+if (tracking.isNew) {
+logger.info(`[Auth] New real user tracked: ${piUser.username} (#${tracking.count})`);
+}
+
 
         res.json({
             ok: true,

@@ -1059,4 +1059,4 @@ router.get("/moderation-history/:id", validateRequest({ params: merchantListingI
   );
 });
 
-export default router;
+module.exports = router;

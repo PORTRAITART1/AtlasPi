@@ -321,3 +321,107 @@ function seedAllMerchants(db) {
 }
 
 module.exports = { seedMerchants: seedAllMerchants };
+
+// ============================================
+// MARCHANDS ADDITIONNELS (vague 2)
+// ============================================
+const EXTRA_MERCHANTS = [
+  // EUROPE
+  { name: "Amsterdam Bike Shop", business: "Amsterdam Bikes", city: "Amsterdam", country: "Netherlands", lat: 52.3676, lng: 4.9041, category: "Sport", domain: "Retail", desc: "Location et vente de vélos à Amsterdam.", phone: "+31 20 123 4567", email: "info@amsbikes.nl" },
+  { name: "Barcelona Tapas Bar", business: "Tapas Barcelona SL", city: "Barcelona", country: "Spain", lat: 41.3874, lng: 2.1686, category: "Restaurant", domain: "Food & Beverage", desc: "Tapas et sangria à Barcelone.", phone: "+34 93 123 4567", email: "hola@tapasbcn.es" },
+  { name: "Vienna Coffee House", business: "Wiener Kaffeehaus", city: "Vienna", country: "Austria", lat: 48.2082, lng: 16.3738, category: "Café", domain: "Food & Beverage", desc: "Café viennois traditionnel. Apfelstrudel et mélanges.", phone: "+43 1 123 4567", email: "info@wienerkaffee.at" },
+  { name: "Lisbon Pastelaria", business: "Pastelaria Lisboa", city: "Lisbon", country: "Portugal", lat: 38.7223, lng: -9.1393, category: "Pâtisserie", domain: "Food & Beverage", desc: "Pastéis de nata authentiques à Lisbonne.", phone: "+351 21 123 4567", email: "info@pastelaria.pt" },
+  { name: "Stockholm Design", business: "Stockholm Design AB", city: "Stockholm", country: "Sweden", lat: 59.3293, lng: 18.0686, category: "Design", domain: "Retail", desc: "Design scandinave. Mobilier et décoration.", phone: "+46 8 123 4567", email: "info@sthlmdesign.se" },
+  { name: "Dublin Pub", business: "Dublin Pub Ltd", city: "Dublin", country: "Ireland", lat: 53.3498, lng: -6.2603, category: "Restaurant", domain: "Food & Beverage", desc: "Pub irlandais authentique à Dublin.", phone: "+353 1 123 4567", email: "info@dublinpub.ie" },
+  { name: "Prague Crystal", business: "Prague Crystal s.r.o.", city: "Prague", country: "Czech Republic", lat: 50.0755, lng: 14.4378, category: "Artisanat", domain: "Retail", desc: "Cristal de Bohême. Verrerie artisanale.", phone: "+420 2 1234 5678", email: "info@praguecrystal.cz" },
+  { name: "Athens Olive Oil", business: "Athens Olive Co", city: "Athens", country: "Greece", lat: 37.9838, lng: 23.7275, category: "Alimentation", domain: "Agriculture", desc: "Huile d'olive grecque extra vierge.", phone: "+30 21 1234 5678", email: "info@athensolive.gr" },
+  
+  // AMÉRIQUES
+  { name: "Chicago Deep Dish", business: "Chicago Pizza Co", city: "Chicago", country: "USA", lat: 41.8781, lng: -87.6298, category: "Restaurant", domain: "Food & Beverage", desc: "Pizza deep dish de Chicago.", phone: "+1 312 123 4567", email: "orders@chicagopizza.com" },
+  { name: "Los Angeles Fitness", business: "LA Fitness Studio", city: "Los Angeles", country: "USA", lat: 34.0522, lng: -118.2437, category: "Sport", domain: "Services", desc: "Salle de sport à Los Angeles.", phone: "+1 213 123 4567", email: "info@lafitness.com" },
+  { name: "Miami Beach Shop", business: "Miami Beach LLC", city: "Miami", country: "USA", lat: 25.7617, lng: -80.1918, category: "Mode", domain: "Retail", desc: "Mode balnéaire à Miami.", phone: "+1 305 123 4567", email: "shop@miamibeach.com" },
+  { name: "Vancouver Seafood", business: "Vancouver Seafood Ltd", city: "Vancouver", country: "Canada", lat: 49.2827, lng: -123.1207, category: "Restaurant", domain: "Food & Beverage", desc: "Fruits de mer frais à Vancouver.", phone: "+1 604 123 4567", email: "info@vanseafood.ca" },
+  { name: "Bogotá Coffee", business: "Café Bogotá Ltda", city: "Bogotá", country: "Colombia", lat: 4.7110, lng: -74.0721, category: "Café", domain: "Food & Beverage", desc: "Café colombien de spécialité.", phone: "+57 1 123 4567", email: "info@cafebogota.co" },
+  { name: "Lima Ceviche", business: "Cevicheria Lima", city: "Lima", country: "Peru", lat: -12.0464, lng: -77.0428, category: "Restaurant", domain: "Food & Beverage", desc: "Ceviche péruvien authentique.", phone: "+51 1 123 4567", email: "info@limaceviche.pe" },
+  { name: "Santiago Wine", business: "Viña Santiago", city: "Santiago", country: "Chile", lat: -33.4489, lng: -70.6693, category: "Vin", domain: "Agriculture", desc: "Vins chiliens de la vallée centrale.", phone: "+56 2 1234 5678", email: "info@vinasantiago.cl" },
+  
+  // ASIE
+  { name: "Seoul Kimchi", business: "Seoul Kimchi Co", city: "Seoul", country: "South Korea", lat: 37.5665, lng: 126.9780, category: "Alimentation", domain: "Food & Beverage", desc: "Kimchi traditionnel coréen.", phone: "+82 2 1234 5678", email: "info@seoulkimchi.kr" },
+  { name: "Bangkok Street Food", business: "Bangkok Street Food", city: "Bangkok", country: "Thailand", lat: 13.7563, lng: 100.5018, category: "Restaurant", domain: "Food & Beverage", desc: "Cuisine de rue thaïlandaise.", phone: "+66 2 123 4567", email: "info@bkkstreet.th" },
+  { name: "Hong Kong Dim Sum", business: "HK Dim Sum Ltd", city: "Hong Kong", country: "Hong Kong", lat: 22.3193, lng: 114.1694, category: "Restaurant", domain: "Food & Beverage", desc: "Dim sum traditionnel de Hong Kong.", phone: "+852 1234 5678", email: "info@hkdimsum.hk" },
+  { name: "Taipei Tea House", business: "Taipei Tea Co", city: "Taipei", country: "Taiwan", lat: 25.0330, lng: 121.5654, category: "Café", domain: "Food & Beverage", desc: "Thé taïwanais de haute qualité.", phone: "+886 2 1234 5678", email: "info@taipeitea.tw" },
+  { name: "Dubai Gold Souk", business: "Dubai Gold Trading", city: "Dubai", country: "UAE", lat: 25.2048, lng: 55.2708, category: "Bijoux", domain: "Retail", desc: "Bijoux en or au souk de Dubaï.", phone: "+971 4 123 4567", email: "info@dubaigold.ae" },
+  { name: "Istanbul Bazaar", business: "Grand Bazaar Istanbul", city: "Istanbul", country: "Turkey", lat: 41.0082, lng: 28.9784, category: "Artisanat", domain: "Retail", desc: "Tapis et artisanat turc au Grand Bazar.", phone: "+90 212 123 4567", email: "info@istanbulbazaar.tr" },
+  { name: "Tel Aviv Tech", business: "TLV Tech Ltd", city: "Tel Aviv", country: "Israel", lat: 32.0853, lng: 34.7818, category: "Technologie", domain: "Services", desc: "Startup tech à Tel Aviv.", phone: "+972 3 123 4567", email: "info@tlvtech.il" },
+  { name: "Beijing Tea", business: "Beijing Tea House", city: "Beijing", country: "China", lat: 39.9042, lng: 116.4074, category: "Café", domain: "Food & Beverage", desc: "Thé chinois traditionnel.", phone: "+86 10 1234 5678", email: "info@beijingtea.cn" },
+  
+  // AFRIQUE (suite)
+  { name: "Kampala Crafts", business: "Kampala Crafts Ltd", city: "Kampala", country: "Uganda", lat: 0.3476, lng: 32.5825, category: "Artisanat", domain: "Retail", desc: "Artisanat ougandais authentique.", phone: "+256 41 123 4567", email: "info@kampalacrafts.ug" },
+  { name: "Lusaka Market", business: "Lusaka Market Ltd", city: "Lusaka", country: "Zambia", lat: -15.3875, lng: 28.3228, category: "Alimentation", domain: "Retail", desc: "Marché local de Lusaka.", phone: "+260 21 123 4567", email: "info@lusakamarket.zm" },
+  { name: "Harare Crafts", business: "Harare Crafts Co", city: "Harare", country: "Zimbabwe", lat: -17.8252, lng: 31.0335, category: "Artisanat", domain: "Retail", desc: "Sculptures en pierre de Zimbabwe.", phone: "+263 4 123 4567", email: "info@hararecrafts.zw" },
+  { name: "Maputo Seafood", business: "Maputo Seafood Lda", city: "Maputo", country: "Mozambique", lat: -25.9692, lng: 32.5732, category: "Restaurant", domain: "Food & Beverage", desc: "Fruits de mer de l'océan Indien.", phone: "+258 21 123 4567", email: "info@maputoseafood.mz" },
+  { name: "Antananarivo Vanilla", business: "Vanilla Madagascar", city: "Antananarivo", country: "Madagascar", lat: -18.8792, lng: 47.5079, category: "Épices", domain: "Agriculture", desc: "Vanille de Madagascar premium.", phone: "+261 20 123 4567", email: "info@vanillamada.mg" },
+  { name: "Bamako Textiles", business: "Bamako Textiles SARL", city: "Bamako", country: "Mali", lat: 12.6392, lng: -8.0029, category: "Mode", domain: "Retail", desc: "Textiles traditionnels maliens.", phone: "+223 20 123 4567", email: "info@bamakotextiles.ml" },
+  { name: "Ouagadougou Bronze", business: "Bronze Burkina", city: "Ouagadougou", country: "Burkina Faso", lat: 12.3714, lng: -1.5197, category: "Artisanat", domain: "Retail", desc: "Bronzes du Burkina Faso.", phone: "+226 25 123 4567", email: "info@bronzeburkina.bf" },
+  { name: "Cotonou Market", business: "Marché Cotonou", city: "Cotonou", country: "Benin", lat: 6.3703, lng: 2.3912, category: "Alimentation", domain: "Retail", desc: "Marché coloré de Cotonou.", phone: "+229 21 123 4567", email: "info@marchecotonou.bj" },
+  
+  // OCÉANIE
+  { name: "Melbourne Coffee", business: "Melbourne Coffee Co", city: "Melbourne", country: "Australia", lat: -37.8136, lng: 144.9631, category: "Café", domain: "Food & Beverage", desc: "Café de spécialité à Melbourne.", phone: "+61 3 1234 5678", email: "info@melbcoffee.au" },
+  { name: "Brisbane Outdoor", business: "Brisbane Outdoor", city: "Brisbane", country: "Australia", lat: -27.4698, lng: 153.0251, category: "Sport", domain: "Retail", desc: "Équipement outdoor à Brisbane.", phone: "+61 7 1234 5678", email: "info@brisbaneoutdoor.au" },
+  { name: "Wellington Books", business: "Wellington Books Ltd", city: "Wellington", country: "New Zealand", lat: -41.2865, lng: 174.7762, category: "Librairie", domain: "Retail", desc: "Librairie indépendante à Wellington.", phone: "+64 4 123 4567", email: "info@wellingtonbooks.nz" },
+  { name: "Suva Market", business: "Suva Market Ltd", city: "Suva", country: "Fiji", lat: -18.1416, lng: 178.4419, category: "Alimentation", domain: "Retail", desc: "Marché de produits frais aux Fidji.", phone: "+679 123 4567", email: "info@suvamarket.fj" },
+  
+  // ASIE CENTRALE
+  { name: "Almaty Bazaar", business: "Almaty Bazaar LLP", city: "Almaty", country: "Kazakhstan", lat: 43.2220, lng: 76.8512, category: "Alimentation", domain: "Retail", desc: "Bazar traditionnel kazakh.", phone: "+7 727 123 4567", email: "info@almatybazaar.kz" },
+  { name: "Tashkent Silk", business: "Tashkent Silk Co", city: "Tashkent", country: "Uzbekistan", lat: 41.2995, lng: 69.2401, category: "Mode", domain: "Retail", desc: "Soie ouzbèke artisanale.", phone: "+998 71 123 4567", email: "info@tashkentsilk.uz" },
+  { name: "Ulaanbaatar Cashmere", business: "Mongolian Cashmere", city: "Ulaanbaatar", country: "Mongolia", lat: 47.8864, lng: 106.9057, category: "Mode", domain: "Retail", desc: "Cachemire mongol de qualité.", phone: "+976 11 123 456", email: "info@mongoliacashmere.mn" }
+];
+
+// Modifier seedAllMerchants pour inclure EXTRA_MERCHANTS
+function seedExtraMerchants(db) {
+  try {
+    const now = new Date().toISOString();
+    const insert = db.prepare(`
+      INSERT INTO merchant_listings (
+        listing_uuid, owner_user_id, listing_public_name, profile_type,
+        business_name, owner_display_name, public_description_short,
+        domain, category, products_services_summary,
+        country, city, latitude, longitude,
+        phone_business, email_business, website_url,
+        accepts_pi, pi_description,
+        verification_status, verification_badge_public,
+        consent_data_accuracy, consent_publication_rights, consent_third_party_rights,
+        consent_terms, consent_privacy, consent_listing_policy,
+        consent_public_display, consent_review_and_moderation,
+        consent_legal_cooperation_notice, consent_timestamp,
+        terms_version_accepted, privacy_version_accepted, listing_policy_version_accepted,
+        listing_status, merchant_pi_payments_enabled, created_at, updated_at
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `);
+
+    let inserted = 0;
+    for (const m of EXTRA_MERCHANTS) {
+      const existing = db.prepare("SELECT id FROM merchant_listings WHERE listing_public_name = ?").get(m.name);
+      if (existing) continue;
+
+      const uid = "demo_" + uuidv4().slice(0, 8);
+      insert.run(
+        uuidv4(), uid, m.name, "business", m.business, m.name, m.desc,
+        m.domain, m.category, m.desc, m.country, m.city, m.lat, m.lng,
+        m.phone, m.email, null, 1, "Nous acceptons Pi Network !",
+        "verified", "verified",
+        1, 1, 1, 1, 1, 1, 1, 1, 1,
+        now, "1.0", "1.0", "1.0",
+        "approved", 1, now, now
+      );
+      inserted++;
+    }
+
+    console.log(`✅ ${inserted} marchands supplémentaires ajoutés`);
+  } catch (err) {
+    console.error("❌ Erreur seed extra marchands:", err.message);
+  }
+}
+
+// Exporter les deux fonctions
+module.exports = { seedMerchants: seedAllMerchants, seedExtraMerchants };

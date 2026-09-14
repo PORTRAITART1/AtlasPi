@@ -480,4 +480,4 @@ function getPaymentVerificationStatus(mode, payment) {
 }
 
 // Export the router
-export default router;
+module.exports = router;
