@@ -9,6 +9,7 @@ const piPaymentRoutes = require("./routes/payments-pi.js");
 const merchantListingsSimpleRoutes = require("./routes/merchant-listings-simple.js");
 const { seedMerchants } = require("./seed/merchants.js");
 const { seedExtraMerchants } = require("./seed/merchants.js");
+const { initTracker } = require("./utils/realUsersTracker.js");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -74,6 +75,7 @@ try {
 const db = require("./config/db.js");
 seedMerchants(db);
 seedExtraMerchants(db);
+initTracker();
 } catch (e) {
 console.error("Seed error:", e.message);
 }
