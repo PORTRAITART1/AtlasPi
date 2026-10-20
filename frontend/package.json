@@ -1,0 +1,13 @@
+﻿{
+  "name": "atlaspi-frontend",
+  "version": "1.0.0",
+  "description": "AtlasPi Frontend - Pi Commerce Discovery Platform",
+  "private": true,
+  "scripts": {
+    "start": "npx serve .",
+    "build": "echo 'No build step required for static frontend'"
+  },
+  "keywords": ["pi-network", "marketplace", "frontend"],
+  "author": "AtlasPi",
+  "license": "UNLICENSED"
+}

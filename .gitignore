@@ -60,3 +60,10 @@ sdk-main/
 *.env
 *.env.*
 !.env.example
+
+# Outils de développement
+android-sdk/
+gradle-cache/
+tools/
+PRIVE DOC/
+null
