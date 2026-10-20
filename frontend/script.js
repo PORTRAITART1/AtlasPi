@@ -1,4 +1,4 @@
-// ... (existing code)
+﻿// ... (existing code)
 
 document.addEventListener("DOMContentLoaded", () => {
   const piBrowserOnlyNotice = document.getElementById("piBrowserOnlyNotice");
@@ -111,32 +111,39 @@ document.addEventListener("DOMContentLoaded", () => {
       { value: products_services_summary, label: "Products / Services Summary" },
       { value: country, label: "Country" },
       { value: city, label: "City" },
-      { value: phone_business, label: "Business Phone" }
+      // { value: phone_business, label: "Business Phone" } // Optionnel - consentement requis
     ];
 
     const missingField = requiredFields.find((field) => !field.value);
 
     if (missingField) {
-      showMerchantFormStatus(`❌ Please fill in: ${missingField.label}.`, "error");
+      showMerchantFormStatus(`âŒ Please fill in: ${missingField.label}.`, "error");
+      return;
+    }
+
+    // Vérification du consentement pour la collecte de données de contact
+    const contactConsent = document.getElementById("contactConsent");
+    if (!contactConsent?.checked) {
+      showMerchantFormStatus("Veuillez accepter le stockage de vos coordonnées avant de soumettre.", "error");
       return;
     }
 
     if (!consentTermsCheckbox?.checked) {
-      showMerchantFormStatus("❌ Please accept the Terms of Use.", "error");
+      showMerchantFormStatus("âŒ Please accept the Terms of Use.", "error");
       return;
     }
 
     if (!consentPrivacyCheckbox?.checked) {
-      showMerchantFormStatus("❌ Please accept the Privacy Policy.", "error");
+      showMerchantFormStatus("âŒ Please accept the Privacy Policy.", "error");
       return;
     }
 
     if (!consentPublicDisplayCheckbox?.checked) {
-      showMerchantFormStatus("❌ Please authorize public display settings.", "error");
+      showMerchantFormStatus("âŒ Please authorize public display settings.", "error");
       return;
     }
 
-    showMerchantFormStatus("⏳ Creating merchant listing...", "info");
+    showMerchantFormStatus("â³ Creating merchant listing...", "info");
 
     try {
       const response = await fetch(`${API_BASE_URL}/api/merchant-listings/create`, {
@@ -171,11 +178,11 @@ document.addEventListener("DOMContentLoaded", () => {
       const data = await response.json();
 
       if (!data.ok) {
-        showMerchantFormStatus(`❌ ${data.error || "Failed to create merchant listing."}`, "error");
+        showMerchantFormStatus(`âŒ ${data.error || "Failed to create merchant listing."}`, "error");
         return;
       }
 
-      showMerchantFormStatus("✅ Merchant listing created successfully.", "success");
+      showMerchantFormStatus("âœ… Merchant listing created successfully.", "success");
 
       if (merchantListingForm) {
         merchantListingForm.reset();
@@ -185,7 +192,7 @@ document.addEventListener("DOMContentLoaded", () => {
         merchantOwnerUserId.value = currentUser.uid;
       }
     } catch (error) {
-      showMerchantFormStatus("❌ Failed to contact backend for merchant listing creation.", "error");
+      showMerchantFormStatus("âŒ Failed to contact backend for merchant listing creation.", "error");
     }
   }
 
@@ -216,7 +223,7 @@ if (merchantListingForm) {
   function updatePiAuthUI(result) {
     const user = result?.user || result?.authResult?.user || null;
     currentUser = user;
-    // 💾 Persist session in localStorage
+    // ðŸ’¾ Persist session in localStorage
     if (user) {
       localStorage.setItem('piUser', JSON.stringify({
         uid: user.uid,
@@ -231,8 +238,8 @@ window.dispatchEvent(new CustomEvent("piUserLoggedOut"));
 
     if (piStatus) {
       piStatus.textContent = user
-        ? "✅ Connected with Pi successfully."
-        : "❌ Pi connection failed.";
+        ? "âœ… Connected with Pi successfully."
+        : "âŒ Pi connection failed.";
       piStatus.style.color = user ? "#10b981" : "#ef4444";
     }
 
@@ -254,7 +261,7 @@ window.dispatchEvent(new CustomEvent("piUserLoggedOut"));
 
     if (piConnectBtn) {
       piConnectBtn.textContent = user?.username
-        ? `✓ Connected: ${user.username}`
+        ? `âœ“ Connected: ${user.username}`
         : "Connect with Pi";
     }
     
@@ -266,8 +273,8 @@ window.dispatchEvent(new CustomEvent("piUserLoggedOut"));
 
     if (paymentStatusElement) {
       paymentStatusElement.textContent = user
-        ? "✅ Ready to support AtlasPi VIP."
-        : "🔐 Connect with Pi first to unlock the payment.";
+        ? "âœ… Ready to support AtlasPi VIP."
+        : "ðŸ” Connect with Pi first to unlock the payment.";
     }
 
     if (createPaymentBtn) {
@@ -278,8 +285,8 @@ window.dispatchEvent(new CustomEvent("piUserLoggedOut"));
 
     if (paymentStatusElement) {
       paymentStatusElement.textContent = user
-        ? "✅ Ready to support AtlasPi VIP."
-        : "🔐 Connect with Pi first to unlock the payment.";
+        ? "âœ… Ready to support AtlasPi VIP."
+        : "ðŸ” Connect with Pi first to unlock the payment.";
     }
 
     if (merchantOwnerUserId && user?.uid) {
@@ -290,7 +297,7 @@ window.dispatchEvent(new CustomEvent("piUserLoggedOut"));
   if (piConnectBtn) {
     piConnectBtn.addEventListener("click", async () => {
       if (piStatus) {
-        piStatus.textContent = "⏳ Connecting with Pi...";
+        piStatus.textContent = "â³ Connecting with Pi...";
         piStatus.style.color = "#f59e0b";
       }
 
@@ -300,21 +307,21 @@ window.dispatchEvent(new CustomEvent("piUserLoggedOut"));
         },
         (errorResult) => {
           if (piStatus) {
-            piStatus.textContent = `❌ ${errorResult?.error || "Pi authentication failed."}`;
+            piStatus.textContent = `âŒ ${errorResult?.error || "Pi authentication failed."}`;
             piStatus.style.color = "#ef4444";
           }
         }
       );
 
       if (!result?.ok && piStatus) {
-        piStatus.textContent = `❌ ${result?.error || "Pi authentication failed."}`;
+        piStatus.textContent = `âŒ ${result?.error || "Pi authentication failed."}`;
         piStatus.style.color = "#ef4444";
       }
     });
   }
 
   // -------------------------------------------------
-  // MENU HAMBURGER LOGIC (minimal, non‑intrusive)
+  // MENU HAMBURGER LOGIC (minimal, nonâ€‘intrusive)
   // -------------------------------------------------
 const menuToggle = document.getElementById('menuToggle');
 const menuPanel = document.getElementById('menuPanel');
@@ -365,12 +372,12 @@ document.addEventListener('DOMContentLoaded', () => {
           apiStatusEl.textContent = "Ready in Pi Browser.";
           apiStatusEl.style.color = '#10b981';
         } else {
-          apiStatusEl.textContent = '⚠️ Backend responded but status unclear';
+          apiStatusEl.textContent = 'âš ï¸ Backend responded but status unclear';
           apiStatusEl.style.color = '#f59e0b';
         }
       })
       .catch(err => {
-        apiStatusEl.textContent = '❌ Backend connection failed';
+        apiStatusEl.textContent = 'âŒ Backend connection failed';
         apiStatusEl.style.color = '#ef4444';
         console.error('Backend check error:', err);
       });
@@ -393,3 +400,5 @@ document.addEventListener('click', (e) => {
     }
   }
 });
+
+
