@@ -1,7 +1,7 @@
-/**
+﻿/**
  * pi-integration.js
- * Gestion centralisée de l'intégration Pi SDK
- * - Détection du mode backend
+ * Gestion centralisÃ©e de l'intÃ©gration Pi SDK
+ * - DÃ©tection du mode backend
  * - Initialisation du SDK Pi
  * - Authentification
  * - Persistance + restauration de session
@@ -15,14 +15,14 @@ class PiIntegrationManager {
     this.accessToken = null;
     this.backendUrl = 'https://atlaspi-backend.onrender.com';
 
-    // ✅ Restaurer immédiatement la session au chargement de la page
+    // âœ… Restaurer immÃ©diatement la session au chargement de la page
     this.restoreSession();
 
-    // ✅ Initialiser le SDK après récupération du mode backend
+    // âœ… Initialiser le SDK aprÃ¨s rÃ©cupÃ©ration du mode backend
     this.fetchBackendMode()
       .then(() => this.initPiSdk())
       .catch((err) => {
-        console.warn('[Pi Integration] Mode fetch failed – keeping default mode:', err?.message || err);
+        console.warn('[Pi Integration] Mode fetch failed â€“ keeping default mode:', err?.message || err);
         this.initPiSdk();
       });
   }
@@ -32,6 +32,7 @@ class PiIntegrationManager {
   // -------------------------------------------------------------------------
   restoreSession() {
     try {
+      return null; // SUPPRIMÉ - Conformité Pi : pas de restauration depuis localStorage
       const stored = localStorage.getItem('piUser');
 
       if (!stored) {
@@ -53,7 +54,7 @@ class PiIntegrationManager {
 
       this.accessToken = parsed.accessToken || localStorage.getItem('pi_access_token') || null;
 
-      // ✅ Compatibilité avec les autres scripts/pages
+      // âœ… CompatibilitÃ© avec les autres scripts/pages
       localStorage.setItem('pi_user_id', this.user.uid);
       localStorage.setItem('pi_username', this.user.username || '');
 
@@ -61,9 +62,9 @@ class PiIntegrationManager {
         localStorage.setItem('pi_access_token', this.accessToken);
       }
 
-      console.log('[Pi Integration] Session restaurée depuis localStorage :', this.user.username || this.user.uid);
+      console.log('[Pi Integration] Session restaurÃ©e depuis localStorage :', this.user.username || this.user.uid);
 
-      // ✅ Notifier les scripts déjà chargés
+      // âœ… Notifier les scripts dÃ©jÃ  chargÃ©s
       window.dispatchEvent(new CustomEvent('piUserLoggedIn', {
         detail: {
           ...this.user,
@@ -72,7 +73,7 @@ class PiIntegrationManager {
         }
       }));
 
-      // ✅ Notifier aussi après DOMContentLoaded si l'UI n'était pas encore prête
+      // âœ… Notifier aussi aprÃ¨s DOMContentLoaded si l'UI n'Ã©tait pas encore prÃªte
       if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', () => {
           window.dispatchEvent(new CustomEvent('piUserLoggedIn', {
@@ -145,11 +146,11 @@ class PiIntegrationManager {
       }
     }));
 
-    console.log('[Pi Integration] Session persistée :', cleanUser.username || cleanUser.uid);
+    console.log('[Pi Integration] Session persistÃ©e :', cleanUser.username || cleanUser.uid);
   }
 
   // -------------------------------------------------------------------------
-  // Récupération du mode backend
+  // RÃ©cupÃ©ration du mode backend
   // -------------------------------------------------------------------------
   async fetchBackendMode() {
     try {
@@ -163,12 +164,12 @@ class PiIntegrationManager {
 
       if (data && data.mode) {
         this.mode = data.mode;
-        console.log(`[Pi Integration] Mode backend récupéré : ${this.mode}`);
+        console.log(`[Pi Integration] Mode backend rÃ©cupÃ©rÃ© : ${this.mode}`);
       }
 
       return this.mode;
     } catch (err) {
-      console.warn('[Pi Integration] Impossible de récupérer le mode backend :', err.message);
+      console.warn('[Pi Integration] Impossible de rÃ©cupÃ©rer le mode backend :', err.message);
       return this.mode;
     }
   }
@@ -183,8 +184,8 @@ class PiIntegrationManager {
       console.warn('[Pi Integration] Pi SDK non disponible');
       this.sdkAvailable = false;
 
-  // Ne pas créer de session automatique si le SDK Pi est absent.
-      // Le mode backend courant est conservé si le SDK Pi est absent.
+  // Ne pas crÃ©er de session automatique si le SDK Pi est absent.
+      // Le mode backend courant est conservÃ© si le SDK Pi est absent.
 
       return;
     }
@@ -199,11 +200,11 @@ class PiIntegrationManager {
 
       this.sdkAvailable = true;
 
-      console.log(`[Pi Integration] Pi SDK initialisé (sandbox=${sandbox}, mode=${this.mode})`);
+      console.log(`[Pi Integration] Pi SDK initialisÃ© (sandbox=${sandbox}, mode=${this.mode})`);
     } catch (err) {
       console.error('[Pi Integration] Erreur initialisation Pi SDK :', err);
       this.sdkAvailable = false;
-      // Conserver le mode courant si l'initialisation SDK échoue.
+      // Conserver le mode courant si l'initialisation SDK Ã©choue.
     }
   }
 
@@ -211,7 +212,7 @@ class PiIntegrationManager {
   // Authentification
   // -------------------------------------------------------------------------
   async authenticate(scopes = ['username', 'payments']) {
-    // ✅ Vérifier/restaurer session existante avant de relancer Pi.authenticate
+    // âœ… VÃ©rifier/restaurer session existante avant de relancer Pi.authenticate
     const restored = this.restoreSession();
 
     if (restored && restored.uid) {
@@ -224,9 +225,9 @@ class PiIntegrationManager {
       };
     }
 
-// Pi SDK indisponible : authentification réelle impossible
+// Pi SDK indisponible : authentification rÃ©elle impossible
 if (!this.sdkAvailable || !window.Pi) {
-  console.warn('[Pi Integration] Pi SDK indisponible. Authentification réelle impossible.');
+  console.warn('[Pi Integration] Pi SDK indisponible. Authentification rÃ©elle impossible.');
 
   return {
     ok: false,
@@ -237,7 +238,7 @@ if (!this.sdkAvailable || !window.Pi) {
   };
 }
 
-    // Authentification Pi SDK réelle
+    // Authentification Pi SDK rÃ©elle
     return await this.authPiSdk(scopes);
   }
 
@@ -247,7 +248,7 @@ if (!this.sdkAvailable || !window.Pi) {
   async authPiSdk(scopes = ['username', 'payments']) {
     try {
       const authResult = await Pi.authenticate(scopes, (payment) => {
-        console.warn('[Pi Integration] Paiement incomplet détecté :', payment);
+        console.warn('[Pi Integration] Paiement incomplet dÃ©tectÃ© :', payment);
       });
 
       const user = authResult && authResult.user ? authResult.user : null;
@@ -257,10 +258,10 @@ if (!this.sdkAvailable || !window.Pi) {
         throw new Error('Pi SDK authentication returned no user');
       }
 
-      // ✅ Persister user + accessToken
+      // âœ… Persister user + accessToken
       this.persistSession(user, accessToken);
 
-      console.log('[Pi Integration] Authentification Pi SDK réussie :', user.username || user.uid);
+      console.log('[Pi Integration] Authentification Pi SDK rÃ©ussie :', user.username || user.uid);
 
       return {
         ok: true,
@@ -280,7 +281,7 @@ if (!this.sdkAvailable || !window.Pi) {
   }
 
   // -------------------------------------------------------------------------
-  // Déconnexion
+  // DÃ©connexion
   // -------------------------------------------------------------------------
   logout() {
     this.user = null;
@@ -293,7 +294,7 @@ if (!this.sdkAvailable || !window.Pi) {
 
     window.dispatchEvent(new CustomEvent('piUserLoggedOut'));
 
-    console.log('[Pi Integration] Utilisateur déconnecté');
+    console.log('[Pi Integration] Utilisateur dÃ©connectÃ©');
   }
 
   // -------------------------------------------------------------------------
@@ -330,19 +331,19 @@ if (!this.sdkAvailable || !window.Pi) {
     const mode = this.getMode();
 
     if (!sdkAvailable) {
-      return '⚠️ Pi SDK not available. Please open AtlasPi inside Pi Browser and try again.';
+      return 'âš ï¸ Pi SDK not available. Please open AtlasPi inside Pi Browser and try again.';
     }
 
     switch (mode) {
 
       case 'pi-ready':
-        return '✅ Pi‑READY mode - Ready for Pi SDK authentication';
+        return 'âœ… Piâ€‘READY mode - Ready for Pi SDK authentication';
       case 'pirc2-sandbox':
-        return '✅ SANDBOX mode - Ready for Pi SDK authentication (sandbox)';
+        return 'âœ… SANDBOX mode - Ready for Pi SDK authentication (sandbox)';
       case 'pirc2-production':
-        return '✅ PRODUCTION mode - Requires real Pi SDK and credentials';
+        return 'âœ… PRODUCTION mode - Requires real Pi SDK and credentials';
       default:
-        return 'ℹ️ Unknown mode';
+        return 'â„¹ï¸ Unknown mode';
     }
   }
 
@@ -358,12 +359,13 @@ if (!this.sdkAvailable || !window.Pi) {
   }
 }
 
-// ✅ Exposition globale
+// âœ… Exposition globale
 if (typeof window !== 'undefined') {
   window.piIntegrationManager = new PiIntegrationManager();
 
-  // ✅ Helper global utile pour les pages qui veulent forcer la restauration
+  // âœ… Helper global utile pour les pages qui veulent forcer la restauration
   window.restorePiSession = function restorePiSession() {
     return window.piIntegrationManager.restoreSession();
   };
 }
+
