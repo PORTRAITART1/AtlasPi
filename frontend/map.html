@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -10,7 +10,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="apple-mobile-web-app-title" content="AtlasPi" />
   <link rel="stylesheet" href="style.css" />
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <link rel="stylesheet" href="leaflet.css" />
   <style>
     #merchant-map {
       width: 100%;
@@ -75,16 +75,16 @@
           <span>The Trusted Map of Pi Commerce</span>
         </div>
       </a>
-      <button class="menu-toggle" id="menuToggle" aria-label="Toggle menu">☰</button>
+      <button class="menu-toggle" id="menuToggle" aria-label="Toggle menu">â˜°</button>
       <nav class="menu-panel" id="menuPanel" hidden>
-        <a href="discover.html" data-i18n="discover">🌍 Discover</a>
-        <a href="map.html" class="nav-highlight" data-i18n="map">🗺️ Map</a>
-        <a href="payments.html" data-i18n="payments">💳 Payments</a>
-        <a href="vip.html" data-i18n="vip">💎 VIP</a>
-        <a href="support.html" data-i18n="support">🛟 Support</a>
-        <a href="my-subscriptions.html" data-i18n="subscriptions">📋 Subscriptions</a>
-        <a href="merchant-plans.html" data-i18n="plans">🏪 Plans</a>
-        <a href="profile.html" class="btn btn-nav" data-i18n="profile">👤 Profile</a>
+        <a href="discover.html" data-i18n="discover">ðŸŒ Discover</a>
+        <a href="map.html" class="nav-highlight" data-i18n="map">ðŸ—ºï¸ Map</a>
+        <a href="payments.html" data-i18n="payments">ðŸ’³ Payments</a>
+        <a href="vip.html" data-i18n="vip">ðŸ’Ž VIP</a>
+        <a href="support.html" data-i18n="support">ðŸ›Ÿ Support</a>
+        <a href="my-subscriptions.html" data-i18n="subscriptions">ðŸ“‹ Subscriptions</a>
+        <a href="merchant-plans.html" data-i18n="plans">ðŸª Plans</a>
+        <a href="profile.html" class="btn btn-nav" data-i18n="profile">ðŸ‘¤ Profile</a>
       </nav>
     </div>
   </header>
@@ -93,9 +93,9 @@
     <div class="container">
       <div class="section-heading">
         <span class="eyebrow">Interactive Map</span>
-        <h1>🗺️ <span class="gradient-text">Merchant Map</span></h1>
+        <h1>ðŸ—ºï¸ <span class="gradient-text">Merchant Map</span></h1>
         <p class="hero-lead">
-          Explore Pi-ready merchants around the world — live from the AtlasPi backend.
+          Explore Pi-ready merchants around the world â€” live from the AtlasPi backend.
         </p>
       </div>
     </div>
@@ -105,21 +105,21 @@
     <div class="container">
 
       <div class="map-filters">
-        <input type="text" id="mapCity" placeholder="🏙️ Search by city..." />
+        <input type="text" id="mapCity" placeholder="ðŸ™ï¸ Search by city..." />
         <input type="text" id="mapSearch"
-          placeholder="🔍 Search merchant..." />
+          placeholder="ðŸ” Search merchant..." />
         <select id="mapCategory">
           <option value="">All Categories</option>
-          <option value="food">☕ Food & Drinks</option>
-          <option value="electronics">💻 Electronics</option>
-          <option value="fashion">👕 Fashion</option>
-          <option value="services">🛠️ Services</option>
-          <option value="handmade">🧵 Handmade</option>
-          <option value="shop">🏪 Shop</option>
+          <option value="food">â˜• Food & Drinks</option>
+          <option value="electronics">ðŸ’» Electronics</option>
+          <option value="fashion">ðŸ‘• Fashion</option>
+          <option value="services">ðŸ› ï¸ Services</option>
+          <option value="handmade">ðŸ§µ Handmade</option>
+          <option value="shop">ðŸª Shop</option>
         </select>
         <select id="mapPiFilter">
           <option value="">All Merchants</option>
-          <option value="pi">🟣 Accepts Pi Only</option>
+          <option value="pi">ðŸŸ£ Accepts Pi Only</option>
         </select>
         <button class="btn btn-secondary" id="mapResetBtn">Reset</button>
       </div>
@@ -127,9 +127,9 @@
       <div id="merchant-map"></div>
 
       <div class="map-legend">
-        <span>🟣 Accepts Pi</span>
-        <span>🔵 Approved</span>
-        <span>⭐ Verified</span>
+        <span>ðŸŸ£ Accepts Pi</span>
+        <span>ðŸ”µ Approved</span>
+        <span>â­ Verified</span>
       </div>
 
       <p class="map-status" id="mapStatus">Loading merchants...</p>
@@ -153,15 +153,15 @@
 
   <script src="config.js?v=13"></script>
   <script src="i18n.js"></script>
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="leaflet.js"></script>
   <script>
     const API_BASE_URL = window.ATLASPI_CONFIG?.API_BASE_URL || "https://atlaspi-backend.onrender.com";
 
-    // Init map — centered on world
+    // Init map â€” centered on world
     const map = L.map("merchant-map").setView([20, 0], 2);
 
     L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-      attribution: '© <a href="https://openstreetmap.org">OpenStreetMap</a>',
+      attribution: 'Â© <a href="https://openstreetmap.org">OpenStreetMap</a>',
       maxZoom: 18,
     }).addTo(map);
 
@@ -207,18 +207,18 @@
         const name = merchant.listing_public_name || merchant.business_name || "Merchant";
         const city = merchant.city || "-";
         const country = merchant.country || "-";
-        const acceptsPi = merchant.accepts_pi ? "🟣 Accepts Pi" : "";
+        const acceptsPi = merchant.accepts_pi ? "ðŸŸ£ Accepts Pi" : "";
 
         const marker = L.marker([lat, lng], { icon })
           .addTo(map)
           .bindPopup(`
             <div style="min-width:180px;">
               <strong>${name}</strong><br/>
-              📍 ${city}, ${country}<br/>
+              ðŸ“ ${city}, ${country}<br/>
               ${acceptsPi ? `<span style="color:#7c3aed;">${acceptsPi}</span><br/>` : ""}
               <a href="merchant-detail.html?id=${merchant.id}"
                 style="color:#7c3aed; font-weight:600;">
-                View Details →
+                View Details â†’
               </a>
             </div>
           `);
@@ -325,7 +325,7 @@ console.log(`[Map] ${sorted.length} categories loaded`);
 
           if (window.AtlasPiNotify) {
             window.AtlasPiNotify.success(
-              `${enriched.length} merchant(s) — ${withGPS} on map`, 3000
+              `${enriched.length} merchant(s) â€” ${withGPS} on map`, 3000
             );
           }
 
@@ -336,7 +336,7 @@ console.log(`[Map] ${sorted.length} categories loaded`);
           document.getElementById("mapStatus").textContent = "No merchants found.";
         }
       } catch (e) {
-        document.getElementById("mapStatus").textContent = "❌ Failed to load merchants.";
+        document.getElementById("mapStatus").textContent = "âŒ Failed to load merchants.";
         console.error(e);
       }
     }
@@ -367,3 +367,4 @@ console.log(`[Map] ${sorted.length} categories loaded`);
   <script src="notifications.js"></script>
 </body>
 </html>
+
