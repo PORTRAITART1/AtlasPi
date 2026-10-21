@@ -1,4 +1,4 @@
-const express = require("express");
+﻿const express = require("express");
 const axios = require("axios");
 const logger = require("../utils/logger.js");
 const { trackRealUser } = require("../utils/realUsersTracker.js");
@@ -43,9 +43,9 @@ router.post("/", async (req, res) => {
             });
         }
 
-        logger.info(`✅ Pi authentication successful for user: ${userId}`);
+        logger.info(`âœ… Pi authentication successful for user: ${userId}`);
 
-// ✅ Tracker le vrai utilisateur
+// âœ… Tracker le vrai utilisateur
 const tracking = trackRealUser(piUser.uid, piUser.username);
 if (tracking.isNew) {
 logger.info(`[Auth] New real user tracked: ${piUser.username} (#${tracking.count})`);
@@ -58,7 +58,7 @@ logger.info(`[Auth] New real user tracked: ${piUser.username} (#${tracking.count
                 id: piUser.uid,
                 username: piUser.username,
                 displayName: piUser.display_name,
-                email: piUser.email
+                // email: piUser.email // SUPPRIMÉ - Conformité Pi : collecte d'email interdite
             },
             message: "Authentication successful"
         });
@@ -83,7 +83,7 @@ logger.info(`[Auth] New real user tracked: ${piUser.username} (#${tracking.count
 
 /**
  * GET /api/auth/pi/verify
- * Vérifie si un token Pi est valide
+ * VÃ©rifie si un token Pi est valide
  * Query: { accessToken }
  */
 router.get("/verify", async (req, res) => {
@@ -130,7 +130,7 @@ router.get("/verify", async (req, res) => {
 });
 
 
-// ✅ Route pour voir le compteur de vrais utilisateurs
+// âœ… Route pour voir le compteur de vrais utilisateurs
 router.get("/tracker/stats", (req, res) => {
   try {
     const { getCount, getUnreadNotifications, TARGET_COUNT } = require("../utils/realUsersTracker.js");
@@ -147,3 +147,4 @@ router.get("/tracker/stats", (req, res) => {
 });
 
 module.exports = router;
+

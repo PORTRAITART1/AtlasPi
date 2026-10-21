@@ -1,4 +1,4 @@
-const express = require("express");
+﻿const express = require("express");
 const db = require("../config/db.js");
 const logger = require("../utils/logger.js");
 const { v4: uuidv4 } = require("uuid");
@@ -11,10 +11,10 @@ router.post("/create", validateBody(createSupportRequestSchema), async (req, res
   try {
     const { name, email, support_type, message } = req.body;
 
-    if (!name || !email || !support_type || !message) {
+    if (!name || !support_type || !message) {
       return res.status(400).json({
         ok: false,
-        error: "name, email, support_type and message are required"
+        error: "name, support_type and message are required (email is optional)"
       });
     }
 
@@ -77,3 +77,4 @@ router.patch("/:id/status", async (req, res) => {
 });
 
 module.exports = router;
+

@@ -1,4 +1,4 @@
-const express = require("express");
+﻿const express = require("express");
 const db = require("../config/db.js");
 const logger = require("../utils/logger.js");
 
@@ -6,7 +6,7 @@ const router = express.Router();
 
 /**
  * GET /api/merchant-listings/list
- * Retourne la liste des marchands avec coordonnées GPS
+ * Retourne la liste des marchands avec coordonnÃ©es GPS
  */
 router.get("/list", (req, res) => {
   try {
@@ -24,7 +24,7 @@ router.get("/list", (req, res) => {
         latitude,
         longitude,
         phone_business,
-        email_business,
+        -- email_business, -- SUPPRIMÉ : conformité Pi, email interdit en public
         website_url,
         accepts_pi,
         verification_status,
@@ -72,7 +72,7 @@ router.get("/detail/:id", (req, res) => {
 
 /**
  * POST /api/merchant-listings/create
- * Crée une nouvelle inscription marchand
+ * CrÃ©e une nouvelle inscription marchand
  */
 const { v4: uuidv4 } = require("uuid");
 
@@ -171,11 +171,11 @@ router.post("/create", (req, res) => {
       now, now
     );
 
-    logger.info(`✅ [MerchantListings] New listing created: ${listingUuid}`);
+    logger.info(`âœ… [MerchantListings] New listing created: ${listingUuid}`);
 
     res.status(201).json({
       ok: true,
-      message: "Merchant listing created successfully. En attente de modération.",
+      message: "Merchant listing created successfully. En attente de modÃ©ration.",
       listing_uuid: listingUuid,
       status: "pending_review"
     });
@@ -188,7 +188,7 @@ router.post("/create", (req, res) => {
 
 /**
  * GET /api/merchant-listings/pending
- * Liste des marchands en attente de modération
+ * Liste des marchands en attente de modÃ©ration
  */
 router.get("/pending", (req, res) => {
   try {
@@ -232,7 +232,7 @@ router.get("/admin-stats", (req, res) => {
 
 /**
  * GET /api/merchant-listings/admin-list
- * Liste complète pour l'admin
+ * Liste complÃ¨te pour l'admin
  */
 router.get("/admin-list", (req, res) => {
   try {
@@ -260,7 +260,7 @@ router.post("/moderate/:id", (req, res) => {
     if (!listing_status || !["approved", "rejected", "pending_review"].includes(listing_status)) {
       return res.status(400).json({
         ok: false,
-        error: "listing_status invalide. Valeurs acceptées: approved, rejected, pending_review"
+        error: "listing_status invalide. Valeurs acceptÃ©es: approved, rejected, pending_review"
       });
     }
 
@@ -272,11 +272,11 @@ router.post("/moderate/:id", (req, res) => {
     `).run(listing_status, moderation_reason || null, now, id);
 
     if (result.changes === 0) {
-      return res.status(404).json({ ok: false, error: "Marchand non trouvé" });
+      return res.status(404).json({ ok: false, error: "Marchand non trouvÃ©" });
     }
 
-    logger.info(`✅ [MerchantListings] Listing ${id} -> ${listing_status}`);
-    res.json({ ok: true, message: `Statut mis à jour: ${listing_status}` });
+    logger.info(`âœ… [MerchantListings] Listing ${id} -> ${listing_status}`);
+    res.json({ ok: true, message: `Statut mis Ã  jour: ${listing_status}` });
   } catch (err) {
     logger.error("[MerchantListings] Moderate error:", err.message);
     res.status(500).json({ ok: false, error: "Internal server error" });
@@ -284,3 +284,4 @@ router.post("/moderate/:id", (req, res) => {
 });
 
 module.exports = router;
+
