@@ -1,4 +1,4 @@
-/**
+﻿/**
  * AtlasPi Frontend Configuration - MAINNET
  */
 
@@ -40,9 +40,9 @@ const ATLASPI_CONFIG = {
   APP_VERSION: '1.0.0',
 
   // Mode mainnet
-  APP_MODE: 'pirc2-production',
+  APP_MODE: 'pirc2-sandbox',
   PI_NETWORK: 'mainnet',
-  PI_SANDBOX: false,
+  PI_SANDBOX: true,
 
   // Feature flags - MAINNET
   FEATURES: {
@@ -92,9 +92,10 @@ const ATLASPI_CONFIG = {
 
 if (typeof window !== 'undefined') {
   window.ATLASPI_CONFIG = ATLASPI_CONFIG;
-  console.log('[AtlasPi] Config loaded — mode:', ATLASPI_CONFIG.APP_MODE, '| network:', ATLASPI_CONFIG.PI_NETWORK);
+  console.log('[AtlasPi] Config loaded â€” mode:', ATLASPI_CONFIG.APP_MODE, '| network:', ATLASPI_CONFIG.PI_NETWORK);
 }
 
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = ATLASPI_CONFIG;
 }
+
