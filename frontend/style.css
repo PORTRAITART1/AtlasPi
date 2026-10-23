@@ -1,4 +1,21 @@
-﻿:root {
+﻿/* ============================================
+   POLICE INTER — Hébergée localement
+   ============================================ */
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('inter-regular.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('inter-bold.woff2') format('woff2');
+}
+:root {
   --bg: #070b16;
   --bg-2: #0b1222;
   --panel: rgba(255, 255, 255, 0.06);
@@ -1527,3 +1544,4 @@ main,
   h2 { font-size: 1.2rem; }
   .btn { padding: 12px 16px; font-size: 13px; }
 }
+
