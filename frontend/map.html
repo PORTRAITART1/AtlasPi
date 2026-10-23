@@ -239,7 +239,7 @@
 
       document.getElementById("locateMeBtn")?.addEventListener("click", () => {
   if (!navigator.geolocation) {
-    alert("La géolocalisation n'est pas supportée par votre navigateur.");
+    window.AtlasPiToast?.error("La géolocalisation n'est pas supportée par votre navigateur.");
     return;
   }
   navigator.geolocation.getCurrentPosition(
@@ -256,7 +256,7 @@
       }).addTo(map).bindPopup("Vous êtes ici").openPopup();
     },
     (error) => {
-      alert("Impossible de vous localiser : " + error.message);
+      window.AtlasPiToast?.error("Impossible de vous localiser : " + error.message);
     },
     { enableHighAccuracy: true, timeout: 10000 }
   );
@@ -402,6 +402,8 @@ console.log(`[Map] ${sorted.length} categories loaded`);
   <script src="notifications.js"></script>
 </body>
 </html>
+
+
 
 
 
