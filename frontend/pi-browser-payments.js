@@ -1,4 +1,4 @@
-// frontend/pi-browser-payments.js
+﻿// frontend/pi-browser-payments.js
 
 const BACKEND_URL = "https://atlaspi-backend.onrender.com";
 
@@ -46,7 +46,7 @@ class PiBrowserPayments {
     }
   }
 
-  // ✅ NOUVELLE SIGNATURE : accepte un objet callbacks en 4ème paramètre
+  // âœ… NOUVELLE SIGNATURE : accepte un objet callbacks en 4Ã¨me paramÃ¨tre
   async createPayment(amount, memo, metadata = {}, callbacks = {}) {
     if (!this.isInPiBrowser()) {
       throw new Error("Pi SDK not available. Please open in Pi Browser.");
@@ -73,7 +73,7 @@ class PiBrowserPayments {
               const res = await fetch(`${BACKEND_URL}/api/pi-payments/approve-pi-real`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ paymentId }),
+                body: JSON.stringify({ paymentId, signature: null, payload: null }),
               });
               const data = await res.json().catch(() => ({}));
 
@@ -81,7 +81,7 @@ class PiBrowserPayments {
                 console.error("[PiBrowserPayments] Approval error:", res.status, data);
                 if (callbacks.onError) callbacks.onError(new Error(data.error || `HTTP ${res.status}`));
               } else {
-                console.log("[PiBrowserPayments] Approved ✅");
+                console.log("[PiBrowserPayments] Approved âœ…");
                 if (callbacks.onApproved) callbacks.onApproved(paymentId, data);
               }
             } catch (err) {
@@ -106,7 +106,7 @@ class PiBrowserPayments {
                 throw new Error(data.error || `Complete failed: ${res.status}`);
               }
 
-              console.log("[PiBrowserPayments] Completed ✅");
+              console.log("[PiBrowserPayments] Completed âœ…");
               if (callbacks.onCompleted) callbacks.onCompleted(paymentId, txid, data);
               resolve({ paymentId, txid, data });
 
@@ -136,3 +136,4 @@ class PiBrowserPayments {
 
 window.PiBrowserPayments = PiBrowserPayments;
 window.piBrowserPayments = new PiBrowserPayments();
+
