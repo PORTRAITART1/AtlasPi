@@ -410,6 +410,9 @@ document.addEventListener("DOMContentLoaded", () => {
     loadPaymentsBtn.addEventListener("click", async () => {
       const statusEl = document.getElementById("paymentListStatus");
       const listEl = document.getElementById("paymentList");
+      const originalText = loadPaymentsBtn.innerHTML;
+      loadPaymentsBtn.innerHTML = '<span class="spinner"></span> Chargement...';
+      loadPaymentsBtn.classList.add('btn-loading');
       if (statusEl) statusEl.textContent = "Chargement des paiements...";
       try {
         const res = await fetch(${API_BASE_URL}/api/payments/list);
@@ -431,6 +434,9 @@ document.addEventListener("DOMContentLoaded", () => {
       } catch (e) {
         if (statusEl) statusEl.textContent = "Erreur lors du chargement des paiements.";
         console.error(e);
+      } finally {
+        loadPaymentsBtn.innerHTML = originalText;
+        loadPaymentsBtn.classList.remove('btn-loading');
       }
     });
   }
@@ -443,6 +449,9 @@ document.addEventListener("DOMContentLoaded", () => {
     loadMerchantListingsBtn.addEventListener("click", async () => {
       const statusEl = document.getElementById("merchantListStatus");
       const listEl = document.getElementById("merchantListingsList");
+      const originalText = loadMerchantListingsBtn.innerHTML;
+      loadMerchantListingsBtn.innerHTML = '<span class="spinner"></span> Chargement...';
+      loadMerchantListingsBtn.classList.add('btn-loading');
       if (statusEl) statusEl.textContent = "Chargement des marchands...";
       try {
         const res = await fetch(${API_BASE_URL}/api/merchant-listings/list?limit=50);
@@ -464,6 +473,9 @@ document.addEventListener("DOMContentLoaded", () => {
       } catch (e) {
         if (statusEl) statusEl.textContent = "Erreur lors du chargement.";
         console.error(e);
+      } finally {
+        loadMerchantListingsBtn.innerHTML = originalText;
+        loadMerchantListingsBtn.classList.remove('btn-loading');
       }
     });
   }
@@ -479,3 +491,5 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 });
+
+
