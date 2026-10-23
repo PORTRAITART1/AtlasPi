@@ -402,3 +402,36 @@ document.addEventListener('click', (e) => {
 });
 
 
+
+// Gestionnaire pour le bouton "Load Payments List"
+document.addEventListener("DOMContentLoaded", () => {
+  const loadPaymentsBtn = document.getElementById("loadPaymentsBtn");
+  if (loadPaymentsBtn) {
+    loadPaymentsBtn.addEventListener("click", async () => {
+      const statusEl = document.getElementById("paymentListStatus");
+      const listEl = document.getElementById("paymentList");
+      if (statusEl) statusEl.textContent = "Chargement des paiements...";
+      try {
+        const res = await fetch(${API_BASE_URL}/api/payments/list);
+        const data = await res.json();
+        if (data.ok && Array.isArray(data.payments) && data.payments.length > 0) {
+          if (listEl) {
+            listEl.innerHTML = data.payments.map(p => 
+              <div style="padding:10px;border-bottom:1px solid rgba(255,255,255,0.1);">
+                <strong> π</strong> — <br/>
+                <small></small>
+              </div>
+            ).join("");
+          }
+          if (statusEl) statusEl.textContent = ${data.payments.length} paiement(s) trouvé(s).;
+        } else {
+          if (listEl) listEl.innerHTML = "";
+          if (statusEl) statusEl.textContent = "Aucun paiement trouvé.";
+        }
+      } catch (e) {
+        if (statusEl) statusEl.textContent = "Erreur lors du chargement des paiements.";
+        console.error(e);
+      }
+    });
+  }
+});
