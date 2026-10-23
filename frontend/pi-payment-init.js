@@ -7,7 +7,7 @@
 
   function getUserFromStorage() {
     try {
-      const raw = $null; // SUPPRIMÉ - Conformité Pi : pas de lecture localStorage
+      const raw = null; // SUPPRIMÉ - Conformité Pi : pas de lecture localStorage
       if (!raw) return null;
       const parsed = JSON.parse(raw);
       if (parsed && parsed.uid) return parsed;
@@ -182,4 +182,5 @@
     init();
   }
 })();
+
 
