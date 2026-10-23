@@ -1451,3 +1451,79 @@ main,
   opacity: 0.7;
   pointer-events: none;
 }
+
+/* ============================================
+   RESPONSIVE MOBILE — Pi Browser (mobile-first)
+   ============================================ */
+@media (max-width: 640px) {
+  /* Formulaires */
+  input, select, textarea {
+    font-size: 16px !important; /* Évite le zoom iOS */
+    padding: 12px !important;
+  }
+
+  /* Boutons */
+  .btn {
+    width: 100%;
+    justify-content: center;
+    padding: 14px 20px;
+  }
+
+  .btn + .btn {
+    margin-top: 8px;
+  }
+
+  /* Tableaux */
+  table {
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+
+  /* Cartes */
+  .cta-card {
+    padding: 20px 16px;
+  }
+
+  /* Carte Leaflet */
+  #merchant-map {
+    height: 380px !important;
+  }
+
+  /* Titres */
+  h1 { font-size: 1.8rem; }
+  h2 { font-size: 1.4rem; }
+  h3 { font-size: 1.1rem; }
+
+  /* Sections */
+  .section {
+    padding: 40px 0;
+  }
+
+  .container {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+
+  /* Navigation */
+  .menu-shell {
+    padding: 8px 12px;
+  }
+
+  /* Formulaires marchand */
+  #merchant-form-section .merchant-form-block-title {
+    font-size: 1rem;
+  }
+
+  /* Popups Leaflet */
+  .leaflet-popup-content {
+    font-size: 13px;
+    margin: 8px 10px;
+  }
+}
+
+@media (max-width: 380px) {
+  h1 { font-size: 1.5rem; }
+  h2 { font-size: 1.2rem; }
+  .btn { padding: 12px 16px; font-size: 13px; }
+}
