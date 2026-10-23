@@ -1,4 +1,4 @@
-// AtlasPi Pi Integration Preparation (DAY 2 / Pi Integration Setup)
+﻿// AtlasPi Pi Integration Preparation (DAY 2 / Pi Integration Setup)
 // 
 // This file documents the structure prepared for real Pi integration (DAY 3+)
 // and provides placeholder functions for Pi SDK integration.
@@ -93,24 +93,14 @@ class PiAuthValidator {
 
     logger.warn('[Pi Validator] Payment signature verification pending (DAY 3)');
 
-    // For now we assume the signature is valid to keep the flow working.
-    // In production this must be replaced with real cryptographic verification.
-    if (!signature || !payload) {
-      return {
-        valid: false,
-        validationStatus: 'failed',
-        error: 'Missing signature or payload for verification',
-        placeholder: true
-      };
-    }
-
+    logger.warn('[Pi Validator] Signature verification not implemented. Use server-side /v2/payments/{id} verification.');
     return {
-      valid: true,
-      validationStatus: 'verified',
-      message: 'Signature verification placeholder passed'
+      valid: false,
+      validationStatus: 'not_implemented',
+      error: 'Signature verification not implemented. Use server-side /v2/payments/{id} verification.'
     };
   }
-}
+  }
 
 /**
  * Pi Credential Manager
@@ -242,7 +232,7 @@ class PiPaymentIntegration {
    * Verify payment signature (used by backend)
    */
   static verifyPaymentSignature(signature, payload) {
-    // Re‑use the placeholder verification from PiAuthValidator
+    // Reâ€‘use the placeholder verification from PiAuthValidator
     return PiAuthValidator.verifyPaymentSignature(signature, payload);
   }
 }

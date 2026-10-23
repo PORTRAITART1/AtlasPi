@@ -1,4 +1,4 @@
-// AtlasPi Pi Payments Implementation (DAY 3+)
+﻿// AtlasPi Pi Payments Implementation (DAY 3+)
 // Handles Pi Network payment flows, distinguishing between demo, sandbox, and production.
 
 import express from "express";
@@ -104,15 +104,11 @@ function isRealCredential(value) {
 
   logger.info(`[Payment] approve-pi-real mode=${appMode} piPaymentId=${paymentId}`);
 
-  // ---- Verify SDK signature (official flow) ----
-  if (signature && payload) {
-    const verification = PiPaymentIntegration.verifyPaymentSignature(signature, payload);
-    if (!verification.valid) {
-      logger.warn(`[Payment] Invalid signature for paymentId ${paymentId}: ${verification.error}`);
-      return res.status(400).json({ ok: false, error: 'Invalid payment signature' });
-    }
-  } else {
-    logger.warn(`[Payment] No signature/payload provided for paymentId ${paymentId} – skipping verification`);
+  // ---- Verify signature (server-side verification required) ----
+  const verification = PiPaymentIntegration.verifyPaymentSignature(signature, payload);
+  if (!verification.valid) {
+    logger.warn('[Payment] Verification refused for paymentId ' + paymentId + ': ' + verification.error);
+    return res.status(400).json({ ok: false, error: 'Payment verification failed' });
   }
 
   // ---- Real Pi server-side approval ----
@@ -221,15 +217,11 @@ function isRealCredential(value) {
 
   logger.info(`[Payment] complete-pi-real mode=${appMode} piPaymentId=${paymentId} txid=${txid}`);
 
-  // ---- Verify SDK signature (official flow) ----
-  if (signature && payload) {
-    const verification = PiPaymentIntegration.verifyPaymentSignature(signature, payload);
-    if (!verification.valid) {
-      logger.warn(`[Payment] Invalid signature for completion of paymentId ${paymentId}: ${verification.error}`);
-      return res.status(400).json({ ok: false, error: 'Invalid payment signature' });
-    }
-  } else {
-    logger.warn(`[Payment] No signature/payload provided for completion of paymentId ${paymentId} – skipping verification`);
+  // ---- Verify signature (server-side verification required) ----
+  const verification = PiPaymentIntegration.verifyPaymentSignature(signature, payload);
+  if (!verification.valid) {
+    logger.warn('[Payment] Verification refused for paymentId ' + paymentId + ': ' + verification.error);
+    return res.status(400).json({ ok: false, error: 'Payment verification failed' });
   }
 
   const completedAt = new Date().toISOString();
@@ -303,7 +295,7 @@ function isRealCredential(value) {
               return res.status(500).json({ ok: false, error: 'Database error' });
             }
 
-            // ── VIP activation (recovery path) ──────────────────────────
+            // â”€â”€ VIP activation (recovery path) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
             const vipExpiresRecovery = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
             if (req.body && req.body.uid) {
               db.run(
@@ -315,7 +307,7 @@ function isRealCredential(value) {
                 }
               );
             }
-            // ────────────────────────────────────────────────────────────────
+            // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
             return res.json({
               ok: true,
               success: true,
@@ -353,7 +345,7 @@ function isRealCredential(value) {
         response.txidType = 'mock';
       }
 
-      // ── VIP activation (normal path) ────────────────────────────────────
+      // â”€â”€ VIP activation (normal path) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
       db.get(
         `SELECT uid FROM payments WHERE pi_payment_id = ? OR local_payment_id = ?`,
         [paymentId, paymentId],
@@ -376,7 +368,7 @@ function isRealCredential(value) {
           return res.json(response);
         }
       );
-      // ────────────────────────────────────────────────────────────────────
+      // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     }
   );
 });

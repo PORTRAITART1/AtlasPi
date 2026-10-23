@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Pi Network Payments (approval + completion)
  */
 
@@ -22,6 +22,20 @@ router.post("/approve-pi-real", async (req, res) => {
     const piApiKey = getPiApiKey();
     if (!piApiKey) return res.status(500).json({ ok: false, error: "Pi API key not configured" });
 
+    // Vérification serveur obligatoire : le paiement doit exister sur l'API Pi
+    const verifyRes = await fetch(`${PI_API_BASE_URL}/v2/payments/${paymentId}`, {
+      headers: { "Authorization": `Key ${piApiKey}` }
+    });
+    if (!verifyRes.ok) {
+      logger.error(`[PiPayment] Payment ${paymentId} not found on Pi API`);
+      return res.status(400).json({ ok: false, error: "Payment not found on Pi API" });
+    }
+    const paymentData = await verifyRes.json();
+    if (paymentData.status && paymentData.status.developer_approved) {
+      logger.warn(`[PiPayment] Payment ${paymentId} already approved`);
+      return res.status(400).json({ ok: false, error: "Payment already approved" });
+    }
+
     logger.info(`[PiPayment] Approving: ${paymentId}`);
 
     const response = await fetch(`${PI_API_BASE_URL}/v2/payments/${paymentId}/approve`, {
@@ -43,7 +57,7 @@ router.post("/approve-pi-real", async (req, res) => {
       db.prepare(`UPDATE payments SET status = 'approved', pi_payment_id = ?, approved_at = ? WHERE local_payment_id = ? OR pi_payment_id = ?`).run(paymentId, now, paymentId, paymentId);
     } catch (e) { logger.warn(`DB update: ${e.message}`); }
 
-    logger.info(`[PiPayment] Approved ✅: ${paymentId}`);
+    logger.info(`[PiPayment] Approved âœ…: ${paymentId}`);
     res.json({ ok: true, paymentId, status: "approved" });
   } catch (err) {
     logger.error(`[PiPayment] Approve error: ${err.message}`);
@@ -81,7 +95,7 @@ router.post("/complete-pi-real", async (req, res) => {
       db.prepare(`UPDATE payments SET status = 'completed', pi_transaction_id = ?, completed_at = ? WHERE local_payment_id = ? OR pi_payment_id = ?`).run(txid, now, paymentId, paymentId);
     } catch (e) { logger.warn(`DB update: ${e.message}`); }
 
-    logger.info(`[PiPayment] Completed ✅: ${paymentId} -> ${txid}`);
+    logger.info(`[PiPayment] Completed âœ…: ${paymentId} -> ${txid}`);
     res.json({ ok: true, paymentId, txid, status: "completed" });
   } catch (err) {
     logger.error(`[PiPayment] Complete error: ${err.message}`);
