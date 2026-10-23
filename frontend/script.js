@@ -435,3 +435,47 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 });
+
+// Gestionnaire pour "Load Merchant Listings"
+document.addEventListener("DOMContentLoaded", () => {
+  const loadMerchantListingsBtn = document.getElementById("loadMerchantListingsBtn");
+  if (loadMerchantListingsBtn) {
+    loadMerchantListingsBtn.addEventListener("click", async () => {
+      const statusEl = document.getElementById("merchantListStatus");
+      const listEl = document.getElementById("merchantListingsList");
+      if (statusEl) statusEl.textContent = "Chargement des marchands...";
+      try {
+        const res = await fetch(${API_BASE_URL}/api/merchant-listings/list?limit=50);
+        const data = await res.json();
+        if (data.ok && Array.isArray(data.listings) && data.listings.length > 0) {
+          if (listEl) {
+            listEl.innerHTML = data.listings.map(m => 
+              <div style="padding:10px;border-bottom:1px solid rgba(255,255,255,0.1);">
+                <strong></strong><br/>
+                <small>, </small>
+              </div>
+            ).join("");
+          }
+          if (statusEl) statusEl.textContent = ${data.listings.length} marchand(s) trouvé(s).;
+        } else {
+          if (listEl) listEl.innerHTML = "";
+          if (statusEl) statusEl.textContent = "Aucun marchand trouvé.";
+        }
+      } catch (e) {
+        if (statusEl) statusEl.textContent = "Erreur lors du chargement.";
+        console.error(e);
+      }
+    });
+  }
+
+  // Gestionnaire pour "Clear Search"
+  const clearMerchantSearchBtn = document.getElementById("clearMerchantSearchBtn");
+  if (clearMerchantSearchBtn) {
+    clearMerchantSearchBtn.addEventListener("click", () => {
+      const searchInput = document.getElementById("merchantSearchName");
+      if (searchInput) searchInput.value = "";
+      const statusEl = document.getElementById("merchantListStatus");
+      if (statusEl) statusEl.textContent = "Recherche effacée.";
+    });
+  }
+});
