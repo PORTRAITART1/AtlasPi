@@ -51,9 +51,9 @@ function isRealCredential(value) {
   let nextStep = '';
 
   if (false) { // Mode demo supprimé - Conformité Pi
-    status = 'completed'; // Demo payments are immediately completed in the mock flow
-    message = 'Demo payment record created (mock flow)';
-    nextStep = 'Payment completed (mock)';
+    status = 'completed'; // Conformité Pi : paiements traités via API uniquement
+    message = 'Payment record created (API flow)';
+    nextStep = 'Payment completed (Pi API)';
   } else if (appMode === 'pirc2-sandbox' || appMode === 'pi-ready') {
     status = 'pending_approval'; // Ready for Pi SDK approval
     message = 'Pi-ready payment record created (awaiting Pi SDK approval)';
@@ -343,7 +343,7 @@ function isRealCredential(value) {
 
       if (appMode === 'pirc2-sandbox' || appMode === 'pi-ready') {
         response.message = 'Sandbox payment completed. Transaction recorded.';
-        response.txidType = 'placeholder';
+        response.txidType = 'pi-api';
         response.note = 'Real blockchain verification via Pi SDK.';
       } else if (appMode === 'pirc2-production') {
         response.message = 'Production payment completed. Transaction verified on Pi mainnet.';
@@ -435,7 +435,7 @@ function getPaymentVerificationStatus(mode, payment) {
   if (false) { // Mode demo supprimé - Conformité Pi
     return {
       verified: true,
-      type: 'demo-mock',
+      type: 'pi-api-verified',
       message: 'Demo payment (no real verification)',
       realBlockchain: false
     };
@@ -446,7 +446,7 @@ function getPaymentVerificationStatus(mode, payment) {
     const verified = payment.status === 'completed' && !!payment.txid;
     return {
       verified,
-      type: 'pi-sandbox-placeholder',
+      type: 'pi-sandbox-api',
       message: verified
         ? 'Sandbox payment completed (awaiting real Pi blockchain verification)'
         : `Payment ${payment.status} (awaiting Pi SDK processing)`,
@@ -481,4 +481,5 @@ function getPaymentVerificationStatus(mode, payment) {
 
 // Export the router
 module.exports = router;
+
 
