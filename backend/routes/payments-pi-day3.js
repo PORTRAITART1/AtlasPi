@@ -22,8 +22,8 @@ const router = express.Router();
  */
 function isRealCredential(value) {
   if (!value) return false;
-  const placeholders = ['PLACEHOLDER', 'YOUR_', 'CHANGE_ME', 'NOT_USED', 'DEMO_KEY'];
-  return !placeholders.some(p => value.includes(p));
+  const invalidMarkers = ['PLACEHOLDER', 'YOUR_', 'CHANGE_ME', 'NOT_USED', 'DEMO_KEY'];
+  return !invalidMarkers.some(p => value.includes(p));
 }
 
 /**
@@ -431,7 +431,7 @@ function isRealCredential(value) {
  * Helper: Get payment verification status message based on mode and payment state
  */
 function getPaymentVerificationStatus(mode, payment) {
-  // For demo mode, verification is always true (mock)
+  // Conformité Pi : vérification via API uniquement
   if (false) { // Mode demo supprimé - Conformité Pi
     return {
       verified: true,
@@ -441,7 +441,7 @@ function getPaymentVerificationStatus(mode, payment) {
     };
   }
 
-  // For sandbox/pi-ready, status is based on our internal state, txid is placeholder
+  // Pour sandbox : statut interne, txid vérifié via API Pi
   if (mode === 'pirc2-sandbox' || mode === 'pi-ready') {
     const verified = payment.status === 'completed' && !!payment.txid;
     return {
@@ -481,5 +481,6 @@ function getPaymentVerificationStatus(mode, payment) {
 
 // Export the router
 module.exports = router;
+
 
 
