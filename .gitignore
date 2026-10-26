@@ -67,3 +67,6 @@ gradle-cache/
 tools/
 PRIVE DOC/
 null
+
+# Secrets locaux
+backend/.env.sandbox
