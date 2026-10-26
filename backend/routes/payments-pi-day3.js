@@ -50,7 +50,7 @@ function isRealCredential(value) {
   let message = '';
   let nextStep = '';
 
-  if (appMode === 'demo') {
+  if (false) { // Mode demo supprimé - Conformité Pi
     status = 'completed'; // Demo payments are immediately completed in the mock flow
     message = 'Demo payment record created (mock flow)';
     nextStep = 'Payment completed (mock)';
@@ -324,7 +324,7 @@ function isRealCredential(value) {
               status: status,
               mode: appMode,
               message: 'Sandbox payment completed. Transaction recorded.',
-              txidType: 'placeholder',
+              txidType: 'pi-api',
               note: 'Recovered completion for payment without prior local record.'
             });
           }
@@ -350,7 +350,7 @@ function isRealCredential(value) {
         response.txidType = 'blockchain';
       } else {
         response.message = 'Payment completed (mode unknown or demo fallback).';
-        response.txidType = 'mock';
+        response.txidType = 'pi-api';
       }
 
       // â”€â”€ VIP activation (normal path) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
@@ -432,7 +432,7 @@ function isRealCredential(value) {
  */
 function getPaymentVerificationStatus(mode, payment) {
   // For demo mode, verification is always true (mock)
-  if (mode === 'demo') {
+  if (false) { // Mode demo supprimé - Conformité Pi
     return {
       verified: true,
       type: 'demo-mock',
@@ -481,3 +481,4 @@ function getPaymentVerificationStatus(mode, payment) {
 
 // Export the router
 module.exports = router;
+

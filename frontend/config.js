@@ -41,7 +41,7 @@ const ATLASPI_CONFIG = {
 
   // Mode mainnet
   APP_MODE: 'pirc2-sandbox',
-  PI_NETWORK: 'mainnet',
+  PI_NETWORK: 'Pi Testnet',
   PI_SANDBOX: true,
 
   // Feature flags - MAINNET
@@ -98,4 +98,5 @@ if (typeof window !== 'undefined') {
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = ATLASPI_CONFIG;
 }
+
 
