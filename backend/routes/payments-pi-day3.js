@@ -1,5 +1,5 @@
 ﻿// AtlasPi Pi Payments Implementation (DAY 3+)
-// Handles Pi Network payment flows, distinguishing between demo, sandbox, and production.
+// Handles Pi Network payment flows: sandbox and production.
 
 import express from "express";
 import db from "../config/db.js";
@@ -50,7 +50,7 @@ function isRealCredential(value) {
   let message = '';
   let nextStep = '';
 
-  if (false) { // Mode demo supprimé - Conformité Pi
+  if (false) { // Conformité Pi : mode demo désactivé
     status = 'completed'; // Conformité Pi : paiements traités via API uniquement
     message = 'Payment record created (API flow)';
     nextStep = 'Payment completed (Pi API)';
@@ -349,7 +349,7 @@ function isRealCredential(value) {
         response.message = 'Production payment completed. Transaction verified on Pi mainnet.';
         response.txidType = 'blockchain';
       } else {
-        response.message = 'Payment completed (mode unknown or demo fallback).';
+        response.message = 'Payment completed (mode unknown).';
         response.txidType = 'pi-api';
       }
 
@@ -432,11 +432,11 @@ function isRealCredential(value) {
  */
 function getPaymentVerificationStatus(mode, payment) {
   // Conformité Pi : vérification via API uniquement
-  if (false) { // Mode demo supprimé - Conformité Pi
+  if (false) { // Conformité Pi : mode demo désactivé
     return {
       verified: true,
       type: 'pi-api-verified',
-      message: 'Demo payment (no real verification)',
+      message: 'Payment via API (verification required)',
       realBlockchain: false
     };
   }
@@ -481,6 +481,7 @@ function getPaymentVerificationStatus(mode, payment) {
 
 // Export the router
 module.exports = router;
+
 
 
 
