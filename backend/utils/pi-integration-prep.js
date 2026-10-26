@@ -221,27 +221,26 @@ class PiPaymentIntegration {
    */
   static async verifyPaymentCompletion(paymentId, txid, piApiKey) {
     try {
-      const piApiBaseUrl = process.env.PI_API_BASE_URL || 'https://api.minepi.com';
-      const res = await fetch(\/v2/payments/\, {
-        headers: { 'Authorization': Key \ }
+      const piApiBaseUrl = process.env.PI_API_BASE_URL || "https://api.minepi.com";
+      const res = await fetch(piApiBaseUrl + "/v2/payments/" + paymentId, {
+        headers: { "Authorization": "Key " + piApiKey }
       });
       if (!res.ok) {
-        logger.warn([Pi Payments] Payment \ not found: \);
-        return { ok: false, error: Payment not found: \ };
+        logger.warn("[Pi Payments] Payment " + paymentId + " not found: " + res.status);
+        return { ok: false, error: "Payment not found: " + res.status };
       }
       const payment = await res.json();
       if (!payment.transaction || payment.transaction.txid !== txid) {
-        return { ok: false, error: 'Transaction ID mismatch' };
+        return { ok: false, error: "Transaction ID mismatch" };
       }
       if (!payment.transaction.verified) {
-        return { ok: false, error: 'Transaction not verified on blockchain' };
+        return { ok: false, error: "Transaction not verified on blockchain" };
       }
-      return { ok: true, payment };
+      return { ok: true, payment: payment };
     } catch (err) {
-      logger.error([Pi Payments] Verification error: \);
+      logger.error("[Pi Payments] Verification error: " + err.message);
       return { ok: false, error: err.message };
     }
-  }
   }
 
   /**

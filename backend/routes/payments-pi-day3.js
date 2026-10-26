@@ -239,9 +239,10 @@ function isRealCredential(value) {
   // ---- Vérification serveur de la transaction avant complétion ----
   const completionVerification = await PiPaymentIntegration.verifyPaymentCompletion(paymentId, txid, piApiKey);
   if (!completionVerification.ok) {
-    logger.warn([Payment] Completion verification refused: \);
+    logger.warn("[Payment] Completion verification refused: " + completionVerification.error);
     return res.status(400).json({ ok: false, error: completionVerification.error });
   }
+
 
   try {
     const completeResponse = await fetch(`${piApiBaseUrl}/v2/payments/${paymentId}/complete`, {
