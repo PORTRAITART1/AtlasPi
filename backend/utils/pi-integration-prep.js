@@ -219,13 +219,29 @@ class PiPaymentIntegration {
    * Verify payment completion
    * (DAY 3+)
    */
-  static async verifyPaymentCompletion(paymentId, txid) {
-    // TODO[PIRC2-DAY3]: Implement payment verification with blockchain
-    logger.warn('[Pi Payments] Payment verification pending (DAY 3)');
-    return {
-      ok: false,
-      error: 'Payment verification not yet implemented (DAY 3+)'
-    };
+  static async verifyPaymentCompletion(paymentId, txid, piApiKey) {
+    try {
+      const piApiBaseUrl = process.env.PI_API_BASE_URL || 'https://api.minepi.com';
+      const res = await fetch(\/v2/payments/\, {
+        headers: { 'Authorization': Key \ }
+      });
+      if (!res.ok) {
+        logger.warn([Pi Payments] Payment \ not found: \);
+        return { ok: false, error: Payment not found: \ };
+      }
+      const payment = await res.json();
+      if (!payment.transaction || payment.transaction.txid !== txid) {
+        return { ok: false, error: 'Transaction ID mismatch' };
+      }
+      if (!payment.transaction.verified) {
+        return { ok: false, error: 'Transaction not verified on blockchain' };
+      }
+      return { ok: true, payment };
+    } catch (err) {
+      logger.error([Pi Payments] Verification error: \);
+      return { ok: false, error: err.message };
+    }
+  }
   }
 
   /**

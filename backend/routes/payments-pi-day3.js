@@ -236,6 +236,13 @@ function isRealCredential(value) {
     return res.status(500).json({ ok: false, error: 'Pi API key missing' });
   }
 
+  // ---- Vérification serveur de la transaction avant complétion ----
+  const completionVerification = await PiPaymentIntegration.verifyPaymentCompletion(paymentId, txid, piApiKey);
+  if (!completionVerification.ok) {
+    logger.warn([Payment] Completion verification refused: \);
+    return res.status(400).json({ ok: false, error: completionVerification.error });
+  }
+
   try {
     const completeResponse = await fetch(`${piApiBaseUrl}/v2/payments/${paymentId}/complete`, {
       method: 'POST',
