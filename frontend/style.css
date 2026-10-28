@@ -1581,3 +1581,10 @@ main,
   from { transform: translateX(0); opacity: 1; }
   to   { transform: translateX(100%); opacity: 0; }
 }
+
+/* Correction mobile : cacher le bouton Back to Top qui bloque les clics */
+@media (max-width: 640px) {
+  #backToTopBtn {
+    display: none !important;
+  }
+}
