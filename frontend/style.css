@@ -1588,3 +1588,9 @@ main,
     display: none !important;
   }
 }
+
+/* Test mobile : neutraliser les éléments flottants suspects */
+@media (max-width: 640px) {
+  .toast-container { pointer-events: none !important; }
+  .menu-panel { pointer-events: none !important; }
+}
