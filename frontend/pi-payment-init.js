@@ -6,13 +6,22 @@
   "use strict";
 
   function getUserFromStorage() {
-    try {
-      const raw = null; // SUPPRIMÉ - Conformité Pi : pas de lecture localStorage
-      if (!raw) return null;
-      const parsed = JSON.parse(raw);
-      if (parsed && parsed.uid) return parsed;
-      return null;
-    } catch (e) { return null; }
+  function getUserFromStorage() {
+    // Conformité Pi : récupérer l'utilisateur depuis le gestionnaire Pi actif
+    if (window.piIntegrationManager && typeof window.piIntegrationManager.getUser === "function") {
+      const piUser = window.piIntegrationManager.getUser();
+      if (piUser && piUser.uid) return piUser;
+    }
+    if (window.AtlasPiAuthHandler && typeof window.AtlasPiAuthHandler.getUser === "function") {
+      const authUser = window.AtlasPiAuthHandler.getUser();
+      if (authUser && authUser.uid) return authUser;
+    }
+    // Fallback pour les tests si l'objet global Pi est accessible
+    if (window.Pi && window.Pi.getUser) {
+      return window.Pi.getUser();
+    }
+    return null;
+  }
   }
 
   function setPaymentStatus(msg, color) {
@@ -182,5 +191,7 @@
     init();
   }
 })();
+
+
 
 
