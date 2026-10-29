@@ -6,19 +6,14 @@
   "use strict";
 
   function getUserFromStorage() {
-  function getUserFromStorage() {
-    // Conformité Pi : récupérer l'utilisateur depuis le gestionnaire Pi actif
+    // Récupération via le gestionnaire Pi (qui gère l'état de connexion)
     if (window.piIntegrationManager && typeof window.piIntegrationManager.getUser === "function") {
       const piUser = window.piIntegrationManager.getUser();
       if (piUser && piUser.uid) return piUser;
     }
-    if (window.AtlasPiAuthHandler && typeof window.AtlasPiAuthHandler.getUser === "function") {
-      const authUser = window.AtlasPiAuthHandler.getUser();
-      if (authUser && authUser.uid) return authUser;
-    }
-    // Fallback pour les tests si l'objet global Pi est accessible
-    if (window.Pi && window.Pi.getUser) {
-      return window.Pi.getUser();
+    // Fallback : essayer de lire directement l'utilisateur dans window.Pi si disponible
+    if (window.Pi && window.Pi.currentUser && window.Pi.currentUser.uid) {
+        return window.Pi.currentUser;
     }
     return null;
   }
@@ -191,6 +186,8 @@
     init();
   }
 })();
+
+
 
 
 
