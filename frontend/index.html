@@ -593,10 +593,14 @@
   </style>
 </head>
 <body id="top">  <script>
+    // Service Worker désactivé temporairement pour le débogage Sandbox
     if ("serviceWorker" in navigator) {
-      navigator.serviceWorker.register("/sw.js")
-        .then(() => console.log("[AtlasPi] SW registered"))
-        .catch((e) => console.warn("[AtlasPi] SW error:", e));
+      navigator.serviceWorker.getRegistrations().then(function(registrations) {
+        for(let registration of registrations) {
+          registration.unregister();
+          console.log("[AtlasPi] Ancien Service Worker désenregistré.");
+        }
+      });
     }
   </script>
 </body>
@@ -1532,6 +1536,7 @@
 
 </body>
 </html>
+
 
 
 
