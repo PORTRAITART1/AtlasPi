@@ -212,7 +212,7 @@ class PiIntegrationManager {
   // Authentification
   // -------------------------------------------------------------------------
   async authenticate(scopes = ['username', 'payments']) {
-    // âœ… VÃ©rifier/restaurer session existante avant de relancer Pi.authenticate
+      // Vérification de session automatique désactivée - authentification sur clic uniquement
     const restored = this.restoreSession();
 
     if (restored && restored.uid) {
