@@ -117,7 +117,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const missingField = requiredFields.find((field) => !field.value);
 
     if (missingField) {
-      showMerchantFormStatus(`âŒ Please fill in: ${missingField.label}.`, "error");
+      showMerchantFormStatus(`❌ Please fill in: ${missingField.label}.`, "error");
       return;
     }
 
@@ -129,21 +129,21 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     if (!consentTermsCheckbox?.checked) {
-      showMerchantFormStatus("âŒ Please accept the Terms of Use.", "error");
+      showMerchantFormStatus("❌ Please accept the Terms of Use.", "error");
       return;
     }
 
     if (!consentPrivacyCheckbox?.checked) {
-      showMerchantFormStatus("âŒ Please accept the Privacy Policy.", "error");
+      showMerchantFormStatus("❌ Please accept the Privacy Policy.", "error");
       return;
     }
 
     if (!consentPublicDisplayCheckbox?.checked) {
-      showMerchantFormStatus("âŒ Please authorize public display settings.", "error");
+      showMerchantFormStatus("❌ Please authorize public display settings.", "error");
       return;
     }
 
-    showMerchantFormStatus("â³ Creating merchant listing...", "info");
+    showMerchantFormStatus("⏳ Creating merchant listing...", "info");
 
     try {
       const response = await fetch(`${API_BASE_URL}/api/merchant-listings/create`, {
@@ -178,11 +178,11 @@ document.addEventListener("DOMContentLoaded", () => {
       const data = await response.json();
 
       if (!data.ok) {
-        showMerchantFormStatus(`âŒ ${data.error || "Failed to create merchant listing."}`, "error");
+        showMerchantFormStatus(`❌ ${data.error || "Failed to create merchant listing."}`, "error");
         return;
       }
 
-      showMerchantFormStatus("âœ… Merchant listing created successfully.", "success");
+      showMerchantFormStatus("✅ Merchant listing created successfully.", "success");
 
       if (merchantListingForm) {
         merchantListingForm.reset();
@@ -192,7 +192,7 @@ document.addEventListener("DOMContentLoaded", () => {
         merchantOwnerUserId.value = currentUser.uid;
       }
     } catch (error) {
-      showMerchantFormStatus("âŒ Failed to contact backend for merchant listing creation.", "error");
+      showMerchantFormStatus("❌ Failed to contact backend for merchant listing creation.", "error");
     }
   }
 
@@ -223,7 +223,7 @@ if (merchantListingForm) {
   function updatePiAuthUI(result) {
     const user = result?.user || result?.authResult?.user || null;
     currentUser = user;
-    // ðŸ’¾ Persist session in localStorage
+    // 💾 Persist session in localStorage
     if (user) {
       localStorage.setItem('piUser', JSON.stringify({
         uid: user.uid,
@@ -238,8 +238,8 @@ window.dispatchEvent(new CustomEvent("piUserLoggedOut"));
 
     if (piStatus) {
       piStatus.textContent = user
-        ? "âœ… Connected with Pi successfully."
-        : "âŒ Pi connection failed.";
+        ? "✅ Connected with Pi successfully."
+        : "❌ Pi connection failed.";
       piStatus.style.color = user ? "#10b981" : "#ef4444";
     }
 
@@ -261,7 +261,7 @@ window.dispatchEvent(new CustomEvent("piUserLoggedOut"));
 
     if (piConnectBtn) {
       piConnectBtn.textContent = user?.username
-        ? `âœ“ Connected: ${user.username}`
+        ? `✓ Connected: ${user.username}`
         : "Connect with Pi";
     }
     
@@ -273,8 +273,8 @@ window.dispatchEvent(new CustomEvent("piUserLoggedOut"));
 
     if (paymentStatusElement) {
       paymentStatusElement.textContent = user
-        ? "âœ… Ready to support AtlasPi VIP."
-        : "ðŸ” Connect with Pi first to unlock the payment.";
+        ? "✅ Ready to support AtlasPi VIP."
+        : "🔐 Connect with Pi first to unlock the payment.";
     }
 
     if (createPaymentBtn) {
@@ -285,8 +285,8 @@ window.dispatchEvent(new CustomEvent("piUserLoggedOut"));
 
     if (paymentStatusElement) {
       paymentStatusElement.textContent = user
-        ? "âœ… Ready to support AtlasPi VIP."
-        : "ðŸ” Connect with Pi first to unlock the payment.";
+        ? "✅ Ready to support AtlasPi VIP."
+        : "🔐 Connect with Pi first to unlock the payment.";
     }
 
     if (merchantOwnerUserId && user?.uid) {
@@ -297,7 +297,7 @@ window.dispatchEvent(new CustomEvent("piUserLoggedOut"));
   if (piConnectBtn) {
     piConnectBtn.addEventListener("click", async () => {
       if (piStatus) {
-        piStatus.textContent = "â³ Connecting with Pi...";
+        piStatus.textContent = "⏳ Connecting with Pi...";
         piStatus.style.color = "#f59e0b";
       }
 
@@ -307,21 +307,21 @@ window.dispatchEvent(new CustomEvent("piUserLoggedOut"));
         },
         (errorResult) => {
           if (piStatus) {
-            piStatus.textContent = `âŒ ${errorResult?.error || "Pi authentication failed."}`;
+            piStatus.textContent = `❌ ${errorResult?.error || "Pi authentication failed."}`;
             piStatus.style.color = "#ef4444";
           }
         }
       );
 
       if (!result?.ok && piStatus) {
-        piStatus.textContent = `âŒ ${result?.error || "Pi authentication failed."}`;
+        piStatus.textContent = `❌ ${result?.error || "Pi authentication failed."}`;
         piStatus.style.color = "#ef4444";
       }
     });
   }
 
   // -------------------------------------------------
-  // MENU HAMBURGER LOGIC (minimal, nonâ€‘intrusive)
+  // MENU HAMBURGER LOGIC (minimal, non‑intrusive)
   // -------------------------------------------------
 const menuToggle = document.getElementById('menuToggle');
 const menuPanel = document.getElementById('menuPanel');
@@ -372,12 +372,12 @@ document.addEventListener('DOMContentLoaded', () => {
           apiStatusEl.textContent = "Ready in Pi Browser.";
           apiStatusEl.style.color = '#10b981';
         } else {
-          apiStatusEl.textContent = 'âš ï¸ Backend responded but status unclear';
+          apiStatusEl.textContent = '⚠️ Backend responded but status unclear';
           apiStatusEl.style.color = '#f59e0b';
         }
       })
       .catch(err => {
-        apiStatusEl.textContent = 'âŒ Backend connection failed';
+        apiStatusEl.textContent = '❌ Backend connection failed';
         apiStatusEl.style.color = '#ef4444';
         console.error('Backend check error:', err);
       });
@@ -415,18 +415,18 @@ document.addEventListener("DOMContentLoaded", () => {
       loadPaymentsBtn.classList.add('btn-loading');
       if (statusEl) statusEl.textContent = "Chargement des paiements...";
       try {
-        const res = await fetch(${API_BASE_URL}/api/payments/list);
+        const res = await fetch(`${API_BASE_URL}/api/payments/list`);
         const data = await res.json();
         if (data.ok && Array.isArray(data.payments) && data.payments.length > 0) {
           if (listEl) {
-            listEl.innerHTML = data.payments.map(p => 
+            listEl.innerHTML = data.payments.map((payment) => `
               <div style="padding:10px;border-bottom:1px solid rgba(255,255,255,0.1);">
-                <strong> π</strong> — <br/>
-                <small></small>
+                <strong>${payment.amount ?? "—"} π</strong> — ${payment.status ?? "inconnu"}<br/>
+                <small>${payment.memo ?? ""}</small>
               </div>
-            ).join("");
+            `).join("");
           }
-          if (statusEl) statusEl.textContent = ${data.payments.length} paiement(s) trouvé(s).;
+          if (statusEl) statusEl.textContent = `${data.payments.length} paiement(s) trouvé(s).`;
         } else {
           if (listEl) listEl.innerHTML = "";
           if (statusEl) statusEl.textContent = "Aucun paiement trouvé.";
@@ -454,18 +454,18 @@ document.addEventListener("DOMContentLoaded", () => {
       loadMerchantListingsBtn.classList.add('btn-loading');
       if (statusEl) statusEl.textContent = "Chargement des marchands...";
       try {
-        const res = await fetch(${API_BASE_URL}/api/merchant-listings/list?limit=50);
+        const res = await fetch(`${API_BASE_URL}/api/merchant-listings/list?limit=50`);
         const data = await res.json();
         if (data.ok && Array.isArray(data.listings) && data.listings.length > 0) {
           if (listEl) {
-            listEl.innerHTML = data.listings.map(m => 
+            listEl.innerHTML = data.listings.map((merchant) => `
               <div style="padding:10px;border-bottom:1px solid rgba(255,255,255,0.1);">
-                <strong></strong><br/>
-                <small>, </small>
+                <strong>${merchant.listing_public_name || merchant.business_name || "Marchand"}</strong><br/>
+                <small>${merchant.city || ""}${merchant.country ? `, ${merchant.country}` : ""}</small>
               </div>
-            ).join("");
+            `).join("");
           }
-          if (statusEl) statusEl.textContent = ${data.listings.length} marchand(s) trouvé(s).;
+          if (statusEl) statusEl.textContent = `${data.listings.length} marchand(s) trouvé(s).`;
         } else {
           if (listEl) listEl.innerHTML = "";
           if (statusEl) statusEl.textContent = "Aucun marchand trouvé.";

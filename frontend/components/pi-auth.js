@@ -117,7 +117,7 @@
       if (!ok) return null;
     }
     state.authenticating = true;
-    setStatus('�� Authentification Pi...', 'loading');
+    setStatus('Authentification Pi...', 'loading');
     try {
       // ✅ scope "username" uniquement
       const authResult = await Pi.authenticate(['username'], onIncompletePaymentFound);

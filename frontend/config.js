@@ -92,7 +92,7 @@ const ATLASPI_CONFIG = {
 
 if (typeof window !== 'undefined') {
   window.ATLASPI_CONFIG = ATLASPI_CONFIG;
-  console.log('[AtlasPi] Config loaded â€” mode:', ATLASPI_CONFIG.APP_MODE, '| network:', ATLASPI_CONFIG.PI_NETWORK);
+  console.log('[AtlasPi] Config loaded — mode:', ATLASPI_CONFIG.APP_MODE, '| network:', ATLASPI_CONFIG.PI_NETWORK);
 }
 
 if (typeof module !== 'undefined' && module.exports) {

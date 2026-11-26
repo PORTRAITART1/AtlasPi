@@ -46,7 +46,7 @@ class PiBrowserPayments {
     }
   }
 
-  // âœ… NOUVELLE SIGNATURE : accepte un objet callbacks en 4Ã¨me paramÃ¨tre
+  // ✅ NOUVELLE SIGNATURE : accepte un objet callbacks en 4ème paramètre
   async createPayment(amount, memo, metadata = {}, callbacks = {}) {
     if (!this.isInPiBrowser()) {
       throw new Error("Pi SDK not available. Please open in Pi Browser.");
@@ -81,7 +81,7 @@ class PiBrowserPayments {
                 console.error("[PiBrowserPayments] Approval error:", res.status, data);
                 if (callbacks.onError) callbacks.onError(new Error(data.error || `HTTP ${res.status}`));
               } else {
-                console.log("[PiBrowserPayments] Approved âœ…");
+                console.log("[PiBrowserPayments] Approved ✅");
                 if (callbacks.onApproved) callbacks.onApproved(paymentId, data);
               }
             } catch (err) {
@@ -106,7 +106,7 @@ class PiBrowserPayments {
                 throw new Error(data.error || `Complete failed: ${res.status}`);
               }
 
-              console.log("[PiBrowserPayments] Completed âœ…");
+              console.log("[PiBrowserPayments] Completed ✅");
               if (callbacks.onCompleted) callbacks.onCompleted(paymentId, txid, data);
               resolve({ paymentId, txid, data });
 

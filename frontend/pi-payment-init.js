@@ -1,5 +1,5 @@
 ﻿/**
- * pi-payment-init.js - GÃ¨re l'Ã©tat du bouton VIP et le dÃ©clenchement du paiement Pi
+ * pi-payment-init.js - Gère l'état du bouton VIP et le déclenchement du paiement Pi
  */
 
 (function () {
@@ -16,7 +16,6 @@
         return window.Pi.currentUser;
     }
     return null;
-  }
   }
 
   function setPaymentStatus(msg, color) {
@@ -38,22 +37,22 @@
 
   function updateUIForUser(user) {
     if (user && user.uid) {
-      setPaymentStatus("âœ… Ready to activate VIP.", "#10b981");
+      setPaymentStatus("✅ Ready to activate VIP.", "#10b981");
       setButtonState(true);
 
       const piConnectBtn = document.getElementById("piConnectBtn");
       if (piConnectBtn) {
-        piConnectBtn.textContent = `âœ“ Connected: ${user.username || "User"}`;
+        piConnectBtn.textContent = `✓ Connected: ${user.username || "User"}`;
         piConnectBtn.disabled = true;
         piConnectBtn.style.opacity = "0.7";
       }
       const piStatus = document.getElementById("piStatus");
       if (piStatus) {
-        piStatus.textContent = `âœ… Logged in as ${user.username || user.uid}`;
+        piStatus.textContent = `✅ Logged in as ${user.username || user.uid}`;
         piStatus.style.color = "#10b981";
       }
     } else {
-      setPaymentStatus("ðŸ” Connect with Pi first to unlock VIP.", "#f59e0b");
+      setPaymentStatus("🔐 Connect with Pi first to unlock VIP.", "#f59e0b");
       setButtonState(false);
     }
   }
@@ -79,7 +78,7 @@
     const currentUser = getUserFromStorage();
 
     if (!currentUser || !currentUser.uid) {
-      setPaymentStatus("âŒ Please connect with Pi first.", "#ef4444");
+      setPaymentStatus("❌ Please connect with Pi first.", "#ef4444");
       setButtonState(false);
       return;
     }
@@ -90,54 +89,54 @@
     const parsedAmount = parseFloat(rawAmount);
 
     if (isNaN(parsedAmount) || parsedAmount <= 0) {
-      setPaymentStatus("âš ï¸ Invalid amount", "#ef4444");
+      setPaymentStatus("⚠️ Invalid amount", "#ef4444");
       return;
     }
 
     const memo = memoInput ? memoInput.value.trim() || "AtlasPi VIP subscription" : "AtlasPi VIP subscription";
 
-    setPaymentStatus("â³ Initiating Pi payment...", "#f59e0b");
+    setPaymentStatus("⏳ Initiating Pi payment...", "#f59e0b");
     if (btn) btn.disabled = true;
 
     try {
       const payments = window.piBrowserPayments;
       if (!payments || typeof payments.createPayment !== "function") {
-        setPaymentStatus("âŒ Pi payment system unavailable.", "#ef4444");
+        setPaymentStatus("❌ Pi payment system unavailable.", "#ef4444");
         if (btn) btn.disabled = false;
         return;
       }
 
       console.log("[PaymentInit] Calling createPayment with callbacks...");
 
-      // âœ… APPEL AVEC CALLBACKS DIRECTS
+      // ✅ APPEL AVEC CALLBACKS DIRECTS
       await payments.createPayment(
         parsedAmount,
         memo,
         { uid: currentUser.uid, username: currentUser.username, type: "vip_activation" },
         {
           onApproving: () => {
-            setPaymentStatus("â³ Approbation du paiement...", "#f59e0b");
+            setPaymentStatus("⏳ Approbation du paiement...", "#f59e0b");
           },
           onApproved: () => {
-            setPaymentStatus("â³ Paiement approuvÃ©. Confirmez dans Pi...", "#3b82f6");
+            setPaymentStatus("⏳ Paiement approuvé. Confirmez dans Pi...", "#3b82f6");
           },
           onCompleting: () => {
-            setPaymentStatus("â³ Finalisation du paiement...", "#3b82f6");
+            setPaymentStatus("⏳ Finalisation du paiement...", "#3b82f6");
           },
           onCompleted: () => {
-            setPaymentStatus("ðŸŽ‰ VIP activÃ© avec succÃ¨s !", "#10b981");
+            setPaymentStatus("🎉 VIP activé avec succès !", "#10b981");
             if (btn) {
-              btn.textContent = "âœ… VIP Active";
+              btn.textContent = "✅ VIP Active";
               btn.disabled = true;
               btn.style.opacity = "1";
             }
           },
           onCancel: () => {
-            setPaymentStatus("âŒ Paiement annulÃ©.", "#6b7280");
+            setPaymentStatus("❌ Paiement annulé.", "#6b7280");
             if (btn) btn.disabled = false;
           },
           onError: (err) => {
-            setPaymentStatus(`âŒ Erreur : ${err.message || "Inconnue"}`, "#ef4444");
+            setPaymentStatus(`❌ Erreur : ${err.message || "Inconnue"}`, "#ef4444");
             if (btn) btn.disabled = false;
           }
         }
@@ -146,9 +145,9 @@
     } catch (err) {
       console.error("[PaymentInit] Error:", err);
       if (err.message && err.message.toLowerCase().includes("cancel")) {
-        setPaymentStatus("âŒ Paiement annulÃ©.", "#6b7280");
+        setPaymentStatus("❌ Paiement annulé.", "#6b7280");
       } else {
-        setPaymentStatus(`âŒ Erreur : ${err.message || "Inconnue"}`, "#ef4444");
+        setPaymentStatus(`❌ Erreur : ${err.message || "Inconnue"}`, "#ef4444");
       }
       if (btn) btn.disabled = false;
     }
@@ -165,7 +164,7 @@
 
     const btn = document.getElementById("createPaymentBtn");
     if (btn) {
-      // Ã‰viter les doublons d'Ã©couteurs
+      // Éviter les doublons d'écouteurs
       btn.replaceWith(btn.cloneNode(true));
       const newBtn = document.getElementById("createPaymentBtn");
       newBtn.addEventListener("click", handlePaymentClick);

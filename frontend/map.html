@@ -77,16 +77,16 @@
           <span>The Trusted Map of Pi Commerce</span>
         </div>
       </a>
-      <button class="menu-toggle" id="menuToggle" aria-label="Toggle menu">â˜°</button>
+      <button class="menu-toggle" id="menuToggle" aria-label="Toggle menu">☰</button>
       <nav class="menu-panel" id="menuPanel" hidden>
-        <a href="discover.html" data-i18n="discover">ðŸŒ Discover</a>
-        <a href="map.html" class="nav-highlight" data-i18n="map">ðŸ—ºï¸ Map</a>
-        <a href="payments.html" data-i18n="payments">ðŸ’³ Payments</a>
-        <a href="vip.html" data-i18n="vip">ðŸ’Ž VIP</a>
-        <a href="support.html" data-i18n="support">ðŸ›Ÿ Support</a>
-        <a href="my-subscriptions.html" data-i18n="subscriptions">ðŸ“‹ Subscriptions</a>
-        <a href="merchant-plans.html" data-i18n="plans">ðŸª Plans</a>
-        <a href="profile.html" class="btn btn-nav" data-i18n="profile">ðŸ‘¤ Profile</a>
+        <a href="discover.html" data-i18n="discover">🌍 Discover</a>
+        <a href="map.html" class="nav-highlight" data-i18n="map">🗺️ Map</a>
+        <a href="payments.html" data-i18n="payments">💳 Payments</a>
+        <a href="vip.html" data-i18n="vip">💎 VIP</a>
+        <a href="support.html" data-i18n="support">🛟 Support</a>
+        <a href="my-subscriptions.html" data-i18n="subscriptions">📋 Subscriptions</a>
+        <a href="merchant-plans.html" data-i18n="plans">🏪 Plans</a>
+        <a href="profile.html" class="btn btn-nav" data-i18n="profile">👤 Profile</a>
       </nav>
     </div>
   </header>
@@ -95,9 +95,9 @@
     <div class="container">
       <div class="section-heading">
         <span class="eyebrow">Interactive Map</span>
-        <h1>ðŸ—ºï¸ <span class="gradient-text">Merchant Map</span></h1>
+        <h1>🗺️ <span class="gradient-text">Merchant Map</span></h1>
         <p class="hero-lead">
-          Explore Pi-ready merchants around the world â€” live from the AtlasPi backend.
+          Explore Pi-ready merchants around the world — live from the AtlasPi backend.
         </p>
       </div>
     </div>
@@ -107,21 +107,21 @@
     <div class="container">
 
       <div class="map-filters">
-        <input type="text" id="mapCity" placeholder="ðŸ™ï¸ Search by city..." />
+        <input type="text" id="mapCity" placeholder="🏙️ Search by city..." />
         <input type="text" id="mapSearch"
-          placeholder="ðŸ” Search merchant..." />
+          placeholder="🔍 Search merchant..." />
         <select id="mapCategory">
           <option value="">All Categories</option>
-          <option value="food">â˜• Food & Drinks</option>
-          <option value="electronics">ðŸ’» Electronics</option>
-          <option value="fashion">ðŸ‘• Fashion</option>
-          <option value="services">ðŸ› ï¸ Services</option>
-          <option value="handmade">ðŸ§µ Handmade</option>
-          <option value="shop">ðŸª Shop</option>
+          <option value="food">☕ Food & Drinks</option>
+          <option value="electronics">💻 Electronics</option>
+          <option value="fashion">👕 Fashion</option>
+          <option value="services">🛠️ Services</option>
+          <option value="handmade">🧵 Handmade</option>
+          <option value="shop">🏪 Shop</option>
         </select>
         <select id="mapPiFilter">
           <option value="">All Merchants</option>
-          <option value="pi">ðŸŸ£ Accepts Pi Only</option>
+          <option value="pi">🟣 Accepts Pi Only</option>
         </select>
         <button class="btn btn-secondary" id="mapResetBtn">Reset</button>
       </div>
@@ -134,9 +134,9 @@
 <div id="merchant-map"></div>
 
       <div class="map-legend">
-        <span>ðŸŸ£ Accepts Pi</span>
-        <span>ðŸ”µ Approved</span>
-        <span>â­ Verified</span>
+        <span>🟣 Accepts Pi</span>
+        <span>🔵 Approved</span>
+        <span>⭐ Verified</span>
       </div>
 
       <p class="map-status" id="mapStatus">Loading merchants...</p>
@@ -165,12 +165,12 @@
   <script>
     const API_BASE_URL = window.ATLASPI_CONFIG?.API_BASE_URL || "https://atlaspi-backend.onrender.com";
 
-    // Init map â€” centered on world
+    // Init map — centered on world
     const map = L.map("merchant-map").setView([20, 0], 2);
     const markerCluster = L.markerClusterGroup();
 
     L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-      attribution: 'Â© <a href="https://openstreetmap.org">OpenStreetMap</a>',
+      attribution: '© <a href="https://openstreetmap.org">OpenStreetMap</a>',
       maxZoom: 18,
     }).addTo(markerCluster);
 
@@ -217,18 +217,18 @@
         const name = merchant.listing_public_name || merchant.business_name || "Merchant";
         const city = merchant.city || "-";
         const country = merchant.country || "-";
-        const acceptsPi = merchant.accepts_pi ? "ðŸŸ£ Accepts Pi" : "";
+        const acceptsPi = merchant.accepts_pi ? "🟣 Accepts Pi" : "";
 
         const marker = L.marker([lat, lng], { icon })
           .addTo(markerCluster)
           .bindPopup(`
             <div style="min-width:180px;">
               <strong>${name}</strong><br/>
-              ðŸ“ ${city}, ${country}<br/>
+              📍 ${city}, ${country}<br/>
               ${acceptsPi ? `<span style="color:#7c3aed;">${acceptsPi}</span><br/>` : ""}
               <a href="merchant-detail.html?id=${merchant.id}"
                 style="color:#7c3aed; font-weight:600;">
-                View Details â†’
+                View Details →
               </a>
             </div>
           `);
@@ -237,38 +237,12 @@
         placed++;
       });
 
-      document.getElementById("locateMeBtn")?.addEventListener("click", () => {
-  if (!navigator.geolocation) {
-    window.AtlasPiToast?.error("La géolocalisation n'est pas supportée par votre navigateur.");
-    return;
-  }
-  navigator.geolocation.getCurrentPosition(
-    (position) => {
-      const { latitude, longitude } = position.coords;
-      map.setView([latitude, longitude], 10);
-      L.circleMarker([latitude, longitude], {
-        radius: 8,
-        fillColor: "#f5a623",
-        color: "#fff",
-        weight: 2,
-        opacity: 1,
-        fillOpacity: 1
-      }).addTo(map).bindPopup("Vous êtes ici").openPopup();
-    },
-    (error) => {
-      window.AtlasPiToast?.error("Impossible de vous localiser : " + error.message);
-    },
-    { enableHighAccuracy: true, timeout: 10000 }
-  );
-});
+
 
 document.getElementById("mapStatus").textContent =
-        `${placed} merchant${placed !== 1 ? "s" : ""} shown on map`;
-
-      if (placed === 0) {
-        
-          "No merchants with GPS coordinates found.";
-      }
+        placed === 0
+          ? "Aucun marchand avec coordonnées GPS n'a été trouvé."
+          : `${placed} marchand${placed !== 1 ? "s" : ""} affiché${placed !== 1 ? "s" : ""} sur la carte`;
     }
 
     function filterMerchants() {
@@ -358,25 +332,53 @@ console.log(`[Map] ${sorted.length} categories loaded`);
 
           const withGPS = enriched.filter(m => m.latitude && m.longitude).length;
 
-          if (window.AtlasPiNotify) {
-            window.AtlasPiNotify.success(
-              `${enriched.length} merchant(s) â€” ${withGPS} on map`, 3000
-            );
+          const mapStatus = document.getElementById("mapStatus");
+          if (mapStatus) {
+            mapStatus.textContent = withGPS === 0
+              ? "Aucun marchand avec coordonnées GPS n'a été trouvé."
+              : `${withGPS} marchand${withGPS !== 1 ? "s" : ""} chargé${withGPS !== 1 ? "s" : ""} sur la carte`;
           }
 
-          
-            `${withGPS} merchant(s) shown on map`;
-
+          if (window.AtlasPiNotify) {
+            window.AtlasPiNotify.success(
+              `${enriched.length} marchand${enriched.length !== 1 ? "s" : ""} chargé${enriched.length !== 1 ? "s" : ""}`, 3000
+            );
+          }
         } else {
-           "No merchants found.";
+          const mapStatus = document.getElementById("mapStatus");
+          if (mapStatus) mapStatus.textContent = "Aucun marchand trouvé.";
         }
       } catch (e) {
-         "âŒ Failed to load merchants.";
+        const mapStatus = document.getElementById("mapStatus");
+        if (mapStatus) mapStatus.textContent = "Échec du chargement des marchands.";
         console.error(e);
       }
     }
 
-    // Events
+    document.getElementById("locateMeBtn")?.addEventListener("click", () => {
+      if (!navigator.geolocation) {
+        window.AtlasPiToast?.error("La géolocalisation n'est pas prise en charge par votre navigateur.");
+        return;
+      }
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const { latitude, longitude } = position.coords;
+          map.setView([latitude, longitude], 10);
+          L.circleMarker([latitude, longitude], {
+            radius: 8,
+            fillColor: "#f5a623",
+            color: "#fff",
+            weight: 2,
+            opacity: 1,
+            fillOpacity: 1
+          }).addTo(map).bindPopup("Vous êtes ici").openPopup();
+        },
+        (error) => window.AtlasPiToast?.error("Impossible de vous localiser : " + error.message),
+        { enableHighAccuracy: true, timeout: 10000 }
+      );
+    });
+
+    // Événements des filtres
     document.getElementById("mapSearch").addEventListener("input", filterMerchants);
     document.getElementById("mapCategory").addEventListener("change", filterMerchants);
     document.getElementById("mapCity").addEventListener("input", filterMerchants);

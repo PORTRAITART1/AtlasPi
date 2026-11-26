@@ -933,7 +933,7 @@ main,
   color: #fb923c;
 }
 
-/* Nav highlight â€” active page */
+/* Nav highlight — active page */
 .nav-highlight {
   color: #a855f7 !important;
   font-weight: 700;
@@ -1229,7 +1229,7 @@ main,
 }
 
 .listing-cta-card ul li::before {
-  content: "â€¢";
+  content: "•";
   color: #f4c542;
   font-weight: 700;
   margin-right: 8px;
@@ -1417,7 +1417,7 @@ main,
   }
 }
 /* ==========================================
-   ðŸ”” Notification Bell Badge
+   🔔 Notification Bell Badge
    ========================================== */
 .nav-notif-btn {
   position: relative;
