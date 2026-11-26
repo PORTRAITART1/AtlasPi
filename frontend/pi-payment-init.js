@@ -5,17 +5,15 @@
 (function () {
   "use strict";
 
-  function getUserFromStorage() {
-    // Récupération via le gestionnaire Pi (qui gère l'état de connexion)
-    if (window.piIntegrationManager && typeof window.piIntegrationManager.getUser === "function") {
-      const piUser = window.piIntegrationManager.getUser();
-      if (piUser && piUser.uid) return piUser;
+  let authenticatedUser = null;
+
+  function getAuthenticatedUser() {
+    const managerUser = window.piIntegrationManager?.getUser?.();
+    if (managerUser?.uid) {
+      authenticatedUser = managerUser;
+      return managerUser;
     }
-    // Fallback : essayer de lire directement l'utilisateur dans window.Pi si disponible
-    if (window.Pi && window.Pi.currentUser && window.Pi.currentUser.uid) {
-        return window.Pi.currentUser;
-    }
-    return null;
+    return authenticatedUser?.uid ? authenticatedUser : null;
   }
 
   function setPaymentStatus(msg, color) {
@@ -75,7 +73,7 @@
 
   async function handlePaymentClick() {
     const btn = document.getElementById("createPaymentBtn");
-    const currentUser = getUserFromStorage();
+    const currentUser = getAuthenticatedUser();
 
     if (!currentUser || !currentUser.uid) {
       setPaymentStatus("❌ Please connect with Pi first.", "#ef4444");
@@ -154,7 +152,7 @@
   }
 
   async function init() {
-    let user = getUserFromStorage();
+    let user = getAuthenticatedUser();
     if (user) {
       updateUIForUser(user);
     } else {
@@ -171,10 +169,14 @@
     }
 
     window.addEventListener("piUserLoggedIn", (e) => {
-      const u = e.detail || getUserFromStorage();
-      updateUIForUser(u);
+      const detail = e.detail?.user || e.detail;
+      authenticatedUser = detail?.uid ? detail : getAuthenticatedUser();
+      updateUIForUser(authenticatedUser);
     });
-    window.addEventListener("piUserLoggedOut", () => updateUIForUser(null));
+    window.addEventListener("piUserLoggedOut", () => {
+      authenticatedUser = null;
+      updateUIForUser(null);
+    });
 
     console.log("[PaymentInit] Init complete");
   }
