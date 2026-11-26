@@ -13,6 +13,13 @@
       authenticatedUser = managerUser;
       return managerUser;
     }
+
+    const handlerUser = window._atlasAuthHandler?.getUser?.();
+    if (handlerUser?.uid) {
+      authenticatedUser = handlerUser;
+      return handlerUser;
+    }
+
     return authenticatedUser?.uid ? authenticatedUser : null;
   }
 
@@ -75,8 +82,22 @@
     const btn = document.getElementById("createPaymentBtn");
     const currentUser = getAuthenticatedUser();
 
-    if (!currentUser || !currentUser.uid) {
-      setPaymentStatus("❌ Please connect with Pi first.", "#ef4444");
+    let user = currentUser;
+    if (!user?.uid && window.Pi && typeof window.Pi.authenticate === "function") {
+      try {
+        const auth = await window.Pi.authenticate(["username", "payments"], () => {});
+        user = auth?.user?.uid ? { ...auth.user, accessToken: auth.accessToken } : null;
+        if (user) {
+          authenticatedUser = user;
+          updateUIForUser(user);
+        }
+      } catch (error) {
+        console.error("[PaymentInit] Pi re-authentication failed:", error);
+      }
+    }
+
+    if (!user?.uid) {
+      setPaymentStatus("❌ Pi ne confirme pas la session. Reconnectez-vous avec le bouton Pi.", "#ef4444");
       setButtonState(false);
       return;
     }
@@ -110,7 +131,7 @@
       await payments.createPayment(
         parsedAmount,
         memo,
-        { uid: currentUser.uid, username: currentUser.username, type: "vip_activation" },
+        { uid: user.uid, username: user.username, type: "vip_activation" },
         {
           onApproving: () => {
             setPaymentStatus("⏳ Approbation du paiement...", "#f59e0b");
@@ -152,13 +173,8 @@
   }
 
   async function init() {
-    let user = getAuthenticatedUser();
-    if (user) {
-      updateUIForUser(user);
-    } else {
-      user = await trySilentAuth();
-      updateUIForUser(user);
-    }
+    const userAtInit = getAuthenticatedUser();
+    if (userAtInit) updateUIForUser(userAtInit);
 
     const btn = document.getElementById("createPaymentBtn");
     if (btn) {
@@ -177,6 +193,14 @@
       authenticatedUser = null;
       updateUIForUser(null);
     });
+
+    if (!authenticatedUser?.uid) {
+      const initialUser = getAuthenticatedUser();
+      if (initialUser) {
+        authenticatedUser = initialUser;
+        updateUIForUser(initialUser);
+      }
+    }
 
     console.log("[PaymentInit] Init complete");
   }
