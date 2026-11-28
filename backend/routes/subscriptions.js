@@ -1,4 +1,4 @@
-/**
+﻿/**
  * AtlasPi Subscriptions Routes (Subscription Core - DAY 3+)
  *
  * Simple local subscription management
@@ -303,4 +303,4 @@
    }
  );
  
- module.exports = router;
+ export default router;

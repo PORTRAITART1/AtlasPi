@@ -1,4 +1,4 @@
-import express from "express";
+﻿import express from "express";
 import db from "../config/db.js";
 import logger from "../utils/logger.js";
 
@@ -534,4 +534,4 @@ router.get("/:id", (req, res) => {
       }
     );
   });
-  module.exports = router;
+  export default router;

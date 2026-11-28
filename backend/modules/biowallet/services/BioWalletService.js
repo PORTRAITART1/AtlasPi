@@ -1,4 +1,4 @@
-const BioWalletModel = require('../models/BioWalletModel');
+﻿import BioWalletModel from '../models/BioWalletModel.js';
 
 class BioWalletService {
   createWallet(userId) {
@@ -36,11 +36,11 @@ class BioWalletService {
         return { success: false, error: 'Insufficient balance' };
       }
 
-      // Débit
+      // DÃ©bit
       BioWalletModel.updateBalance(fromWallet.id, -amount);
       BioWalletModel.createTransaction(fromWallet.id, 'send', amount, fromWallet.address, toAddress);
 
-      // Crédit (simplifié - dans une vraie implémentation, on chercherait le wallet destinataire)
+      // CrÃ©dit (simplifiÃ© - dans une vraie implÃ©mentation, on chercherait le wallet destinataire)
       BioWalletModel.createTransaction(fromWallet.id, 'receive', amount, fromWallet.address, toAddress);
 
       return {
@@ -91,4 +91,4 @@ class BioWalletService {
   }
 }
 
-module.exports = new BioWalletService();
+export default new BioWalletService();

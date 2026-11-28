@@ -11,7 +11,7 @@ if (!fs.existsSync(dataDir)) {
 
 class BioWalletModel {
   constructor() {
-    this.dbPath = path.join(__dirname, '..', '..', 'data', 'atlaspi.db');
+    this.dbPath = path.join(__dirname, '..', '..', '..', 'data', 'atlaspi.db');
     this.db = null;
     this.init();
   }

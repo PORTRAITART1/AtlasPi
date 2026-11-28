@@ -1,18 +1,18 @@
-const express = require("express");
-const db = require("../config/db.js");
-const logger = require("../utils/logger.js");
-const { v4: uuidv4 } = require("uuid");
-const { validateBody, validateQuery } = require("../middlewares/validate.js");
-const {
+import express from "express";
+import db from "../config/db.js";
+import logger from "../utils/logger.js";
+import { v4 as uuidv4 } from "uuid";
+import { validateBody, validateQuery } from "../middlewares/validate.js";
+import {
   createPaymentRecordSchema,
   approvePaymentSchema,
   completePaymentSchema,
   userStatusQuerySchema
-} = require("../validators/payments.validators.js");
+} from "../validators/payments.validators.js";
 
 const router = express.Router();
 
-// ✅ Créer les tables SEULEMENT si elles n'existent pas
+// âœ… CrÃ©er les tables SEULEMENT si elles n'existent pas
 function initTables() {
   try {
     db.exec(`
@@ -52,9 +52,9 @@ function initTables() {
     db.exec(`CREATE INDEX IF NOT EXISTS idx_payments_uid ON payments(uid)`);
     db.exec(`CREATE INDEX IF NOT EXISTS idx_payments_status ON payments(status)`);
 
-    logger.info("✅ Payment tables verified (no drop)");
+    logger.info("âœ… Payment tables verified (no drop)");
   } catch (error) {
-    logger.error("❌ Error initializing payment tables:", error);
+    logger.error("âŒ Error initializing payment tables:", error);
   }
 }
 
@@ -77,7 +77,7 @@ router.post("/create-record", validateBody(createPaymentRecordSchema), async (re
       VALUES (?, ?, ?, ?, ?, ?, 'pending', ?)
     `).run(localPaymentId, uid, username, amount, memo, JSON.stringify(metadata), now);
 
-    logger.info(`✅ Payment record created: ${localPaymentId} for user ${uid}`);
+    logger.info(`âœ… Payment record created: ${localPaymentId} for user ${uid}`);
 
     res.status(201).json({
       ok: true,
@@ -104,7 +104,7 @@ router.post("/approve", validateBody(approvePaymentSchema), async (req, res) => 
       return res.status(404).json({ ok: false, error: "Payment not found or already processed" });
     }
 
-    logger.info(`✅ Payment approved: ${localPaymentId} -> ${piPaymentId}`);
+    logger.info(`âœ… Payment approved: ${localPaymentId} -> ${piPaymentId}`);
     res.json({ ok: true, message: "Payment approved successfully" });
   } catch (error) {
     logger.error("Error approving payment:", error);
@@ -125,7 +125,7 @@ router.post("/complete", validateBody(completePaymentSchema), async (req, res) =
       return res.status(404).json({ ok: false, error: "Payment not found or already completed" });
     }
 
-    logger.info(`✅ Payment completed: ${localPaymentId} -> ${piTransactionId}`);
+    logger.info(`âœ… Payment completed: ${localPaymentId} -> ${piTransactionId}`);
     res.json({ ok: true, message: "Payment completed successfully" });
   } catch (error) {
     logger.error("Error completing payment:", error);
@@ -156,4 +156,4 @@ router.get("/user/:uid", async (req, res) => {
   }
 });
 
-module.exports = router;
+export default router;

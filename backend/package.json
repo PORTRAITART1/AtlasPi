@@ -2,15 +2,15 @@
   "name": "atlaspi-api",
   "version": "1.0.0",
   "description": "Secure backend for AtlasPi with payment storage and logging",
-  "main": "server.cjs",
+  "main": "server.js",
   "scripts": {
-    "start": "node server.cjs",
+    "start": "node server.js",
     "dev": "node server.js",
     "postinstall": "mkdir -p data"
   },
   "dependencies": {
     "axios": "^1.20.0",
-    "better-sqlite3": "^11.10.0",
+    "better-sqlite3": "^12.10.0",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
