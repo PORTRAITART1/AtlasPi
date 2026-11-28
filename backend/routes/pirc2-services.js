@@ -1,4 +1,4 @@
-﻿import express from "express";
+import express from "express";
 import db from "../config/db.js";
 import logger from "../utils/logger.js";
 import { v4 as uuidv4 } from "uuid";
@@ -212,4 +212,4 @@ router.get("/:id", (req, res) => {
   );
 });
 
-export default router;
+module.exports = router;

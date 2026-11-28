@@ -3,7 +3,7 @@ import db from '../config/db.js';
 
 const router = express.Router();
 
-// ðŸ”¢ Compter les notifications non lues (DOIT ÃŠTRE EN PREMIER)
+// 🔢 Compter les notifications non lues (DOIT ÊTRE EN PREMIER)
 router.get("/unread-count", (req, res) => {
   const uid = req.query.uid;
   if (!uid) return res.status(400).json({ error: 'uid required' });
@@ -17,7 +17,7 @@ router.get("/unread-count", (req, res) => {
   );
 });
 
-// ðŸ”” RÃ©cupÃ©rer toutes les notifications d'un utilisateur
+// 🔔 Récupérer toutes les notifications d'un utilisateur
 router.get('/:uid', (req, res) => {
   const { uid } = req.params;
   db.all(
@@ -30,7 +30,7 @@ router.get('/:uid', (req, res) => {
   );
 });
 
-// âœ… Marquer une notification comme lue
+// ✅ Marquer une notification comme lue
 router.put('/:id/read', (req, res) => {
   const { id } = req.params;
   const now = new Date().toISOString();
@@ -44,7 +44,7 @@ router.put('/:id/read', (req, res) => {
   );
 });
 
-// âœ… Marquer toutes comme lues
+// ✅ Marquer toutes comme lues
 router.put('/:uid/read-all', (req, res) => {
   const { uid } = req.params;
   const now = new Date().toISOString();
@@ -58,7 +58,7 @@ router.put('/:uid/read-all', (req, res) => {
   );
 });
 
-// ðŸ—‘ï¸ Supprimer une notification
+// 🗑️ Supprimer une notification
 router.delete('/:id', (req, res) => {
   const { id } = req.params;
   db.run(
@@ -71,14 +71,14 @@ router.delete('/:id', (req, res) => {
   );
 });
 
-// âž• CrÃ©er une notification
+// ➕ Créer une notification
 router.post('/', (req, res) => {
   const { user_uid, type, title, message, link, icon } = req.body;
   const now = new Date().toISOString();
   db.run(
     `INSERT INTO notifications (user_uid, type, title, message, is_read, link, icon, created_at, updated_at)
      VALUES (?, ?, ?, ?, 0, ?, ?, ?, ?)`,
-    [user_uid, type || 'system', title, message, link || null, icon || 'ðŸ””', now, now],
+    [user_uid, type || 'system', title, message, link || null, icon || '🔔', now, now],
     function (err) {
       if (err) return res.status(500).json({ error: err.message });
       res.json({ success: true, id: this.lastID });
@@ -86,4 +86,4 @@ router.post('/', (req, res) => {
   );
 });
 
-export default router;
+module.exports = router;

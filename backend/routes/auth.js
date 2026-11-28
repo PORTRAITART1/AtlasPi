@@ -163,4 +163,4 @@ router.get("/profile/:uid", validateParams(authProfileParamsSchema), (req, res) 
     });
   }
 });
-export default router;
+module.exports = router;

@@ -43,13 +43,14 @@ router.post("/", async (req, res) => {
             });
         }
 
-        logger.info(`✅ Pi authentication successful for user: ${userId}`);
+        logger.info(`âœ… Pi authentication successful for user: ${userId}`);
 
-        // ✅ Tracker le vrai utilisateur
-        const tracking = trackRealUser(piUser.uid, piUser.username);
-        if (tracking.isNew) {
-            logger.info(`[Auth] New real user tracked: ${piUser.username} (#${tracking.count})`);
-        }
+// âœ… Tracker le vrai utilisateur
+const tracking = trackRealUser(piUser.uid, piUser.username);
+if (tracking.isNew) {
+logger.info(`[Auth] New real user tracked: ${piUser.username} (#${tracking.count})`);
+}
+
 
         res.json({
             ok: true,
@@ -81,67 +82,8 @@ router.post("/", async (req, res) => {
 });
 
 /**
- * POST /api/auth/pi/validate
- * Vérifie un accessToken Pi côté serveur (appelé par frontend/components/pi-auth.js)
- * Body: { accessToken }
- * Réponse: { ok, user: { id, username } }
- */
-router.post("/validate", async (req, res) => {
-    try {
-        const { accessToken } = req.body;
-
-        if (!accessToken) {
-            return res.status(400).json({
-                ok: false,
-                error: "accessToken is required"
-            });
-        }
-
-        const piApiUrl = process.env.PI_API_BASE || "https://api.minepi.com";
-        const response = await axios.get(`${piApiUrl}/v2/users/me`, {
-            headers: {
-                Authorization: `Bearer ${accessToken}`
-            }
-        });
-
-        if (!response.data || !response.data.user) {
-            return res.status(401).json({
-                ok: false,
-                error: "Invalid Pi Network token"
-            });
-        }
-
-        const piUser = response.data.user;
-
-        logger.info(`✅ Pi token validated for user: ${piUser.username}`);
-
-        res.json({
-            ok: true,
-            user: {
-                id: piUser.uid,
-                username: piUser.username
-            }
-        });
-
-    } catch (error) {
-        if (error.response) {
-            logger.error("Pi validate API error:", error.response.status);
-            return res.status(401).json({
-                ok: false,
-                error: "Pi Network token validation failed"
-            });
-        }
-        logger.error("Error in /validate route:", error);
-        res.status(500).json({
-            ok: false,
-            error: "Internal server error"
-        });
-    }
-});
-
-/**
  * GET /api/auth/pi/verify
- * Vérifie si un token Pi est valide
+ * VÃ©rifie si un token Pi est valide
  * Query: { accessToken }
  */
 router.get("/verify", async (req, res) => {
@@ -187,20 +129,22 @@ router.get("/verify", async (req, res) => {
     }
 });
 
-// ✅ Route pour voir le compteur de vrais utilisateurs
+
+// âœ… Route pour voir le compteur de vrais utilisateurs
 router.get("/tracker/stats", (req, res) => {
-    try {
-        const { getCount, getUnreadNotifications, TARGET_COUNT } = require("../utils/realUsersTracker.js");
-        res.json({
-            ok: true,
-            count: getCount(),
-            target: TARGET_COUNT,
-            progress: `${getCount()}/${TARGET_COUNT}`,
-            notifications: getUnreadNotifications()
-        });
-    } catch (err) {
-        res.status(500).json({ ok: false, error: err.message });
-    }
+  try {
+    const { getCount, getUnreadNotifications, TARGET_COUNT } = require("../utils/realUsersTracker.js");
+    res.json({
+      ok: true,
+      count: getCount(),
+      target: TARGET_COUNT,
+      progress: `${getCount()}/${TARGET_COUNT}`,
+      notifications: getUnreadNotifications()
+    });
+  } catch (err) {
+    res.status(500).json({ ok: false, error: err.message });
+  }
 });
 
 module.exports = router;
+

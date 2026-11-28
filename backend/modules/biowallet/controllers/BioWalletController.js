@@ -1,4 +1,4 @@
-﻿import BioWalletService from '../services/BioWalletService.js';
+const BioWalletService = require('../services/BioWalletService');
 
 class BioWalletController {
   createWallet(req, res) {
@@ -74,4 +74,4 @@ class BioWalletController {
   }
 }
 
-export default new BioWalletController();
+module.exports = new BioWalletController();

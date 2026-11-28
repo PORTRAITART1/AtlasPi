@@ -1000,7 +1000,7 @@ router.post("/moderate/:id", validateRequest({ params: merchantListingIdParamsSc
                 logger.error("Moderation history DB error: " + histErr.message);
                 // Don't fail the moderation, just log the error
               } else {
-                logger.info(`Moderation history recorded for listing ${id}: ${previousStatus} â†’ ${listing_status}`);
+                logger.info(`Moderation history recorded for listing ${id}: ${previousStatus} → ${listing_status}`);
               }
 
               logger.info(`Merchant listing #${id} status changed to: ${listing_status}${reason ? " with reason: " + reason : ""}`);
@@ -1059,4 +1059,4 @@ router.get("/moderation-history/:id", validateRequest({ params: merchantListingI
   );
 });
 
-export default router;
+module.exports = router;

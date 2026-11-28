@@ -20,7 +20,7 @@ import authPiRoutes from "./routes/auth-pi.js";
 // ✅ AJOUT BioWallet
 import session from "express-session";
 
-import bioWalletRoutes from './modules/biowallet/routes/BioWalletRoutes.js';
+const bioWalletRoutes = require('./modules/biowallet/routes/BioWalletRoutes');
 const app = express();
 app.set("trust proxy", 1);
 

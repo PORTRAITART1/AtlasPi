@@ -1,11 +1,11 @@
-/**
+﻿/**
  * Pi Network Payments (approval + completion)
  */
 
-import express from "express";
-import db from "../config/db.js";
-import logger from "../utils/logger.js";
-import { v4 as uuidv4 } from "uuid";
+const express = require("express");
+const db = require("../config/db.js");
+const logger = require("../utils/logger.js");
+const { v4: uuidv4 } = require("uuid");
 
 const router = express.Router();
 const PI_API_BASE_URL = process.env.PI_API_BASE_URL || "https://api.minepi.com";
@@ -124,4 +124,4 @@ router.post("/create-record-day3", (req, res) => {
   }
 });
 
-export default router;
+module.exports = router;
