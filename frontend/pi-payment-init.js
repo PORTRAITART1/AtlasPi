@@ -68,8 +68,16 @@
         window.Pi.authenticate(["username", "payments"], () => {})
           .then((result) => {
             if (result && result.user) {
-              const u = { uid: result.user.uid, username: result.user.username };
-              // localStorage.setItem("piUser", JSON.stringify(u)); // SUPPRIMÉ - Conformité Pi
+              const u = {
+                ...result.user,
+                uid: result.user.uid,
+                username: result.user.username,
+                accessToken: result.accessToken
+              };
+              authenticatedUser = u;
+              if (typeof window.piIntegrationManager?.persistSession === "function") {
+                window.piIntegrationManager.persistSession(result.user, result.accessToken);
+              }
               resolve(u);
             } else resolve(null);
           })
@@ -186,7 +194,8 @@
 
     window.addEventListener("piUserLoggedIn", (e) => {
       const detail = e.detail?.user || e.detail;
-      authenticatedUser = detail?.uid ? detail : getAuthenticatedUser();
+      if (detail?.uid) authenticatedUser = detail;
+      else authenticatedUser = getAuthenticatedUser();
       updateUIForUser(authenticatedUser);
     });
     window.addEventListener("piUserLoggedOut", () => {
@@ -200,6 +209,12 @@
         authenticatedUser = initialUser;
         updateUIForUser(initialUser);
       }
+      trySilentAuth().then((silentUser) => {
+        if (!authenticatedUser?.uid && silentUser?.uid) {
+          authenticatedUser = silentUser;
+          updateUIForUser(silentUser);
+        }
+      });
     }
 
     console.log("[PaymentInit] Init complete");
